@@ -1,6 +1,14 @@
-# bipwallet
+# bip-wallet
 
-> Nuxt.js project
+[wallet.bip.to](https://wallet.bip.to)
+
+## Deployment script
+```
+npm ci && npm run production
+```
+Root folder: `./dist/`
+
+
 
 ## Build Setup
 
