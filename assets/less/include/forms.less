@@ -1,0 +1,102 @@
+@import "variables";
+
+// button
+.bip-button {
+    display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 14px 20px; font-size: 14px; line-height: 18px; font-weight: 700; font-family: @heading-font-family; /*color: @c-black;*/ text-transform: uppercase; text-align: center; border: 2px solid transparent; border-radius: 15px; text-decoration: none; transition: 0.15s; outline: none; cursor: pointer;
+    &:hover, &:focus {}
+    &:active {}
+    &[disabled], &.is-disabled {
+        cursor: default;
+        &:not(.is-loading) {opacity: 0.4; box-shadow: none;}
+    }
+    &.is-loading {color: transparent;}
+}
+.bip-button-shadow() {
+    box-shadow: 0 4px 8px fade(@c-main, 20%), 0 1px 2px fade(@c-main, 30%);
+    &:hover, &:focus {box-shadow: 0 6px 12px fade(@c-main, 20%), 0 1px 4px fade(@c-main, 30%);}
+    &:active {box-shadow: 0 2px 4px fade(@c-main, 20%), 0 1px 2px fade(@c-main, 30%);}
+}
+.bip-button--main {
+    color: #fff; background: @c-main; .bip-button-shadow();
+    &:hover, &:focus {background: tint(@c-main, 10%);}
+    &:active {background: shade(@c-main, 20%);}
+    &[disabled], &.is-disabled {background: @c-black-light;}
+    //&[disabled], &.is-disabled {
+    //    &:not(.is-loading) {background: fade(@c-black-light, 40%); opacity: 1;}
+    //}
+}
+.bip-button--white {
+    color: @c-main; background: #fff; .bip-button-shadow();
+    &:hover, &:focus {background: mix(#fff, @c-main, 90%);}
+    &:active {background: mix(#fff, @c-main, 80%);}
+}
+.bip-button--ghost-main {
+    color: @c-main; background: transparent; border-color: @c-main;
+    &:hover, &:focus {color: #fff; background: @c-main;}
+    &:active {color: #fff; background: shade(@c-main, 20%); border-color: shade(@c-main, 20%);}
+}
+.bip-button--ghost-white {
+    color: #fff; background: transparent; border-color: #fff;
+    &:hover, &:focus {color: @c-main; background: #fff;}
+    &:active {color: @c-main; background: mix(#fff, @c-main, 80%); border-color: mix(#fff, @c-main, 80%);}
+}
+.bip-button--value {
+    font-weight: 500; color: @c-violet;
+    &:active {opacity: 0.5;}
+}
+// button group
+//.button-group {
+//    display: flex; flex-direction: column; align-items: center; margin-top: -10px; margin-left: -20px; margin-bottom: @default-indent;
+//    .button {margin-top: 10px; margin-left: 20px;}
+//    * + & {margin-top: @default-indent - 10px;}
+//    &:last-child {margin-bottom: 0;}
+//}
+//.button-group--small {
+//    margin-left: -10px;
+//    .button {margin-left: 10px;}
+//}
+//@media (min-width: @breakpoint-medium-up) {
+//    .button-group {flex-direction: row; justify-content: center; flex-wrap: wrap;}
+//}
+
+
+.bip-form__error {.field-label-text(); color: @c-red; display: block; margin-top: 10px; text-align: center;}
+
+
+
+
+
+// input
+@field-input-padding: 4px;
+@field-label-height: 20px;
+@field-label-scale: 0.75;
+@field-padding: (@field-label-height * @field-label-scale);
+@field-label-top: (@field-padding + @field-input-padding);
+@field-label-translate: (@field-label-height + @field-input-padding);
+.bip-field--row {
+    &+& {margin-top: 20px;}
+}
+.bip-field {
+    display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%; position: relative; cursor: pointer; font-weight: 500; pointer-events: none;
+    .bg-field-icon() {content: ''; position: absolute; bottom: 18px; right: 16px;}
+    &.is-success::after {.bg-field-icon(); .bg-url("../img/icon-success.svg");}
+    &.is-error::after {.bg-field-icon(); .bg-url("../img/icon-error.svg");}
+}
+.bip-field__input {
+    padding: 10px 16px; margin-top: 7px; font-size: 16px; line-height: 22px; color: inherit; background: #fff; border: 2px solid tint(@c-black-light, 60%); transition: 0.2s; display: block; width: 100%; pointer-events: auto; border-radius: 8px;
+    &:focus {border-color: @c-main;}
+    .is-success > & {border-color: @c-green;}
+    .is-error > & {border-color: @c-red;}
+}
+.field-label-text() {font-size: 12px; /*line-height: 16px;*/ text-transform: uppercase; font-weight: 500;}
+.bip-field__label {
+    .field-label-text(); padding-left: 10px; margin-right: 10px; pointer-events: auto;
+}
+.bip-field__error {
+    .field-label-text(); color: @c-red; display: none; flex-grow: 2; text-align: right;
+    .is-error > & {display: block;}
+}
+.bip-field__asterisk {
+    padding-left: 22px; position: relative;
+    &::before {content: '*'; position: absolute; left: 0; top: 0;}
+}

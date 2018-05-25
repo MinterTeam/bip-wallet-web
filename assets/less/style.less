@@ -1,0 +1,92 @@
+// normalize-css подключается с помощью postcss-normalize
+@import "include/variables";
+@import "include/utils";
+@import (inline) "../css/onsen.css";
+@import "include/onsen";
+@import "include/general";
+@import "include/forms";
+@import "include/layout";
+
+
+
+// common
+.main-wrap {display: flex; flex-direction: column; min-height: 100vh;}
+.main-content {width: 100%; flex-grow: 2;}
+@media (min-width: @breakpoint-medium-up) {
+    .main-content {padding-top: 20px; padding-bottom: 50px; }
+}
+
+.header {box-shadow: 0 0 6px rgba(0,0,0,0.2);}
+.menu {display: flex; justify-content: center; background: #fff; list-style-type: none; margin: 0;}
+.menu__item {
+    &+& {margin-left: 20px;}
+}
+.menu__link {
+    display: block; padding: 12px 8px 14px; position: relative; color: inherit; font-size: 14px; line-height: 20px; font-weight: 700; text-transform: uppercase; text-decoration: none; margin-bottom: -1px;
+    &::after {content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: currentColor; opacity: 0; transition: 0.15s;}
+    &:hover::after, &:focus::after {opacity: 0.4;}
+    &.is-active {
+        color: @c-main;
+        &::after {opacity: 1; background: @c-main;}
+    }
+}
+
+//.title {font-size: 14px; text-transform: uppercase; font-weight: 700; margin: 0;}
+
+// toolbar user
+.user {display: inline-flex; align-items: center;}
+.user__name {line-height: 1.4; font-weight: 700;}
+.user__avatar {width: 26px; height: 26px; border: 2px solid #fff; border-radius: 50%; margin-left: 10px; background-color: @c-violet; color: #fff; font-size: 16px; line-height: 20px; font-weight: 700; text-align: center;}
+.user__avatar--large {width: 50px; height: 50px; box-shadow: 0 2px 18px rgba(0,0,0,0.2); font-size: 28px; line-height: 42px;}
+
+.avatar-field {display: flex; align-items: center;}
+.avatar-field__avatar {margin-left: 0; margin-right: 20px; flex-shrink: 0;}
+.avatar-field__button {position: relative;  flex-grow: 2;}
+.avatar-field__input {position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none;}
+
+
+@keyframes fade-in {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+@keyframes fade-out {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+
+
+
+.splash-layout {background: @c-violet;}
+.splash-layout__container {max-width: 377px; margin-left: auto; margin-right: auto; min-height: 100vh; display: flex; align-items: center;}
+
+.default-layout {overflow: hidden;}
+.default-layout__container {height: 100vh; display: flex; flex-direction: column;}
+.default-layout__content-wrap {flex-grow: 2; overflow-y: auto;}
+.default-layout__content {max-width: 375px; overflow: hidden; margin: @section-margin auto; background: @c-bg; border-radius: 10px; border: 1px solid @c-border; box-shadow: 0 4px 8px rgba(0,0,0,0.2);}
+
+// auth
+.auth-page {background: @c-main; display: flex; flex-direction: column; height: 560px;max-height: 100vh;}
+.auth__logo-container {display: flex; align-items: center; justify-content: center; flex-grow: 2; margin-top: @section-margin; padding: @section-margin 0;}
+
+
+.v-transition-toast-enter-active, .v-transition-toast-leave-active {
+    transition: .25s;
+}
+.v-transition-toast-enter, .v-transition-toast-leave-to {
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+// index
+.balance {background: #4225A4; color: #fff; padding-top: 12px; padding-bottom: 12px;}
+.balance__caption {font-size: 15px;}
+.balance__whole {font-size: 28px; font-weight: 700; line-height: 1.2;}
+.balance__decimal {font-size: 18px; font-weight: 700;}
+
+.tx-info__name {font-size: 12px;}
+.tx-info__value {font-size: 12px; font-weight: 500;}
+.tx-info__button {margin-top: @section-margin;}
+
+
+
