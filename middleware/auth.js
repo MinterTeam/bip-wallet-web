@@ -1,4 +1,7 @@
 export default function ({store, redirect, route}) {
+    if (process.server) {
+        return;
+    }
     console.log('CHECK AUTH');
     console.log('-- route', route);
     console.log('-- fullPath', route.fullPath);

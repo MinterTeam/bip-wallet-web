@@ -82,13 +82,13 @@ module.exports = {
             /*
             ** process some node_modules through webpack in server build
             */
-            // if (isServer) {
-            //     config.externals = [
-            //         nodeExternals({
-            //             whitelist: [/^v-money/]
-            //         })
-            //     ]
-            // }
+            if (isServer) {
+                config.externals = [
+                    nodeExternals({
+                        whitelist: [/^v-file-input\/src/, /^date-fns\/esm/, /^lodash-es/]
+                    })
+                ]
+            }
         }
     }
 }

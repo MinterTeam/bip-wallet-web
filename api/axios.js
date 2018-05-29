@@ -5,7 +5,7 @@ const instance = axios.create({
 });
 
 const TOKEN_KEY = 'auth-token';
-const initialToken = JSON.parse(localStorage.getItem(TOKEN_KEY));
+const initialToken = typeof localStorage !== 'undefined' ? JSON.parse(localStorage.getItem(TOKEN_KEY)) : false;
 if (initialToken) {
     setAuthToken(initialToken);
 } else {

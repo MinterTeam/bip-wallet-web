@@ -2,6 +2,7 @@
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import minLength from 'vuelidate/lib/validators/minLength';
+    import maxLength from 'vuelidate/lib/validators/maxLength';
     import getTitle from '~/assets/get-title';
     import {login} from "~/api";
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
@@ -43,12 +44,14 @@
             form: {
                 username: {
                     required,
-                    //minLength: minLength(3),
+                    minLength: minLength(5),
+                    maxLength: maxLength(32),
                     server: getServerValidator('username'),
                 },
                 password: {
                     required,
                     minLength: minLength(6),
+                    maxLength: maxLength(100),
                     server: getServerValidator('password'),
                 },
             }
@@ -94,6 +97,8 @@
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.username.$error}">
                 <span class="bip-field__label">Your @username</span>
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.required">Enter username</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.minLength">Username is too short</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.maxLength">Username is too long</span>
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.server">{{ sve.username.message }}</span>
                 <InputMaskedName class="bip-field__input"
                                  @accept="onAcceptUsername"
@@ -105,6 +110,7 @@
                 <span class="bip-field__label">Your password</span>
                 <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.required">Enter password</span>
                 <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.minLength">Password is too short</span>
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.maxLength">Password is too long</span>
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
                 <input class="bip-field__input" type="password"
                        v-model="form.password"

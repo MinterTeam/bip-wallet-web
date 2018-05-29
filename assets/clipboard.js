@@ -28,10 +28,10 @@ export function copy(str) {
  */
 export function isSupported() {
     const actions = ['copy'];
-    let support = !!document.queryCommandSupported;
+    let support = typeof document !== 'undefined' && typeof document.queryCommandSupported === 'function';
 
     actions.forEach((action) => {
-        support = support && !!document.queryCommandSupported(action);
+        support = support && document.queryCommandSupported(action);
     });
 
     return support;
