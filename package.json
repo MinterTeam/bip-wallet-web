@@ -6,9 +6,9 @@
   "private": true,
   "scripts": {
     "prod": "npm run production",
-    "production": "npm run generate",
+    "production": "npm run build",
     "dev": "gulp & nuxt --spa",
-    "build": "gulp once && nuxt build",
+    "build": "gulp once && nuxt build --spa",
     "start": "nuxt start",
     "generate": "gulp once && nuxt generate",
     "analyze": "gulp once && nuxt generate --analyze",

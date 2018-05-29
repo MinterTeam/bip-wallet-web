@@ -32,6 +32,7 @@ module.exports = {
     router: {
         linkActiveClass: '',
         linkExactActiveClass: 'is-active',
+        //@TODO middlewares not working properly with nuxt generate @see https://github.com/nuxt/nuxt.js/issues/2653
         middleware: [
             'auth',
             'history',
