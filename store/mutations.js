@@ -1,9 +1,12 @@
 import {setAuthToken} from "~/api/myminter";
 
 export default {
-    AUTH,
+    SET_AUTH: SET_AUTH,
     LOGOUT: (state) => {
-        AUTH(state, {});
+        SET_AUTH(state, {});
+    },
+    SET_PROFILE: (state, profile) => {
+        state.auth.user = profile;
     },
     PUSH_HISTORY: (state, historyItem) => {
         state.history.push(historyItem);
@@ -13,7 +16,7 @@ export default {
     },
 }
 
-function AUTH(state, {mnemonic = '', user = {}, token = {}}) {
+function SET_AUTH(state, {mnemonic = '', user = {}, token = {}}) {
     state.auth.mnemonic = mnemonic;
     state.auth.user = user;
     state.auth.token = token;

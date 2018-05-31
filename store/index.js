@@ -9,7 +9,7 @@
 
 /**
  * @typedef {Object} TokenData
- * @property {string} type
+ * @property {string} tokenType
  * @property {number} expiresIn
  * @property {string} accessToken
  * @property {string} refreshToken
@@ -33,7 +33,7 @@
 
 import Vuex from 'vuex'
 
-//import actions from './actions'
+import actions from './actions'
 import mutations from './mutations'
 import getters from './getters'
 
@@ -49,7 +49,7 @@ export default function createStore () {
             },
             history: [],
         },
-        //actions,
+        actions,
         mutations,
         getters,
         /**

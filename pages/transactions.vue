@@ -2,6 +2,7 @@
     import format from 'date-fns/esm/format';
     import isSameDay from 'date-fns/esm/isSameDay';
     import subDays from 'date-fns/esm/subDays';
+    import {getTransactionList} from "~/api";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
@@ -62,8 +63,19 @@
         },
         data() {
             return {
-
+                isTxListLoading: true,
+                txList: null,
             }
+        },
+        created() {
+            getTransactionList()
+                .then((txList) => {
+                    this.txList = txList;
+                    this.isTxListLoading = false;
+                })
+                .catch(() => {
+                    this.isTxListLoading = false;
+                });
         },
         methods: {
             formatDate(dateString) {
@@ -84,7 +96,10 @@
              * @return {Object.<string, Array<Transaction>>}
              */
             transactionListGroups() {
-                return this.transactionList.reduce((accumulator, tx) => {
+                if (!this.txList) {
+                    return null;
+                }
+                return this.txList.reduce((accumulator, tx) => {
                     const date = new Date(tx.timestamp)
                     const groupKey = format(date, 'yyyy-MM-dd');
                     if (!accumulator[groupKey]) {
@@ -103,12 +118,13 @@
 <template>
     <Layout :title="$options.PAGE_TITLE" :is-bg-white="true">
 
-        <div class="u-section">
+        <div class="u-section" v-if="transactionListGroups">
             <template v-for="(txGroup, groupDate) in transactionListGroups">
                 <div class="list-title" :key="groupDate">{{ formatDate(groupDate) }}</div>
                 <TransactionTable :transaction-list="txGroup" :key="groupDate"/>
             </template>
         </div>
+        <p class="u-section u-container u-text-center" v-else-if="!isTxListLoading">No transactions yet</p>
 
     </Layout>
 </template>

@@ -1,6 +1,7 @@
 <script>
     import {mapGetters} from 'vuex';
-    import {getNameLetter} from "~/assets/utils";
+    import {getTransactionList} from "~/api";
+    import {getNameLetter, thousandsFilter} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
@@ -68,6 +69,8 @@
         data() {
             return {
                 balance: 120912.98230221,
+                isTxListLoading: true,
+                txList: null,
             }
         },
         computed: {
@@ -80,10 +83,20 @@
                 const delimiter = '&thinsp;';
                 const parts = this.balance.toString().split('.');
                 return {
-                    whole:  parts[0] ? parts[0].replace(/(\d{3})(?=\d)/g, `$1${delimiter}`) : 0,
+                    whole:  parts[0] ? thousandsFilter(parts[0]) : 0,
                     decimal: parts[1] ? '.' + parts[1] : '',
                 };
             },
+        },
+        created() {
+            getTransactionList()
+                .then((txList) => {
+                    this.txList = txList;
+                    this.isTxListLoading = false;
+                })
+                .catch(() => {
+                    this.isTxListLoading = false;
+                });
         },
         methods: {
             formatAmount(amount) {
@@ -118,15 +131,17 @@
         <div class="balance u-container">
             <div class="balance__caption">My Balance</div>
             <div>
-                <span class="balance__whole" v-html="balanceParts.whole"></span><span class="balance__decimal">{{ balanceParts.decimal }} bips</span>
+                <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} bips</span>
             </div>
         </div>
 
         <div class="u-section">
-            <div class="list-title">Latest Transactions</div>
-            <TransactionTable :transaction-list="transactionList"/>
-            <div class="u-container u-section--small">
-                <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
+            <div v-if="txList">
+                <div class="list-title">Latest Transactions</div>
+                <TransactionTable :transaction-list="txList"/>
+                <div class="u-container u-section--small">
+                    <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
+                </div>
             </div>
 
             <div class="list-title">My coins</div>

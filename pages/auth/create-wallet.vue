@@ -1,5 +1,4 @@
 <script>
-    import bip39 from 'bip39';
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import minLength from 'vuelidate/lib/validators/minLength';
@@ -95,7 +94,7 @@
 
                 register(removeEmptyKeys(this.form))
                     .then((authData) => {
-                        this.$store.commit('AUTH', authData);
+                        this.$store.commit('SET_AUTH', authData);
                         this.$router.push('/');
                         this.isFormSending = false;
                     })

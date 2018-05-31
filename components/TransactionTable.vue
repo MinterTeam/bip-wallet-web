@@ -40,7 +40,7 @@
 </script>
 
 <template>
-    <div class="list">
+    <div class="list" v-if="transactionList && transactionList.length">
         <div class="list-item-wrap" v-for="(tx, txIndex) in transactionList" :key="txIndex">
             <div class="list-item list-item--tappable" role="button" @click="txClick(txIndex)">
                 <div class="list-item__left">

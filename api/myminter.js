@@ -20,7 +20,7 @@ export default instance;
  * @param {TokenData} tokenData
  */
 export function setAuthToken (tokenData) {
-    instance.defaults.headers.common['Authorization'] = tokenData.type + ' ' + tokenData.accessToken;
+    instance.defaults.headers.common['Authorization'] = tokenData.tokenType + ' ' + tokenData.accessToken;
     localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenData));
 }
 

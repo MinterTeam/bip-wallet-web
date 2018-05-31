@@ -36,6 +36,7 @@ module.exports = {
         middleware: [
             'auth',
             'history',
+            'profile',
         ],
     },
     /*

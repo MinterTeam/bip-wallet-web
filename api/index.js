@@ -72,6 +72,11 @@ export function login({username, password}) {
         .then((response) => response.data.data);
 }
 
+export function getProfile() {
+    return myminter.get('profile')
+        .then((response) => response.data.data);
+}
+
 /**
  * @typedef {Object} TransactionListInfo
  * @property {Array<Transaction>} data
@@ -86,10 +91,21 @@ export function login({username, password}) {
  * @return {Promise<TransactionListInfo>}
  */
 export function getTransactionList(params) {
-    return explorer.get('transactions', {
-            params,
-        })
-        .then((response) => response.data);
+    return new Promise((resolve, reject) => {
+        myminter.get('addresses')
+            .then((response) => {
+                const addressList = response.data.data.map((item) => item.address)
+                explorer
+                    .get('transactions', {
+                        params: {
+                            addresses: addressList,
+                        },
+                    })
+                    .then((response) => resolve(response.data))
+                    .catch(reject);
+            })
+            .catch(reject);
+    })
 }
 
 

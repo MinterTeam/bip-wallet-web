@@ -1,5 +1,7 @@
 import bip39 from 'bip39';
 import hdkey from 'minterjs-wallet/dist/hdkey';
+import thousands from 'thousands';
+import decode from 'entity-decode';
 
 
 export function generateMnemonic() {
@@ -27,6 +29,10 @@ export function walletFromMnemonic(mnemonic) {
  */
 export function getNameLetter(name) {
     return name.replace(/^@/, '').replace(/^Mx/, '')[0];
+}
+
+export function thousandsFilter(value) {
+    return decode(thousands(value, '&thinsp;'));
 }
 
 /**
