@@ -63,7 +63,10 @@
 .default-layout {overflow: hidden;}
 .default-layout__container {height: 100vh; display: flex; flex-direction: column;}
 .default-layout__content-wrap {flex-grow: 2; overflow-y: auto;}
-.default-layout__content {max-width: 375px; overflow: hidden; margin: @section-margin auto; background: @c-bg; border-radius: 10px; border: 1px solid @c-border; box-shadow: 0 4px 8px rgba(0,0,0,0.2);}
+.default-layout__content {
+    max-width: 375px; overflow: hidden; margin: @section-margin auto; background: @c-bg; border-radius: 10px; border: 1px solid @c-border; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    &:empty {display: none;}
+}
 
 // auth
 .auth-page {background: @c-main; display: flex; flex-direction: column; height: 560px;max-height: 100vh;}

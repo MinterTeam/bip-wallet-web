@@ -95,10 +95,7 @@
 
                 register(removeEmptyKeys(this.form))
                     .then((authData) => {
-                        this.$store.commit('AUTH', {
-                            ...authData,
-                            mnemonic: bip39.generateMnemonic(),
-                        });
+                        this.$store.commit('AUTH', authData);
                         this.$router.push('/');
                         this.isFormSending = false;
                     })

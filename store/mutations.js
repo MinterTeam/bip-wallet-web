@@ -1,4 +1,4 @@
-import {setAuthToken} from "~/api/axios";
+import {setAuthToken} from "~/api/myminter";
 
 export default {
     AUTH,

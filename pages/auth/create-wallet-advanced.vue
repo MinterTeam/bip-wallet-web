@@ -1,8 +1,8 @@
 <script>
-    import bip39 from 'bip39';
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import getTitle from '~/assets/get-title';
+    import {generateMnemonic} from "~/assets/utils";
     import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
     import Toast from '~/components/Toast';
@@ -40,7 +40,7 @@
             },
         },
         mounted() {
-            this.mnemonic = bip39.generateMnemonic();
+            this.mnemonic = generateMnemonic();
         },
         methods: {
             copyMnemonic() {

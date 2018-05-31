@@ -1,4 +1,5 @@
 <script>
+    import {EXPLORER_URL} from "~/assets/variables";
     import {getNameLetter} from "~/assets/utils";
 
     export default {
@@ -31,6 +32,9 @@
                 return amount >= 0;
             },
             getNameLetter,
+            getTxUrl(hash) {
+                return EXPLORER_URL + '/transactions/' + hash;
+            },
         }
     }
 </script>
@@ -80,7 +84,7 @@
                         <div class="tx-info__value">{{ tx.amount }}</div>
                     </div>
                 </div>
-                <a class="tx-info__button bip-button bip-button--ghost-main" href="https://explorer.beta.minter.network/transactions/1" target="_blank">Explorer</a>
+                <a class="tx-info__button bip-button bip-button--ghost-main" :href="getTxUrl(1)" target="_blank">Explorer</a>
             </div>
         </div>
     </div>

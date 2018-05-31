@@ -55,7 +55,7 @@
             </Navbar>
         </template>
 
-        <div class="u-section--bottom">
+        <div class="u-section--bottom" v-if="$store.getters.isUserWithProfile">
             <div class="u-section u-container avatar-field u-bg-white">
                 <img class="avatar-field__avatar user__avatar user__avatar--large" :src="avatar" alt="" role="presentation" v-if="avatar">
                 <div class="avatar-field__avatar user__avatar user__avatar--large" v-else>{{ usernameLetter }}</div>

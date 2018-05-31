@@ -1,7 +1,8 @@
 import axios from 'axios'
+import {MYMINTER_API_URL} from "~/assets/variables";
 
 const instance = axios.create({
-    baseURL: 'https://my.beta.minter.network/api/v1/',
+    baseURL: MYMINTER_API_URL,
 });
 
 const TOKEN_KEY = 'auth-token';

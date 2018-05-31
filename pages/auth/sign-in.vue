@@ -70,9 +70,7 @@
 
                 login(this.form)
                     .then((authData) => {
-                        this.$store.commit('AUTH', {
-                            ...authData,
-                        });
+                        this.$store.commit('AUTH', authData);
                         this.$router.push('/');
                         this.isFormSending = false;
                     })
