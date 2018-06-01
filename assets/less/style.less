@@ -25,7 +25,7 @@
     display: block; padding: 12px 8px 14px; position: relative; color: inherit; font-size: 14px; line-height: 20px; font-weight: 700; text-transform: uppercase; text-decoration: none; margin-bottom: -1px;
     &::after {content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: currentColor; opacity: 0; transition: 0.15s;}
     &:hover::after, &:focus::after {opacity: 0.4;}
-    &.is-active {
+    &.is-active, &.is-active-inner {
         color: @c-main;
         &::after {opacity: 1; background: @c-main;}
     }

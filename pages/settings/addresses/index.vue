@@ -1,4 +1,6 @@
 <script>
+    import {getAddressList} from "~/api";
+    import {EXPLORER_URL} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
     import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
@@ -20,31 +22,12 @@
                 ],
             }
         },
-        props: {
-            addressList: {
-                type: Array,
-                default: () => [
-                    {
-                        address: 'Mx86d167ffe6c81dd83a20e3731ed66dddaac42488',
-                        balance: 12.192191921,
-                        isServerSecured: false,
-                    },
-                    {
-                        address: 'Mx86d167ffe6c81dd83a20e3731ed66dddaac42412',
-                        balance: 12.192191921,
-                        isServerSecured: true,
-                    },
-                    {
-                        address: 'Mx86d167ffe6c81dd83a20e3731ed66dddaac42434',
-                        balance: 12.192191921,
-                        isServerSecured: true,
-                    },
-                ],
-            },
-        },
         data() {
             return {
-                mainAddress: this.addressList[0].address,
+                isAddressListLoading: false,
+                /** @type Array<Address> */
+                addressList: [],
+                selectedAddress: null,
                 isToastVisible: false,
             }
         },
@@ -53,11 +36,25 @@
                 return clipboard.isSupported();
             },
         },
+        created() {
+            getAddressList()
+                .then((addressList) => {
+                    this.addressList = addressList;
+                    this.selectedAddress = this.addressList[0].address;
+                    this.isAddressListLoading = false;
+                })
+                .catch(() => {
+                    this.isAddressListLoading = false;
+                });
+        },
         methods: {
             copy(str) {
                 clipboard.copy(str);
                 this.isToastVisible = true;
             },
+            getAddressLink(address) {
+                return EXPLORER_URL + '/address/' + address;
+            }
         }
     }
 </script>
@@ -84,29 +81,29 @@
                     <span v-else>Address #{{ index + 1 }}</span>
                 </div>
                 <div class="list" :key="address.address">
-                    <div class="list-item list-item--address">
+                    <div class="list-item">
                         <div class="list-item__center list-item--address__hash">{{ address.address }}</div>
                         <div class="list-item__right" v-if="isClipboardSupported">
                             <button class="bip-button--value u-semantic-button" @click="copy(address.address)">Copy</button>
                         </div>
                     </div>
-                    <div class="list-item list-item--chevron">
+                    <a class="list-item list-item--chevron list-item--tappable" :href="getAddressLink(address.address)" target="_blank">
                         <div class="list-item__center">Balance</div>
                         <div class="list-item__right list-item--chevron__right">
                             <div class="list-item__label list-item__label--strong">{{ address.balance }}</div>
                         </div>
-                    </div>
-                    <a class="list-item list-item--chevron list-item--tappable">
+                    </a>
+                    <nuxt-link class="list-item list-item--chevron list-item--tappable" :to="'/settings/addresses/manage?id=' + address.id">
                         <div class="list-item__center">Secured by</div>
                         <div class="list-item__right list-item--chevron__right">
-                            <div class="list-item__label list-item__label--strong">{{ address.securedBy }}</div>
+                            <div class="list-item__label list-item__label--strong">{{ address.isServerSecured ? 'Bip Wallet' : 'You' }}</div>
                         </div>
-                    </a>
+                    </nuxt-link>
                     <div class="list-item">
                         <div class="list-item__center">Set as main</div>
                         <div class="list-item__right">
                             <label class="switch">
-                                <input type="radio" class="switch__input" :value="address.address" v-model="mainAddress">
+                                <input type="radio" class="switch__input" :value="address.address" v-model="selectedAddress">
                                 <div class="switch__toggle">
                                     <div class="switch__handle"></div>
                                 </div>

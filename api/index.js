@@ -35,6 +35,15 @@
  * @property {number} data.amount
  */
 
+/**
+ * @typedef {Object} Address
+ * @property {number} id
+ * @property {string} address
+ * @property {boolean} isMain
+ * @property {boolean} isServerSecured
+ * @property {string} [encrypted] - Encrypted Private key
+ */
+
 import myminter from '~/api/myminter';
 import explorer from '~/api/explorer';
 import {generateMnemonic, walletFromMnemonic} from "~/assets/utils";
@@ -116,13 +125,12 @@ export function putProfileAvatar(avatar) {
  */
 export function getTransactionList(params) {
     return new Promise((resolve, reject) => {
-        myminter.get('addresses')
-            .then((response) => {
-                const addressList = response.data.data.map((item) => item.address)
+        getAddressList()
+            .then((addressList) => {
                 explorer
                     .get('transactions', {
                         params: {
-                            addresses: addressList,
+                            addresses: addressList.map((item) => item.address),
                         },
                     })
                     .then((response) => resolve(response.data))
@@ -132,6 +140,19 @@ export function getTransactionList(params) {
     })
 }
 
+
+/**
+ * @return {Promise<[Address]>}
+ */
+export function getAddressList() {
+    return myminter.get('addresses')
+        .then((response) => response.data.data);
+}
+
+export function getAddressEncrypted(id) {
+    return myminter.get('addresses/' + id + '/encrypted')
+        .then((response) => response.data.data)
+}
 
 function makeFormData(data) {
     let formData = new FormData();

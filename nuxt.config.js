@@ -30,7 +30,7 @@ module.exports = {
     */
     loading: { color: '#FFA05D' },
     router: {
-        linkActiveClass: '',
+        linkActiveClass: 'is-active-inner',
         linkExactActiveClass: 'is-active',
         //@TODO middlewares not working properly with nuxt generate @see https://github.com/nuxt/nuxt.js/issues/2653
         middleware: [

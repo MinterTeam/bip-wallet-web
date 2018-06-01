@@ -32,7 +32,7 @@
             </slot>
             <menu class="menu u-container" v-if="$store.getters.isAuthorized">
                 <li class="menu__item">
-                    <nuxt-link class="menu__link" to="/">Coins</nuxt-link>
+                    <nuxt-link class="menu__link" to="/" exact>Coins</nuxt-link>
                 </li>
                 <li class="menu__item">
                     <nuxt-link class="menu__link" to="/send">Send</nuxt-link>

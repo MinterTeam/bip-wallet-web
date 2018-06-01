@@ -80,7 +80,6 @@
                 'avatar',
             ]),
             balanceParts() {
-                const delimiter = '&thinsp;';
                 const parts = this.balance.toString().split('.');
                 return {
                     whole:  parts[0] ? thousandsFilter(parts[0]) : 0,
