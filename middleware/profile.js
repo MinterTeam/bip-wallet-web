@@ -4,7 +4,7 @@ export default function ({store}) {
     }
     if (store.getters.isUserWithProfile) {
         // async update
-        store.dispatch('UPDATE_PROFILE');
+        store.dispatch('FETCH_PROFILE');
     }
 
     return Promise.resolve();

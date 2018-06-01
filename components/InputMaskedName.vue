@@ -5,6 +5,12 @@
         directives: {
             imask: IMaskDirective,
         },
+        props: {
+            initialValue: {
+                type: String,
+                default: '',
+            },
+        },
         data() {
             return {
                 imaskNameOptions: {
@@ -17,7 +23,7 @@
                         }
                     },
                 },
-                usernameMasked: '',
+                usernameMasked: this.initialValue,
             }
         },
         methods: {

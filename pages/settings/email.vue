@@ -1,6 +1,7 @@
 <script>
     import {validationMixin} from 'vuelidate';
     import email from 'vuelidate/lib/validators/email';
+    import {putProfile} from "~/api";
     import getTitle from '~/assets/get-title';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import Layout from '~/components/LayoutDefault';
@@ -24,7 +25,7 @@
                 isFormSending: false,
                 serverError: '',
                 form: {
-                    email: '',
+                    email: this.$store.state.auth.email || '',
                 },
                 sve: {
                     email: {invalid: false, isActual: false, message: ''},
@@ -41,7 +42,31 @@
         },
         methods: {
             submit() {
+                if (this.isFormSending) {
+                    return;
+                }
+                if (this.$v.$invalid) {
+                    this.$v.$touch();
+                    return;
+                }
+                this.isFormSending = true;
 
+                putProfile(this.form)
+                    .then(() => {
+                        this.$store.commit('SET_PROFILE', {
+                            ...this.$store.state.auth.user,
+                            ...this.form,
+                        });
+                        this.$router.push('/settings');
+                        this.isFormSending = false;
+                    })
+                    .catch((error) => {
+                        let hasValidationErrors = fillServerErrors(error, this.sve);
+                        if (!hasValidationErrors) {
+                            this.serverError = getErrorText(error);
+                        }
+                        this.isFormSending = false;
+                    });
             }
         }
     }
@@ -50,7 +75,7 @@
 <template>
     <Layout :title="$options.PAGE_TITLE" :is-bg-white="true" back-url="/settings">
 
-        <form class="u-section u-container" @submit.prevent="submit">
+        <form class="u-section u-container" novalidate @submit.prevent="submit">
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.email.$error}">
                 <span class="bip-field__label">Email</span>
                 <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.email">Not valid email</span>

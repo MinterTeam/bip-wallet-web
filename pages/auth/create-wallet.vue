@@ -9,7 +9,7 @@
     import getTitle from '~/assets/get-title';
     import {register} from '~/api';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
-    import {makeAccepter} from "~/assets/utils";
+    import {makeAccepter, removeEmptyKeys} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import InputMaskedName from '~/components/InputMaskedName';
     import InputMaskedPhone from '~/components/InputMaskedPhone';
@@ -56,7 +56,8 @@
             form: {
                 username: {
                     required,
-                    //minLength: minLength(3),
+                    minLength: minLength(5),
+                    maxLength: maxLength(32),
                     server: getServerValidator('username'),
                 },
                 password: {
@@ -108,17 +109,6 @@
             }
         }
     }
-
-    function removeEmptyKeys(obj) {
-        let result = {};
-        Object.keys(obj).forEach((key) => {
-            if (obj[key]) {
-                result[key] = obj[key];
-            }
-        });
-
-        return result;
-    }
 </script>
 
 <template>
@@ -128,6 +118,8 @@
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.username.$error}">
                 <span class="bip-field__label">Choose @username</span>
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.required">Enter username</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.minLength">Username is too short</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.maxLength">Username is too long</span>
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.server">{{ sve.username.message }}</span>
                 <InputMaskedName class="bip-field__input"
                                  @accept="onAcceptUsername"

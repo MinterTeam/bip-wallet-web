@@ -120,8 +120,13 @@
                 <div class="toolbar__right">
                     <div class="toolbar-button user">
                         <div class="user__name">{{ username }}</div>
-                        <img class="user__avatar" :src="avatar" alt="" role="presentation" v-if="avatar">
-                        <div class="user__avatar" v-else>{{ usernameLetter }}</div>
+                        <div class="user__avatar"
+                             :style="{backgroundImage: avatar ? `url('${avatar}')` : ''}"
+                             :class="{'user__avatar--letter': !avatar}"
+                        >
+                            <span v-if="!avatar">{{ usernameLetter }}</span>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -136,9 +141,9 @@
         </div>
 
         <div class="u-section">
-            <div v-if="txList">
+            <div v-if="transactionList">
                 <div class="list-title">Latest Transactions</div>
-                <TransactionTable :transaction-list="txList"/>
+                <TransactionTable :transaction-list="transactionList"/>
                 <div class="u-container u-section--small">
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
                 </div>

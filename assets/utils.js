@@ -35,6 +35,17 @@ export function thousandsFilter(value) {
     return decode(thousands(value, '&thinsp;'));
 }
 
+export function removeEmptyKeys(obj) {
+    let result = {};
+    Object.keys(obj).forEach((key) => {
+        if (obj[key]) {
+            result[key] = obj[key];
+        }
+    });
+
+    return result;
+}
+
 /**
  * Make function to accept imask values
  * @param {string} propName

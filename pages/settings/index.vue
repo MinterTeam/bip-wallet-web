@@ -1,17 +1,15 @@
 <script>
-    import {mapGetters} from 'vuex';
-    import FileInput from 'v-file-input/src/FileInput';
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Navbar from '~/components/Navbar';
-
+    import AvatarField from '~/components/AvatarField';
 
     export default {
         PAGE_TITLE: 'Settings',
         components: {
-            FileInput,
             Layout,
             Navbar,
+            AvatarField,
         },
         head() {
             return {
@@ -21,22 +19,7 @@
                 ],
             }
         },
-        data() {
-            return {
-                fileApiError: false,
-                isDragLayerVisible: false,
-            }
-        },
-        computed: {
-            ...mapGetters([
-                'usernameLetter',
-                'avatar',
-            ]),
-        },
         methods: {
-            updateFile() {
-
-            },
             logout() {
                 this.$store.commit('LOGOUT');
                 this.$router.push('/auth');
@@ -56,19 +39,7 @@
         </template>
 
         <div class="u-section--bottom" v-if="$store.getters.isUserWithProfile">
-            <div class="u-section u-container avatar-field u-bg-white">
-                <img class="avatar-field__avatar user__avatar user__avatar--large" :src="avatar" alt="" role="presentation" v-if="avatar">
-                <div class="avatar-field__avatar user__avatar user__avatar--large" v-else>{{ usernameLetter }}</div>
-                <label class="bip-button bip-button--ghost-main avatar-field__button">
-                    Change userpic
-                    <FileInput accept="image/*" class="avatar-field__input"
-                               v-on:onAdd="updateFile"
-                               v-on:onError="fileApiError = true"
-                               v-on:onDragStart="isDragLayerVisible = true"
-                               v-on:onDragEnd="isDragLayerVisible = false"
-                    />
-                </label>
-            </div>
+            <AvatarField/>
             <div class="list">
                 <nuxt-link class="list-item list-item--chevron list-item--tappable" to="/settings/username">
                     <div class="list-item__center">Username</div>

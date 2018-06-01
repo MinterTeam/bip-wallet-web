@@ -5,6 +5,12 @@
         directives: {
             imask: IMaskDirective,
         },
+        props: {
+            initialValue: {
+                type: String,
+                default: '',
+            },
+        },
         data() {
             return {
                 imaskPhoneOptions: {
@@ -17,7 +23,7 @@
                         }
                     },
                 },
-                phoneMasked: '',
+                phoneMasked: this.initialValue,
             }
         },
         methods: {

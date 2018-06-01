@@ -91,7 +91,7 @@
 <template>
     <Layout :title="$options.PAGE_TITLE" :is-bg-white="true" back-url="/auth">
 
-        <form class="u-section u-container" @submit.prevent="submit">
+        <form class="u-section u-container" novalidate @submit.prevent="submit">
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.username.$error}">
                 <span class="bip-field__label">Your @username</span>
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.required">Enter username</span>

@@ -64,6 +64,11 @@ export function register(data) {
     });
 }
 
+/**
+ * @param username
+ * @param password
+ * @return {Promise<User>}
+ */
 export function login({username, password}) {
     return myminter.post('login', {
             username,
@@ -72,8 +77,27 @@ export function login({username, password}) {
         .then((response) => response.data.data);
 }
 
+/**
+ * @return {Promise<User>}
+ */
 export function getProfile() {
     return myminter.get('profile')
+        .then((response) => response.data.data);
+}
+
+export function putProfile(profile) {
+    return myminter.put('profile', profile);
+}
+
+/**
+ * @param avatar
+ * @return {Promise<UserAvatar>}
+ */
+export function putProfileAvatar(avatar) {
+    return myminter
+        .post('profile/avatar', makeFormData({avatar}), {
+            headers: formDataHeaders,
+        })
         .then((response) => response.data.data);
 }
 

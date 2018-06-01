@@ -3,6 +3,7 @@
     import required from 'vuelidate/lib/validators/required';
     import minLength from 'vuelidate/lib/validators/minLength';
     import sameAs from 'vuelidate/lib/validators/sameAs';
+    import {putProfile} from "~/api";
     import getTitle from '~/assets/get-title';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import Layout from '~/components/LayoutDefault';
@@ -50,7 +51,27 @@
         },
         methods: {
             submit() {
+                if (this.isFormSending) {
+                    return;
+                }
+                if (this.$v.$invalid) {
+                    this.$v.$touch();
+                    return;
+                }
+                this.isFormSending = true;
 
+                putProfile(this.form)
+                    .then(() => {
+                        this.$router.push('/settings');
+                        this.isFormSending = false;
+                    })
+                    .catch((error) => {
+                        let hasValidationErrors = fillServerErrors(error, this.sve);
+                        if (!hasValidationErrors) {
+                            this.serverError = getErrorText(error);
+                        }
+                        this.isFormSending = false;
+                    });
             }
         }
     }
