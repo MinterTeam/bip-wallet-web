@@ -54,7 +54,7 @@
 
     function getAddress(hash, state) {
         let advancedAddress;
-        state.advanced.some((address) => {
+        state.auth.advanced.some((address) => {
             if (address.address === hash) {
                 advancedAddress = address;
                 return true;

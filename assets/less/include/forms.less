@@ -2,7 +2,7 @@
 
 // button
 .bip-button {
-    display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 14px 20px; font-size: 14px; line-height: 18px; font-weight: 700; font-family: @heading-font-family; /*color: @c-black;*/ text-transform: uppercase; text-align: center; border: 2px solid transparent; border-radius: 15px; text-decoration: none; transition: 0.15s; outline: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px 20px; font-size: 14px; line-height: 18px; font-weight: 700; font-family: @heading-font-family; /*color: @c-black;*/ text-transform: uppercase; text-align: center; border: 2px solid transparent; border-radius: 15px; text-decoration: none; transition: 0.15s; outline: none; cursor: pointer;
     &:hover, &:focus {}
     &:active {}
     &[disabled], &.is-disabled {
@@ -59,6 +59,12 @@
 //@media (min-width: @breakpoint-medium-up) {
 //    .button-group {flex-direction: row; justify-content: center; flex-wrap: wrap;}
 //}
+@media (min-width: @breakpoint-small-up) {
+    .bip-button {max-width: 320px; margin-left: auto; margin-right: auto;}
+}
+@media (min-width: @breakpoint-medium-up) {
+    .bip-button {max-width: none;}
+}
 
 
 // button-loader
