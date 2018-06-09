@@ -41,7 +41,8 @@
  * @property {string} address
  * @property {boolean} isMain
  * @property {boolean} isServerSecured
- * @property {string} [encrypted] - Encrypted Private key
+ * @property {string} [encrypted] - Encrypted mnemonic (if isServerSecured)
+ * @property {string} [mnemonic] - Stored mnemonic (if not isServerSecured)
  */
 
 import myminter from '~/api/myminter';
@@ -120,21 +121,22 @@ export function putProfileAvatar(avatar) {
  * @param {Object} [params]
  * @param {number} [params.block]
  * @param {number} [params.address]
+ * @param {number} [params.addresses]
  * @param {number} [params.page]
  * @return {Promise<TransactionListInfo>}
  */
 export function getTransactionList(params) {
+    return explorer
+        .get('transactions', {
+            params,
+        })
+        .then((response) => response.data);
+
+
     return new Promise((resolve, reject) => {
-        getAddressList()
+        getProfileAddressList()
             .then((addressList) => {
-                explorer
-                    .get('transactions', {
-                        params: {
-                            addresses: addressList.map((item) => item.address),
-                        },
-                    })
-                    .then((response) => resolve(response.data))
-                    .catch(reject);
+
             })
             .catch(reject);
     })
@@ -142,14 +144,15 @@ export function getTransactionList(params) {
 
 
 /**
+ * Get addresses saved in profile
  * @return {Promise<[Address]>}
  */
-export function getAddressList() {
+export function getProfileAddressList() {
     return myminter.get('addresses')
         .then((response) => response.data.data);
 }
 
-export function getAddressEncrypted(id) {
+export function getProfileAddressEncrypted(id) {
     return myminter.get('addresses/' + id + '/encrypted')
         .then((response) => response.data.data)
 }

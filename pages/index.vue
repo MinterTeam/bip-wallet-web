@@ -1,6 +1,5 @@
 <script>
     import {mapGetters} from 'vuex';
-    import {getTransactionList} from "~/api";
     import {getNameLetter, thousandsFilter} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
@@ -70,10 +69,12 @@
             return {
                 balance: 120912.98230221,
                 isTxListLoading: true,
-                txList: null,
             }
         },
         computed: {
+            ...mapGetters({
+                txList: 'transactionList',
+            }),
             ...mapGetters([
                 'username',
                 'usernameLetter',
@@ -87,15 +88,15 @@
                 };
             },
         },
-        created() {
-            getTransactionList()
+        beforeMount() {
+            this.$store.dispatch('FETCH_TRANSACTION_LIST')
                 .then((txList) => {
-                    this.txList = txList;
                     this.isTxListLoading = false;
                 })
                 .catch(() => {
                     this.isTxListLoading = false;
                 });
+
         },
         methods: {
             formatAmount(amount) {

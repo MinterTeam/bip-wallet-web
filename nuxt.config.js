@@ -1,6 +1,6 @@
 const nodeExternals = require('webpack-node-externals');
 
-const BASE_TITLE = require('./assets/variables').BASE_TITLE;
+import {BASE_TITLE} from "./assets/variables";
 const BASE_DESCRIPTION = '';
 
 module.exports = {

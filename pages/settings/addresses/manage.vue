@@ -1,5 +1,5 @@
 <script>
-    import {getAddressEncrypted} from "~/api";
+    import {getProfileAddressEncrypted} from "~/api";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
 
@@ -8,14 +8,11 @@
         components: {
             Layout,
         },
-        asyncData ({ query, error }) {
+        asyncData ({store, query, error }) {
             if (process.server) {
                 return;
             }
-            // if (!query.id) {
-            //     return error({ statusCode: 404, message: 'Address not found' });
-            // }
-            return getAddressEncrypted(query.id)
+            return getAddress(query.hash, store.state)
                 .then((address) => ({
                     address,
                     isDataLoading: false,
@@ -38,9 +35,9 @@
                 address: null,
             }
         },
-        created() {
+        beforeMount() {
             if (this.isDataLoading) {
-                getAddressEncrypted(this.$route.query.id)
+                getAddress(this.$route.query.id, this.$store.state)
                     .then((address) => {
                         this.address = address;
                         this.isDataLoading = false;
@@ -52,6 +49,22 @@
         },
         methods: {
 
+        }
+    }
+
+    function getAddress(hash, state) {
+        let advancedAddress;
+        state.advanced.some((address) => {
+            if (address.address === hash) {
+                advancedAddress = address;
+                return true;
+            }
+        });
+
+        if (advancedAddress) {
+            return Promise.resolve(advancedAddress);
+        } else {
+            return getProfileAddressEncrypted(hash)
         }
     }
 </script>
@@ -68,15 +81,15 @@
                     <div class="list-item list-item--address__hash-large">
                         {{ address.address }}
                     </div>
-                    <div class="list-item list-item--chevron list-item--tappable">
+                    <div class="list-item">
                         <div class="list-item__center">Secured by</div>
-                        <div class="list-item__right list-item--chevron__right">
+                        <div class="list-item__right">
                             <div class="list-item__label list-item__label--strong">{{ address.isServerSecured ? 'Bip Wallet' : 'You' }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <p class="u-container">This address is secured by Bip Wallet. We recommend you to get full control over your address by using one of the following options:</p>
+            <p class="u-container">This address is secured by {{ address.isServerSecured ? 'Bip Wallet' : 'You' }}. We recommend you to get full control over your address by using one of the following options:</p>
             <div class="u-section u-container">
                 <div class="u-grid u-grid--vertical-margin">
                     <div class="u-cell">

@@ -1,5 +1,4 @@
 <script>
-    import {getAddressList} from "~/api";
     import {EXPLORER_URL} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
     import * as clipboard from '~/assets/clipboard';
@@ -25,27 +24,35 @@
         data() {
             return {
                 isAddressListLoading: false,
-                /** @type Array<Address> */
-                addressList: [],
                 selectedAddress: null,
                 isToastVisible: false,
             }
         },
         computed: {
+            /** @type Array<Address> */
+            addressList() {
+                return this.$store.getters.addressList;
+            },
             isClipboardSupported() {
                 return clipboard.isSupported();
             },
         },
         created() {
-            getAddressList()
-                .then((addressList) => {
-                    this.addressList = addressList;
-                    this.selectedAddress = this.addressList[0].address;
+            this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
+                .then(() => {
+                    let mainAddress = '';
+                    this.$store.getters.addressList.forEach((address) => {
+                        if (address.isMain) {
+                            mainAddress = address.address;
+                        }
+                    });
+                    this.selectedAddress = mainAddress;
                     this.isAddressListLoading = false;
                 })
                 .catch(() => {
                     this.isAddressListLoading = false;
                 });
+
         },
         methods: {
             copy(str) {

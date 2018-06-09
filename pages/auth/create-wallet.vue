@@ -95,7 +95,7 @@
 
                 register(removeEmptyKeys(this.form))
                     .then((authData) => {
-                        this.$store.commit('SET_AUTH', authData);
+                        this.$store.commit('SET_AUTH_PROFILE', authData);
                         this.$router.push('/');
                         this.isFormSending = false;
                     })

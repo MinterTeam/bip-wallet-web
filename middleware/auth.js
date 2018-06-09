@@ -16,7 +16,11 @@ export default function ({store, route, redirect, error}) {
         return pathRegex.test(route.path);
     });
     const urlRequiresNonAuth = /^\/auth(\/|$)/.test(route.path);
-    const urlRequiresUserWithProfile = /^\/settings\/\w+/.test(route.path);
+    const urlRequiresUserWithProfile = [
+        /^\/settings\/profile-/,
+    ].some((pathRegex) => {
+        return pathRegex.test(route.path);
+    });
 
 
     if (!store.getters.isAuthorized && urlRequiresAuth) {

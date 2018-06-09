@@ -2,7 +2,7 @@
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import getTitle from '~/assets/get-title';
-    import {generateMnemonic} from "~/assets/utils";
+    import {generateMnemonic, addressFromMnemonic} from "~/assets/utils";
     import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
     import Toast from '~/components/Toast';
@@ -52,7 +52,7 @@
                     this.$v.$touch();
                     return;
                 }
-                this.$store.commit('SET_AUTH', {mnemonic: this.mnemonic});
+                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic));
                 this.$router.push('/');
             },
         }

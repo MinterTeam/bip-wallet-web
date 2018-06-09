@@ -3,7 +3,7 @@
     import required from 'vuelidate/lib/validators/required';
     import withParams from 'vuelidate/lib/withParams';
     import getTitle from '~/assets/get-title';
-    import {isValidMnemonic} from "~/assets/utils";
+    import {isValidMnemonic, addressFromMnemonic} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
 
     const mnemonicValidator = withParams({type: 'mnemonic'}, isValidMnemonic);
@@ -42,7 +42,7 @@
                     this.$v.$touch();
                     return;
                 }
-                this.$store.commit('SET_AUTH', {mnemonic: this.mnemonic});
+                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic));
                 this.$router.push('/');
             }
         }

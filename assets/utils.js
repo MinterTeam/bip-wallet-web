@@ -22,6 +22,17 @@ export function walletFromMnemonic(mnemonic) {
     return hdkey.fromMasterSeed(seed).derivePath("m/44'/60'/0'/0").deriveChild(0).getWallet();
 }
 
+export function addressFromMnemonic(mnemonic) {
+    const wallet = walletFromMnemonic(mnemonic);
+
+    return {
+        address: wallet.getAddressString(),
+        mnemonic,
+        isMain: true,
+        isServerSecured: false,
+    };
+}
+
 /**
  * Get first letter fron name string
  * @param {string} name
