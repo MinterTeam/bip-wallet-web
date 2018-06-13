@@ -149,12 +149,12 @@ export function getTransactionList(params) {
  */
 export function getProfileAddressList() {
     return myminter.get('addresses')
-        .then((response) => response.data.data);
+        .then((response) => response.data.data.map(markSecured));
 }
 
 export function getProfileAddressEncrypted(id) {
     return myminter.get('addresses/' + id + '/encrypted')
-        .then((response) => response.data.data)
+        .then((response) => markSecured(response.data.data));
 }
 
 function makeFormData(data) {
@@ -164,6 +164,14 @@ function makeFormData(data) {
     });
 
     return formData;
+}
+
+// @TODO all addresses from server should be serverSecured
+function markSecured(address) {
+    return {
+        ...address,
+        isServerSecured: true,
+    }
 }
 
 

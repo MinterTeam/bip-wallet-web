@@ -157,22 +157,22 @@
                        @input="sve.email.isActual = false"
                 >
             </label>
-            <label class="bip-field bip-field--row" :class="{'is-error': $v.form.phone.$error}">
+            <!--<label class="bip-field bip-field&#45;&#45;row" :class="{'is-error': $v.form.phone.$error}">
                 <span class="bip-field__label">Mobile Number (Optional *)</span>
                 <span class="bip-field__error" v-if="$v.form.phone.$error">Not valid number</span>
-                <!--<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>-->
+                &lt;!&ndash;<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>&ndash;&gt;
                 <InputMaskedPhone class="bip-field__input"
                                   @accept="onAcceptPhone"
                                   @blur.native="$v.form.phone.$touch()"
                                   @input.native="sve.phone.isActual = false"
                 />
-            </label>
+            </label>-->
             <div class="bip-field--row">
                 <button class="bip-button bip-button--main">Create Wallet</button>
                 <div class="bip-form__error" v-if="serverError">{{ serverError }}</div>
             </div>
             <p class="bip-field--row bip-field__asterisk">
-                Email and Mobile Number are optional but can be very handy if you forget  your password.
+                Email <!--and Mobile Number are--> is optional but can be very handy if you forget  your password.
             </p>
         </form>
 

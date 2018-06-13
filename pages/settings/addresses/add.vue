@@ -1,10 +1,11 @@
 <script>
     import getTitle from '~/assets/get-title';
+    import {generateMnemonic, addressFromMnemonic} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import FormAddAdvancedAddress from '~/components/FormAddAdvancedAddress';
 
     export default {
-        PAGE_TITLE: 'Advanced Mode',
+        PAGE_TITLE: 'Add New Address',
         components: {
             Layout,
             FormAddAdvancedAddress,
@@ -18,25 +19,28 @@
             }
         },
         methods: {
-            authorize() {
-                this.$router.push('/');
+            addAddress() {
+                this.$router.push('/settings/addresses');
+            },
+            generateAddress() {
+                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(generateMnemonic()));
+                this.$router.push('/settings/addresses');
             }
         }
     }
 </script>
 
 <template>
-    <Layout :title="$options.PAGE_TITLE" :is-bg-white="true" back-url="/auth">
-
+    <Layout :title="$options.PAGE_TITLE" :is-bg-white="true" back-url="/settings/addresses">
         <div class="u-section u-container">
-            <nuxt-link class="bip-button bip-button--main" to="/auth/create-wallet-advanced/">Generate Address</nuxt-link>
+            <button class="bip-button bip-button--main" @click="generateAddress">Generate Address</button>
         </div>
 
         <div class="u-section-divider-text">
             <div class="u-section-divider-text__inner">or</div>
         </div>
 
-        <FormAddAdvancedAddress :isAuthAddress="true" @addressAdded="authorize"/>
+        <FormAddAdvancedAddress @addressAdded="addAddress"/>
 
     </Layout>
 </template>

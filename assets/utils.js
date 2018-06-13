@@ -22,13 +22,13 @@ export function walletFromMnemonic(mnemonic) {
     return hdkey.fromMasterSeed(seed).derivePath("m/44'/60'/0'/0").deriveChild(0).getWallet();
 }
 
-export function addressFromMnemonic(mnemonic) {
+export function addressFromMnemonic(mnemonic, isMain = false) {
     const wallet = walletFromMnemonic(mnemonic);
 
     return {
         address: wallet.getAddressString(),
         mnemonic,
-        isMain: true,
+        isMain,
         isServerSecured: false,
     };
 }

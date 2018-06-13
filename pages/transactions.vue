@@ -67,7 +67,7 @@
                 txList: null,
             }
         },
-        created() {
+        beforeMount() {
             getTransactionList()
                 .then((txList) => {
                     this.txList = txList;

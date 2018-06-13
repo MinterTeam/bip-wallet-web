@@ -12,7 +12,7 @@
             if (process.server) {
                 return;
             }
-            return getAddress(query.hash, store.state)
+            return getAddress(store.state, query)
                 .then((address) => ({
                     address,
                     isDataLoading: false,
@@ -37,7 +37,7 @@
         },
         beforeMount() {
             if (this.isDataLoading) {
-                getAddress(this.$route.query.id, this.$store.state)
+                getAddress(this.$store.state, this.$route.query)
                     .then((address) => {
                         this.address = address;
                         this.isDataLoading = false;
@@ -52,19 +52,21 @@
         }
     }
 
-    function getAddress(hash, state) {
+    function getAddress(state, {hash, id}) {
         let advancedAddress;
-        state.auth.advanced.some((address) => {
-            if (address.address === hash) {
-                advancedAddress = address;
-                return true;
-            }
-        });
+        if (hash) {
+            state.auth.advanced.some((address) => {
+                if (address.address === hash) {
+                    advancedAddress = address;
+                    return true;
+                }
+            });
+        }
 
         if (advancedAddress) {
             return Promise.resolve(advancedAddress);
         } else {
-            return getProfileAddressEncrypted(hash)
+            return getProfileAddressEncrypted(id)
         }
     }
 </script>

@@ -52,7 +52,7 @@
                     this.$v.$touch();
                     return;
                 }
-                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic));
+                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic, true));
                 this.$router.push('/');
             },
         }

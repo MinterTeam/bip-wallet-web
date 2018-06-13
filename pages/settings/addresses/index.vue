@@ -23,7 +23,7 @@
         },
         data() {
             return {
-                isAddressListLoading: false,
+                isAddressListLoading: true,
                 selectedAddress: null,
                 isToastVisible: false,
             }
@@ -37,16 +37,24 @@
                 return clipboard.isSupported();
             },
         },
-        created() {
+        watch: {
+            selectedAddress(newVal) {
+                if (isAddressListLoading) {
+                    return;
+                }
+                //@TODO save main address
+            }
+        },
+        beforeMount() {
             this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
                 .then(() => {
-                    let mainAddress = '';
-                    this.$store.getters.addressList.forEach((address) => {
+                    // if user with profile, main address can be set only to profile address
+                    const addressListWithMain = this.$store.getters.isUserWithProfile ? this.$store.state.profileAddressList : this.$store.state.auth.advanced;
+                    addressListWithMain.forEach((address) => {
                         if (address.isMain) {
-                            mainAddress = address.address;
+                            this.selectedAddress = address.address;
                         }
                     });
-                    this.selectedAddress = mainAddress;
                     this.isAddressListLoading = false;
                 })
                 .catch(() => {
@@ -59,8 +67,11 @@
                 clipboard.copy(str);
                 this.isToastVisible = true;
             },
-            getAddressLink(address) {
-                return EXPLORER_URL + '/address/' + address;
+            getAddressLink(addressHash) {
+                return EXPLORER_URL + '/address/' + addressHash;
+            },
+            getManageAddressLink(address) {
+                return {path: '/settings/addresses/manage', query: {id: address.id, hash: address.address}};
             }
         }
     }
@@ -100,7 +111,7 @@
                             <div class="list-item__label list-item__label--strong">{{ address.balance }}</div>
                         </div>
                     </a>
-                    <nuxt-link class="list-item list-item--chevron list-item--tappable" :to="'/settings/addresses/manage?id=' + address.id">
+                    <nuxt-link class="list-item list-item--chevron list-item--tappable" :to="getManageAddressLink(address)">
                         <div class="list-item__center">Secured by</div>
                         <div class="list-item__right list-item--chevron__right">
                             <div class="list-item__label list-item__label--strong">{{ address.isServerSecured ? 'Bip Wallet' : 'You' }}</div>
