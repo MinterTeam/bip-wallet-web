@@ -1,5 +1,5 @@
 <script>
-    import {getProfileAddressEncrypted} from "~/api";
+    import {getProfileAddressEncrypted, deleteProfileAddress} from "~/api";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
 
@@ -48,7 +48,17 @@
             }
         },
         methods: {
-
+            deleteAddress() {
+                if (this.isUserWithProfile) {
+                    deleteProfileAddress(this.address.id)
+                        .then(() => {
+                            this.$router.push('/settings/addresses');
+                        });
+                } else {
+                    this.$store.commit('DELETE_ADVANCED_ADDRESS', this.address.address);
+                    this.$router.push('/settings/addresses');
+                }
+            },
         }
     }
 
@@ -61,10 +71,11 @@
                     return true;
                 }
             });
-        }
-
-        if (advancedAddress) {
-            return Promise.resolve(advancedAddress);
+            if (advancedAddress) {
+                return Promise.resolve(advancedAddress);
+            } else {
+                return Promise.reject('Address not found');
+            }
         } else {
             return getProfileAddressEncrypted(id)
         }
@@ -107,7 +118,7 @@
             </div>
             <hr>
             <div class="u-section u-container">
-                <button class="bip-button bip-button--ghost-main">Remove Address</button>
+                <button class="bip-button bip-button--ghost-main" @click="deleteAddress">Remove Address</button>
             </div>
         </div>
         <div class="u-section u-container u-text-center" v-else-if="!isDataLoading">

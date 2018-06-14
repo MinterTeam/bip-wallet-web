@@ -157,6 +157,19 @@ export function getProfileAddressEncrypted(id) {
         .then((response) => markSecured(response.data.data));
 }
 
+export function addProfileAddress(address) {
+    return myminter.post('addresses', address);
+}
+
+export function setMainProfileAddress(id) {
+    return myminter.put('addresses/' + id, {isMain: true});
+}
+
+export function deleteProfileAddress(id) {
+    return myminter.delete('addresses/' + id);
+
+}
+
 function makeFormData(data) {
     let formData = new FormData();
     Object.keys(data).forEach((key) => {

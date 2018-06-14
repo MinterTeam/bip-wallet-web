@@ -1,4 +1,5 @@
 <script>
+    import {setMainProfileAddress} from "~/api";
     import {EXPLORER_URL} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
     import * as clipboard from '~/assets/clipboard';
@@ -36,29 +37,52 @@
             isClipboardSupported() {
                 return clipboard.isSupported();
             },
+            isUserWithProfile() {
+                return this.$store.getters.isUserWithProfile;
+            }
         },
         watch: {
+            // Save new isMain address
+            // if user with profile, main address can be set only to profileAddress
+            // otherwise main address can be set only to advancedAddress
             selectedAddress(newVal) {
-                if (isAddressListLoading) {
+                if (this.isAddressListLoading) {
                     return;
                 }
-                //@TODO save main address
+                if (this.isUserWithProfile) {
+                    let addressToEdit;
+                    this.$store.state.profileAddressList.some((address) => {
+                        if (address.address === newVal) {
+                            addressToEdit = address;
+                            return true;
+                        }
+                    });
+                    setMainProfileAddress(addressToEdit.id);
+                } else {
+                    this.$store.commit('SET_MAIN_ADVANCED_ADDRESS', newVal);
+                }
             }
         },
         beforeMount() {
             this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
                 .then(() => {
                     // if user with profile, main address can be set only to profile address
-                    const addressListWithMain = this.$store.getters.isUserWithProfile ? this.$store.state.profileAddressList : this.$store.state.auth.advanced;
+                    const addressListWithMain = this.isUserWithProfile ? this.$store.state.profileAddressList : this.$store.state.auth.advanced;
                     addressListWithMain.forEach((address) => {
                         if (address.isMain) {
                             this.selectedAddress = address.address;
                         }
                     });
-                    this.isAddressListLoading = false;
+                    // wait to skip first watcher
+                    this.$nextTick(() => {
+                        this.isAddressListLoading = false;
+                    });
                 })
                 .catch(() => {
-                    this.isAddressListLoading = false;
+                    // wait to skip first watcher
+                    this.$nextTick(() => {
+                        this.isAddressListLoading = false;
+                    });
                 });
 
         },
@@ -117,7 +141,7 @@
                             <div class="list-item__label list-item__label--strong">{{ address.isServerSecured ? 'Bip Wallet' : 'You' }}</div>
                         </div>
                     </nuxt-link>
-                    <div class="list-item">
+                    <div class="list-item" v-if="!isUserWithProfile || (isUserWithProfile && address.isServerSecured)">
                         <div class="list-item__center">Set as main</div>
                         <div class="list-item__right">
                             <label class="switch">

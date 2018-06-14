@@ -1,4 +1,5 @@
 <script>
+    import {addProfileAddress} from "~/api";
     import getTitle from '~/assets/get-title';
     import {generateMnemonic, addressFromMnemonic} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
@@ -19,12 +20,21 @@
             }
         },
         methods: {
-            addAddress() {
+            addressAdded() {
                 this.$router.push('/settings/addresses');
             },
             generateAddress() {
-                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(generateMnemonic()));
-                this.$router.push('/settings/addresses');
+                const newAddress = {
+                    ...addressFromMnemonic(generateMnemonic()),
+                    isServerSecured: true,
+                };
+                addProfileAddress(newAddress)
+                    .then(() => {
+                        this.$router.push('/settings/addresses');
+                    })
+                    .catch(() => {
+                        window.alert('Error saving address');
+                    })
             }
         }
     }
@@ -40,7 +50,7 @@
             <div class="u-section-divider-text__inner">or</div>
         </div>
 
-        <FormAddAdvancedAddress @addressAdded="addAddress"/>
+        <FormAddAdvancedAddress @addressAdded="addressAdded"/>
 
     </Layout>
 </template>
