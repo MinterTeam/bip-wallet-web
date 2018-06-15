@@ -1,9 +1,10 @@
 import {setAuthToken} from "~/api/myminter";
 
 export default {
-    SET_AUTH_PROFILE: (state, {user, token}) => {
+    SET_AUTH_PROFILE: (state, {user, token, password}) => {
         state.auth.user = user;
         state.auth.token = token;
+        state.auth.password = password;
         setAuthToken(token);
     },
     ADD_AUTH_ADVANCED: (state, address) => {
@@ -30,10 +31,14 @@ export default {
     LOGOUT: (state) => {
         state.auth.user = {};
         state.auth.token = {};
+        state.auth.password = null;
         state.auth.advanced = [];
     },
-    SET_PROFILE: (state, profile) => {
+    SET_PROFILE_USER: (state, profile) => {
         state.auth.user = profile;
+    },
+    UPDATE_PROFILE_PASSWORD: (state, password) => {
+        state.auth.password = password;
     },
     CHECK_MAIN_ADDRESS: (state, newProfileAddressList) => {
         let isProfileAddressMain = newProfileAddressList.some((address) => {

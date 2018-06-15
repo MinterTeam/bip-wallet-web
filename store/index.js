@@ -14,6 +14,8 @@ export default function createStore () {
                 user: {},
                 /** @type TokenData */
                 token: {},
+                /** @type string|null - stored password */
+                password: null,
             },
             /** @type Array<Address> */
             profileAddressList: [],

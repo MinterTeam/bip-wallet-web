@@ -4,7 +4,7 @@ import explorer from "~/api/explorer";
 export default {
     FETCH_PROFILE: ({ commit }) => {
         return getProfile()
-            .then((profile) => commit('SET_PROFILE', profile));
+            .then((profile) => commit('SET_PROFILE_USER', profile));
     },
     FETCH_PROFILE_ADDRESS_LIST: ({ commit, getters }) => {
         if (getters.isUserWithProfile) {

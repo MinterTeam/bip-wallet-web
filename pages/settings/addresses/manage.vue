@@ -77,7 +77,7 @@
                 return Promise.reject('Address not found');
             }
         } else {
-            return getProfileAddressEncrypted(id)
+            return getProfileAddressEncrypted(id);
         }
     }
 </script>

@@ -53,7 +53,7 @@
 
                 putProfile(this.form)
                     .then(() => {
-                        this.$store.commit('SET_PROFILE', {
+                        this.$store.commit('SET_PROFILE_USER', {
                             ...this.$store.state.auth.user,
                             ...this.form,
                         });

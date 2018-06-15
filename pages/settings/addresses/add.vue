@@ -1,7 +1,7 @@
 <script>
     import {addProfileAddress} from "~/api";
     import getTitle from '~/assets/get-title';
-    import {generateMnemonic, addressFromMnemonic} from "~/assets/utils";
+    import {generateMnemonic, addressEncryptedFromMnemonic} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import FormAddAdvancedAddress from '~/components/FormAddAdvancedAddress';
 
@@ -24,10 +24,8 @@
                 this.$router.push('/settings/addresses');
             },
             generateAddress() {
-                const newAddress = {
-                    ...addressFromMnemonic(generateMnemonic()),
-                    isServerSecured: true,
-                };
+                const mnemonic = generateMnemonic();
+                const newAddress = addressEncryptedFromMnemonic(mnemonic, this.$store.state.auth.password);
                 addProfileAddress(newAddress)
                     .then(() => {
                         this.$router.push('/settings/addresses');

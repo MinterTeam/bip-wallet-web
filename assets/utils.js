@@ -1,5 +1,7 @@
 import bip39 from 'bip39';
 import hdkey from 'minterjs-wallet/dist/hdkey';
+import ethUtil from 'ethereumjs-util';
+import aesjs from 'aes-js';
 import thousands from 'thousands';
 import decode from 'entity-decode';
 
@@ -31,6 +33,49 @@ export function addressFromMnemonic(mnemonic, isMain = false) {
         isMain,
         isServerSecured: false,
     };
+}
+
+export function addressEncryptedFromMnemonic(mnemonic, password, isMain = false) {
+    const wallet = walletFromMnemonic(mnemonic);
+
+    return {
+        address: wallet.getAddressString(),
+        encrypted: encryptMnemonic(mnemonic, password),
+        isMain,
+        isServerSecured: true,
+    };
+}
+
+//@TODO check
+const AES_IV = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]; // 16 bytes, should be same on all clients
+export function encryptMnemonic(mnemonic, password) {
+    const mnemonicBytes = aesjs.utils.utf8.toBytes(mnemonic);
+    const passwordBytes = aesjs.utils.hex.toBytes(password);
+    console.log(mnemonic, mnemonicBytes);
+    const aesCbc = new aesjs.ModeOfOperation.cbc(passwordBytes, AES_IV);
+    const encryptedBytes = aesCbc.encrypt(aesjs.padding.pkcs7.pad(mnemonicBytes));
+    return aesjs.utils.hex.fromBytes(encryptedBytes);
+}
+
+export function decryptMnemonic(encrypted, password) {
+    const encryptedBytes = aesjs.utils.hex.toBytes(encrypted);
+    const passwordBytes = aesjs.utils.hex.toBytes(password);
+    const aesCbc = new aesjs.ModeOfOperation.cbc(passwordBytes, AES_IV);
+    const mnemonicBytes = aesjs.padding.pkcs7.strip(aesCbc.decrypt(encryptedBytes));
+    return aesjs.utils.utf8.fromBytes(mnemonicBytes);
+}
+
+export function getPasswordToStore(password) {
+    return getPaddedSha256Hex(password);
+}
+
+export function getPasswordToSend(storedPasswordHash) {
+    return getPaddedSha256Hex(storedPasswordHash);
+}
+
+window.eth = ethUtil;
+function getPaddedSha256Hex(value) {
+    return ethUtil.setLengthLeft(ethUtil.sha256(value), 32).toString('hex');
 }
 
 /**

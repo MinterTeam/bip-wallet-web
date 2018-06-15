@@ -46,28 +46,34 @@
  */
 
 import myminter from '~/api/myminter';
-import explorer from '~/api/explorer';
-import {generateMnemonic, walletFromMnemonic} from "~/assets/utils";
+import explorer from '~/api/explorer';import {generateMnemonic, getPasswordToSend, getPasswordToStore, addressEncryptedFromMnemonic} from "~/assets/utils";
 
 const formDataHeaders = { 'Content-Type': 'multipart/form-data' };
 
 export function register(data) {
+    const passwordToStore = getPasswordToStore(data.password);
+    const passwordToSend = getPasswordToSend(passwordToStore);
+    let userData = {
+        ...data,
+        password: passwordToSend,
+    };
+    delete userData.passwordConfirm;
+
+    const mnemonic = generateMnemonic();
+
     return new Promise((resolve, reject) => {
-        const mnemonic = generateMnemonic();
-        const wallet = walletFromMnemonic(mnemonic);
         myminter.post('register', {
-                ...data,
-                mainAddress: {
-                    address: wallet.getAddressString(),
-                    isMain: true,
-                    isServerSecured: true,
-                    //@TODO encrypt mnemonic
-                    encrypted: mnemonic,
-                }
+                ...userData,
+                mainAddress: addressEncryptedFromMnemonic(mnemonic, passwordToStore, true)
             })
             .then(() => {
                 login(data)
-                    .then(resolve)
+                    .then((authData) => {
+                        resolve({
+                            ...authData,
+                            password: passwordToStore,
+                        });
+                    })
                     .catch(reject);
             })
             .catch(reject);
@@ -80,11 +86,19 @@ export function register(data) {
  * @return {Promise<User>}
  */
 export function login({username, password}) {
+    const passwordToStore = getPasswordToStore(password);
+    const passwordToSend = getPasswordToSend(passwordToStore);
+
     return myminter.post('login', {
             username,
-            password,
+            password: passwordToSend,
         })
-        .then((response) => response.data.data);
+        .then((response) => {
+            return {
+                ...response.data.data,
+                password: passwordToStore,
+            }
+        });
 }
 
 /**
@@ -96,7 +110,14 @@ export function getProfile() {
 }
 
 export function putProfile(profile) {
-    return myminter.put('profile', profile);
+    let dataToSend = Object.assign({}, profile);
+    if (dataToSend.password) {
+        dataToSend.password = getPasswordToSend(getPasswordToStore(dataToSend.password));
+    }
+    if (dataToSend.passwordConfirm) {
+        delete dataToSend.passwordConfirm;
+    }
+    return myminter.put('profile', dataToSend);
 }
 
 /**
