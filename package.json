@@ -13,6 +13,7 @@
     "generate": "gulp once && nuxt generate",
     "analyze": "gulp once && nuxt generate --analyze",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "test": "jest",
     "precommit": "npm run lint"
   },
   "dependencies": {
@@ -35,8 +36,10 @@
   "devDependencies": {
     "autoprefixer": "^8.6.2",
     "babel-eslint": "^8.2.3",
+    "babel-jest": "^23.0.1",
     "beeper": "^1.1.1",
     "cross-env": "^5.1.6",
+    "cryptlib": "^1.0.3",
     "del": "^3.0.0",
     "eslint": "^4.19.1",
     "eslint-friendly-formatter": "^4.0.1",
@@ -52,9 +55,11 @@
     "gulp-postcss": "^7.0.1",
     "gulp-rename": "^1.2.3",
     "imagemin-mozjpeg": "^7.0.0",
+    "jest": "^23.1.0",
     "postcss-cssnext": "^3.1.0",
     "postcss-import": "^11.1.0",
-    "postcss-normalize": "^5.0.0"
+    "postcss-normalize": "^5.0.0",
+    "safe-buffer": "^5.1.2"
   },
   "browserslist": [
     "> 0.5%",
