@@ -88,19 +88,19 @@ export function aesDecrypt(encrypted, key, IV) {
  * @return {Buffer|Array}
  */
 export function prepareIV(text) {
-    return ethUtil.setLengthLeft(ethUtil.toBuffer(text), 16);
+    return ethUtil.setLengthRight(ethUtil.toBuffer(text), 16);
 }
 
 export function getPasswordToStore(password) {
-    return getPaddedSha256Hex(password);
+    return getSha256Hex(password);
 }
 
 export function getPasswordToSend(storedPasswordHash) {
-    return getPaddedSha256Hex(storedPasswordHash);
+    return getSha256Hex(storedPasswordHash);
 }
 
-function getPaddedSha256Hex(value) {
-    return ethUtil.setLengthLeft(ethUtil.sha256(value), 32).toString('hex');
+function getSha256Hex(value) {
+    return ethUtil.sha256(value).toString('hex');
 }
 
 /**

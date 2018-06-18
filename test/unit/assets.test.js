@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import aesjs from 'aes-js';
 import ethUtil from 'ethereumjs-util';
+import {Buffer} from 'safe-buffer';
 import {aesEncrypt, getPasswordToStore, prepareIV} from "~/assets/utils";
 
 const mnemonic = "globe arrange forget twice potato nurse ice dwarf arctic piano scorpion tube";
@@ -8,7 +9,7 @@ const rawPassword = "123456";
 const IV = "pjSfpWAjdSaYpOBy";
 const MINTER_IV = 'Minter seed';
 const encryptedMnemonic = "82678708bf256c89978a1705a3302c6258e2ae9bf9a0daad6982f2c02a6efb49f98ff01321c0252c389c9c2f56ea977653d8867ac42862c0e97524256dee50788224867e65079d4fc2b3a35fe8b425fa";
-const encryptedMnemonicMinterIV = "f1ff80edb9c25d2385a6b9e441f6f9c010400db21231a7d3c25a864f7cde9ba3ce0da1e975b2d37380b912741beb4b882db411d4d3db5fe5e51483e93e6ecacd8e0372969096302d1f6b3c783482c1b0";
+const encryptedMnemonicMinterIV = "e28513acd2336aa048b68cf382a45ec0bc7bed1e7d35f2b7bf0b6c1406e6f3c57fc91c08ba972f7ed82050e54867e1624b2e2f145aa8d0a40d51ad4eb258faa7e2a9ccaed555d15d7830df188897c054";
 
 test('sha256 ethUtil length', () => {
     const shaPasswordBuffer = ethUtil.sha256(rawPassword);
@@ -32,6 +33,11 @@ test('to bytes aes-js', () => {
     expect(passwordBytes).toEqual(shaPasswordBuffer.toJSON().data);
 });
 
+test('prepare iv', () => {
+    const bytesIV = prepareIV(MINTER_IV);
+    expect(aesjs.utils.hex.fromBytes(bytesIV)).toEqual('4d696e74657220736565640000000000')
+})
+
 test('aes encryption', () => {
     const hexPassword = getPasswordToStore(rawPassword);
     const bytesIV = prepareIV(IV);
@@ -43,7 +49,15 @@ test('aes encryption, minter iv', () => {
     const hexPassword = getPasswordToStore(rawPassword);
     const bytesIV = prepareIV(MINTER_IV);
     const result = aesEncrypt(mnemonic, hexPassword, bytesIV);
-    expect(result).toEqual(encryptedMnemonicMinterIV)
+
+    const textBytes = aesjs.utils.utf8.toBytes(mnemonic);
+    const keyBytes = aesjs.utils.hex.toBytes(hexPassword);
+    const aesCbc = new aesjs.ModeOfOperation.cbc(keyBytes, bytesIV);
+    const encryptedBytes = aesCbc.encrypt(aesjs.padding.pkcs7.pad(textBytes));
+    const resultBySteps = aesjs.utils.hex.fromBytes(encryptedBytes);
+
+    expect(result).toEqual(resultBySteps);
+    expect(result).toEqual(encryptedMnemonicMinterIV);
 });
 
 
