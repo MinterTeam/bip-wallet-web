@@ -151,16 +151,58 @@ export function getTransactionList(params) {
         .get('transactions', {
             params,
         })
-        .then((response) => response.data);
+        .then((response) => {
+            const addressList = params.addresses || [params.address];
+            response.data.data.forEach((tx) => {
+                addressList.some((address) => {
+                    if (address === tx.data.to) {
+                        tx.data.direction = 'income';
+                        return true;
+                    }
+                    if (address === tx.data.from) {
+                        tx.data.direction = 'outcome';
+                        return true;
+                    }
+                });
+            });
 
+            return response.data;
+        });
+}
 
-    return new Promise((resolve, reject) => {
-        getProfileAddressList()
-            .then((addressList) => {
-
-            })
-            .catch(reject);
-    })
+export function getBalance(addressHash) {
+    return explorer.get('address/' + addressHash)
+        .then((response) => {
+            let coinList = {};
+            response.data.data.balance.forEach((item) => {
+                Object.keys(item).forEach((coinName) => {
+                    if (!coinList[coinName]) {
+                        coinList[coinName] = {};
+                    }
+                    coinList[coinName].amount = item[coinName];
+                });
+            });
+            response.data.data.balanceUsd.forEach((item) => {
+                Object.keys(item).forEach((coinName) => {
+                    if (!coinList[coinName]) {
+                        coinList[coinName] = {};
+                    }
+                    coinList[coinName].amountUsd = item[coinName];
+                });
+            });
+            delete response.data.data.balance;
+            delete response.data.data.balanceUsd;
+            return {
+                ...response.data.data,
+                coinList: Object.keys(coinList).reduce((accumulator, coinName) => {
+                    accumulator.push({
+                        ...coinList[coinName],
+                        coin: coinName,
+                    });
+                    return accumulator;
+                }, []),
+            }
+        });
 }
 
 
@@ -188,7 +230,22 @@ export function setMainProfileAddress(id) {
 
 export function deleteProfileAddress(id) {
     return myminter.delete('addresses/' + id);
+}
 
+/**
+ * @param {Object} params
+ * @param {string} [params.username]
+ * @param {string} [params.email]
+ * @param {CancelToken} [cancelToken]
+ * @return {Promise<Object>}
+ */
+export function getAddressInfo(params, cancelToken) {
+    return myminter
+        .get('info/address/by/contact', {
+            params,
+            cancelToken,
+        })
+        .then((response) => response.data.data)
 }
 
 function makeFormData(data) {

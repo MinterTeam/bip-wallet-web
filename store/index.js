@@ -19,7 +19,13 @@ export default function createStore () {
             },
             /** @type Array<Address> */
             profileAddressList: [],
-            transactionList: [],
+            balance: {
+                coinList: {},
+            },
+            transactionListInfo: {
+                data: [],
+                meta: {},
+            },
             history: [],
         },
         actions,

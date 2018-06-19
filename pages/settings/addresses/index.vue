@@ -95,7 +95,7 @@
                 return EXPLORER_URL + '/address/' + addressHash;
             },
             getManageAddressLink(address) {
-                return {path: '/settings/addresses/manage', query: {id: address.id, hash: address.address}};
+                return {path: '/settings/addresses/manage', query: address.isServerSecured ? {id: address.id} : {hash: address.address}};
             }
         }
     }

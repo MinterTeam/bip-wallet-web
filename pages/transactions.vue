@@ -1,4 +1,5 @@
 <script>
+    import toDate from 'date-fns/esm/toDate';
     import format from 'date-fns/esm/format';
     import isSameDay from 'date-fns/esm/isSameDay';
     import subDays from 'date-fns/esm/subDays';
@@ -22,55 +23,19 @@
             }
         },
         props: {
-            /** @type Array<Transaction>*/
-            transactionList: {
-                type: Array,
-                default: () => [
-                    {
-                        name: 'Starbucks',
-                        amount: 10,
-                        coin: 'STBX',
-                        image: '/img/tmp/logo-stbx.png',
-                        timestamp: '2018-04-09 18:30:42+03:00',
-                    },
-                    {
-                        name: '@ElonMusk',
-                        amount: 1,
-                        coin: 'TSL',
-                        timestamp: '2018-04-09 18:31:42+03:00',
-                    },
-                    {
-                        name: '@RealDonaldTrump',
-                        amount: -1.2342,
-                        coin: 'BIP',
-                        timestamp: '2018-04-09 18:32:42+03:00',
-                    },
-                    {
-                        name: 'McDonalds',
-                        amount: -1.55,
-                        coin: 'MCD',
-                        image: '/img/tmp/logo-mcd.png',
-                        timestamp: '2018-04-11 00:00:00+03:00',
-                    },
-                    {
-                        name: '@PavelDurov',
-                        amount: 1000000000,
-                        coin: 'GRAM',
-                        timestamp: '2018-04-11 23:32:42+03:00',
-                    },
-                ],
-            },
+
         },
         data() {
             return {
                 isTxListLoading: true,
-                txList: null,
+                /** @type Array<Transaction>*/
+                txList: this.$store.state.transactionListInfo.data || [],
             }
         },
         beforeMount() {
-            getTransactionList()
-                .then((txList) => {
-                    this.txList = txList;
+            this.$store.dispatch('FETCH_TRANSACTION_LIST')
+                .then((txListInfo) => {
+                    this.txList = txListInfo.data;
                     this.isTxListLoading = false;
                 })
                 .catch(() => {
@@ -79,16 +44,15 @@
         },
         methods: {
             formatDate(dateString) {
-                const date = new Date(dateString);
+                const date = toDate(dateString);
                 if (isSameDay(date, new Date())) {
                     return 'Today';
                 }
                 if (isSameDay(date, subDays(new Date(), 1))) {
                     return 'Yesterday';
                 }
-                return format(new Date(dateString), 'EEEE, dd MMMM')
+                return format(date, 'EEEE, dd MMMM')
             }
-
         },
         computed: {
             /**
@@ -96,11 +60,11 @@
              * @return {Object.<string, Array<Transaction>>}
              */
             transactionListGroups() {
-                if (!this.txList) {
+                if (!this.txList || !this.txList.length) {
                     return null;
                 }
                 return this.txList.reduce((accumulator, tx) => {
-                    const date = new Date(tx.timestamp)
+                    const date = toDate(tx.timestamp);
                     const groupKey = format(date, 'yyyy-MM-dd');
                     if (!accumulator[groupKey]) {
                         accumulator[groupKey] = [];
@@ -124,7 +88,10 @@
                 <TransactionTable :transaction-list="txGroup" :key="groupDate"/>
             </template>
         </div>
-        <p class="u-section u-container u-text-center" v-else-if="!isTxListLoading">No transactions yet</p>
+        <p class="u-section u-container u-text-center" v-else>
+            <span v-if="isTxListLoading">Loading…</span>
+            <span v-else>No transactions yet</span>
+        </p>
 
     </Layout>
 </template>

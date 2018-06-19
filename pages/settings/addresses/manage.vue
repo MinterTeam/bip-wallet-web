@@ -49,7 +49,7 @@
         },
         methods: {
             deleteAddress() {
-                if (this.isUserWithProfile) {
+                if (this.address.isServerSecured) {
                     deleteProfileAddress(this.address.id)
                         .then(() => {
                             this.$router.push('/settings/addresses');

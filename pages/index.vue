@@ -1,5 +1,5 @@
 <script>
-    import {mapGetters} from 'vuex';
+    import {mapGetters, mapState} from 'vuex';
     import {getNameLetter, thousandsFilter} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
@@ -9,71 +9,22 @@
             Layout,
             TransactionTable,
         },
+        filters: {
+            uppercase: (value) => value.toUpperCase(),
+        },
         props: {
-            transactionList: {
-                type: Array,
-                default: () => [
-                    {
-                        name: 'Starbucks',
-                        amount: 10,
-                        coin: 'STBX',
-                        image: '/img/tmp/logo-stbx.png',
-                        timestamp: '2018-04-09 18:30:42+03:00',
-                    },
-                    {
-                        name: '@ElonMusk',
-                        amount: 1,
-                        coin: 'TSL',
-                        timestamp: '2018-04-09 18:31:42+03:00',
-                    },
-                    {
-                        name: '@RealDonaldTrump',
-                        amount: -1.2342,
-                        coin: 'BIP',
-                        timestamp: '2018-04-09 18:32:42+03:00',
-                    },
-                    {
-                        name: 'McDonalds',
-                        amount: -1.55,
-                        coin: 'MCD',
-                        image: '/img/tmp/logo-mcd.png',
-                        timestamp: '2018-04-11 18:31:42+03:00',
-                    },
-                    {
-                        name: '@PavelDurov',
-                        amount: 1000000000,
-                        coin: 'GRAM',
-                        timestamp: '2018-04-11 18:32:42+03:00',
-                    },
-                ],
-            },
-            coinList: {
-                type: Array,
-                default: () => [
-                    {
-                        name: 'bip',
-                        amount: 22.2234,
-                        coin: 'BIP',
-                        image: '/img/tmp/logo-stbx.png',
-                    },
-                    {
-                        name: 'McDonalds',
-                        amount: 12334.54,
-                        coin: 'MCD',
-                        image: '/img/tmp/logo-mcd.png',
-                    },
-                ],
-            },
+
         },
         data() {
             return {
-                balance: 120912.98230221,
                 isTxListLoading: true,
+                isBalanceLoading: true,
             }
         },
         computed: {
-            ...mapGetters({
-                txList: 'transactionList',
+            ...mapState({
+                txList: (state) => state.transactionListInfo.data,
+                balance: 'balance',
             }),
             ...mapGetters([
                 'username',
@@ -81,7 +32,8 @@
                 'avatar',
             ]),
             balanceParts() {
-                const parts = this.balance.toString().split('.');
+                const bipTotal = this.balance.bipTotal || 0;
+                const parts = bipTotal.toString().split('.');
                 return {
                     whole:  parts[0] ? thousandsFilter(parts[0]) : 0,
                     decimal: parts[1] ? '.' + parts[1] : '',
@@ -89,14 +41,27 @@
             },
         },
         beforeMount() {
-            this.$store.dispatch('FETCH_TRANSACTION_LIST')
-                .then((txList) => {
-                    this.isTxListLoading = false;
+            this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
+                .then(() => {
+                    this.$store.dispatch('FETCH_TRANSACTION_LIST_STANDALONE')
+                        .then(() => {
+                            this.isTxListLoading = false;
+                        })
+                        .catch(() => {
+                            this.isTxListLoading = false;
+                        });
+                    this.$store.dispatch('FETCH_BALANCE_STANDALONE')
+                        .then(() => {
+                            this.isBalanceLoading = false;
+                        })
+                        .catch(() => {
+                            this.isBalanceLoading = false;
+                        });
                 })
                 .catch(() => {
                     this.isTxListLoading = false;
+                    this.isBalanceLoading = false;
                 });
-
         },
         methods: {
             formatAmount(amount) {
@@ -141,32 +106,34 @@
         </div>
 
         <div class="u-section">
-            <div v-if="transactionList">
+            <div v-if="txList && txList.length">
                 <div class="list-title">Latest Transactions</div>
-                <TransactionTable :transaction-list="transactionList"/>
+                <TransactionTable :transaction-list="txList"/>
                 <div class="u-container u-section--small">
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
                 </div>
             </div>
 
-            <div class="list-title">My coins</div>
-            <ul class="list">
-                <li class="list-item" v-for="(coin, coinIndex) in coinList" :key="coinIndex">
-                    <div class="list-item__left">
-                        <img class="list-item__thumbnail" :src="coin.image" alt="" role="presentation" v-if="coin.image">
-                        <div class="list-item__thumbnail" v-else>{{ getNameLetter(coin.name) }}</div>
-                    </div>
-                    <div class="list-item__center">
-                        <div class="list-item__name">{{ coin.name }}</div>
-                    </div>
-                    <div class="list-item__right">
-                        <div class="list-item__amount">{{ formatAmount(coin.amount) }}</div>
-                        <div class="list-item__sub">{{ coin.coin }}</div>
-                    </div>
-                </li>
-            </ul>
-            <div class="u-container u-section--small">
-                <nuxt-link class="bip-button bip-button--ghost-main" to="#">Convert</nuxt-link>
+            <div v-if="balance.coinList && balance.coinList.length">
+                <div class="list-title">My coinList</div>
+                <ul class="list">
+                    <li class="list-item" v-for="coin in balance.coinList" :key="coin.coin">
+                        <div class="list-item__left">
+                            <img class="list-item__thumbnail" :src="coin.image" alt="" role="presentation" v-if="coin.image">
+                            <div class="list-item__thumbnail" v-else>{{ getNameLetter(coin.name || coin.coin) }}</div>
+                        </div>
+                        <div class="list-item__center">
+                            <div class="list-item__name">{{ coin.name || (coin.coin | uppercase) }}</div>
+                        </div>
+                        <div class="list-item__right">
+                            <div class="list-item__amount">{{ formatAmount(coin.amount) }}</div>
+                            <div class="list-item__sub">{{ coin.coin | uppercase }}</div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="u-container u-section--small">
+                    <nuxt-link class="bip-button bip-button--ghost-main" to="#">Convert</nuxt-link>
+                </div>
             </div>
         </div>
     </Layout>

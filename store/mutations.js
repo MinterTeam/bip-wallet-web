@@ -55,8 +55,11 @@ export default {
     SET_PROFILE_ADDRESS_LIST: (state, addressList) => {
         state.profileAddressList = addressList;
     },
-    SET_TRANSACTION_LIST: (state, txList) => {
-        state.transactionList = txList;
+    SET_TRANSACTION_LIST: (state, txListInfo) => {
+        state.transactionListInfo = txListInfo;
+    },
+    SET_BALANCE: (state, balance) => {
+        state.balance = balance;
     },
     PUSH_HISTORY: (state, historyItem) => {
         state.history.push(historyItem);

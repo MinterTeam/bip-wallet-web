@@ -4,6 +4,8 @@ import ethUtil from 'ethereumjs-util';
 import aesjs from 'aes-js';
 import thousands from 'thousands';
 import decode from 'entity-decode';
+import toDate from "date-fns/esm/toDate";
+import format from "date-fns/esm/format";
 
 
 export function generateMnemonic() {
@@ -137,4 +139,11 @@ export function makeAccepter(propName, isAcceptUnmasked) {
     return function(e) {
         this.form[propName] = isAcceptUnmasked ? e.detail._unmaskedValue : e.detail._value;
     }
+}
+
+
+export function getTimeStamp(timestamp) {
+    const time = format(toDate(timestamp), 'dd MMMM YYYY HH:mm:ss (O)');
+
+    return time && time !== 'Invalid Date' ? time : false;
 }
