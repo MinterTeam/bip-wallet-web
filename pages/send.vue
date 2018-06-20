@@ -4,11 +4,13 @@
     import {IMaskDirective} from 'vue-imask';
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
+    import maxValue from 'vuelidate/lib/validators/maxValue';
     import withParams from 'vuelidate/lib/withParams';
     import {getAddressInfo} from "~/api";
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
+    import Modal from '~/components/Modal';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
         return parseFloat(value) > 0;
@@ -25,6 +27,7 @@
         PAGE_TITLE: 'Send Coins',
         components: {
             Layout,
+            Modal,
         },
         mixins: [validationMixin],
         directives: {
@@ -32,6 +35,9 @@
         },
         filters: {
             uppercase: (value) => value.toUpperCase(),
+        },
+        fetch ({ store }) {
+            return store.dispatch('FETCH_BALANCE');
         },
         head() {
             return {
@@ -42,19 +48,18 @@
             }
         },
         data() {
+            const coinList = this.$store.state.balance.coinList;
             return {
-                isBalanceLoading: true,
                 isFormSending: false,
                 serverError: '',
                 form: {
-                    coin: '',
+                    coin: coinList && coinList.length ? coinList[0].coin : '',
                     address: '',
                     amount: '',
                 },
                 sve: {
                     address: {invalid: false, isActual: false, message: ''},
                 },
-                isSendForFree: false,
                 recipient: '',
                 recipientCheckTimer: null,
                 recipientLoading: false, // latest recipient value sent to check and still loading
@@ -62,26 +67,41 @@
                     mask: /^[0-9]*\.?[0-9]*$/,
                 },
                 amountMasked: '',
+                isSendForFree: false,
+                isModalOpen: false,
             }
         },
-        validations: {
-            form: {
-                coin: {
-                    required,
-                },
-                address: {
-                    required,
-                    server: getServerValidator('address'),
-                },
-                amount: {
-                    required,
-                    validAmount: isValidAmount,
-                },
+        validations() {
+            return {
+                form: {
+                    coin: {
+                        required,
+                    },
+                    address: {
+                        required,
+                        server: getServerValidator('address'),
+                    },
+                    amount: {
+                        required,
+                        validAmount: isValidAmount,
+                        maxValue: maxValue(this.maxAmount || 0),
+                    },
+                }
             }
         },
         computed: {
             isRecipientCheckWait() {
                 return this.recipientLoading || this.recipientCheckTimer;
+            },
+            maxAmount() {
+                let selectedCoin;
+                this.balance.coinList.some((coin) => {
+                    if (coin.coin === this.form.coin) {
+                        selectedCoin = coin;
+                        return true;
+                    }
+                });
+                return selectedCoin ? selectedCoin.amount : 0;
             },
             ...mapState({
                 balance: 'balance',
@@ -124,15 +144,6 @@
                 }
             }
         },
-        beforeMount() {
-            this.$store.dispatch('FETCH_BALANCE')
-                .then(() => {
-                    this.isBalanceLoading = false;
-                })
-                .catch(() => {
-                    this.isBalanceLoading = false;
-                });
-        },
         methods: {
             // force check after blur if needed
             recipientBlur() {
@@ -141,7 +152,6 @@
                     ||
                     (this.recipientLoading && this.recipientLoading !== this.recipient) // checking in progress and recipient value changed from last check
                 ) {
-                    console.log('force check')
                     this.clearRecipientTimer();
                     this.checkRecipient();
                 }
@@ -156,14 +166,12 @@
                     // cancel previous request
                     recipientCheckCancel();
                 }
-                console.log('set loading true')
                 this.recipientLoading = this.recipient;
                 getAddressInfo(recipientCheckData, new axios.CancelToken((cancelFn) => {
                     recipientCheckCancel = cancelFn;
                 }))
                     .then((user) => {
                         this.form.address = user.address;
-                        console.log('then')
                         this.recipientLoading = false;
                     })
                     .catch((error) => {
@@ -185,7 +193,6 @@
                             // unexpected error
                             this.setAddressError('Can\'t get address from server');
                         }
-                        console.log('catch')
                         this.recipientLoading = false;
                     })
             },
@@ -196,14 +203,19 @@
                 this.amountMasked = e.detail._value;
                 this.form.amount = e.detail._unmaskedValue;
             },
-            sendTx() {
-                if (this.isFormSending) {
-                    return;
-                }
+            openTxModal() {
                 if (this.$v.$invalid) {
                     this.$v.$touch();
                     return;
                 }
+
+                this.isModalOpen = true;
+            },
+            sendTx() {
+                if (this.isFormSending) {
+                    return;
+                }
+
                 this.isFormSending = true;
             },
         }
@@ -218,11 +230,9 @@
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.coin.$error}">
                     <span class="bip-field__label">Coin</span>
                     <span class="bip-field__error" v-if="$v.form.coin.$dirty && !$v.form.coin.required">Enter coin</span>
-                    <!--<span class="bip-field__error" v-if="$v.form.coin.$dirty && !$v.form.coin.server">{{ sve.coin.message }}</span>-->
                     <select class="bip-field__input bip-field__input--select"
                             v-model="form.coin"
                             @blur="$v.form.coin.$touch()"
-                            @input="sve.coin.isActual = false"
                     >
                         <option v-for="coin in balance.coinList" :key="coin.coin" :value="coin.coin">{{ coin.coin | uppercase }} ({{ coin.amount }})</option>
                     </select>
@@ -242,22 +252,22 @@
                     <span class="bip-field__label">Amount</span>
                     <span class="bip-field__error" v-if="$v.form.amount.$dirty && !$v.form.amount.required">Enter amount</span>
                     <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.validAmount">Wrong amount</span>
-                    <!--<span class="bip-field__error" v-if="$v.form.amount.$dirty && !$v.form.amount.server">{{ sve.amount.message }}</span>-->
+                    <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.maxAmount">Not enough coins</span>
                     <input class="bip-field__input" type="text" inputmode="numeric" placeholder="0"
                            :value="amountMasked"
                            v-imask="amountImaskOptions"
                            @accept="onAcceptAmount"
                            @blur="$v.form.amount.$touch()"
-                           @input="sve.amount.isActual = false"
                     >
                 </label>
             </div>
+<!--
 
             <div class="list">
                 <a class="list-item">
                     <div class="list-item__center">Transaction Fee</div>
                     <div class="list-item__right">
-                        <div class="list-item__label list-item__label--strong">123</div>
+                        <div class="list-item__label list-item__label&#45;&#45;strong">123</div>
                     </div>
                 </a>
                 <div class="list-item">
@@ -265,16 +275,17 @@
                     <div class="list-item__right">
                         <label class="switch">
                             <input type="checkbox" class="switch__input" v-model="isSendForFree">
-                            <div class="switch__toggle">
-                                <div class="switch__handle"></div>
-                            </div>
+                            <span class="switch__toggle">
+                                <span class="switch__handle"></span>
+                            </span>
                         </label>
                     </div>
                 </div>
             </div>
+-->
 
             <div class="u-section u-container">
-                <button class="bip-button bip-button--main" :class="{'is-disabled': $v.$invalid}" @click="sendTx">Send!</button>
+                <button class="bip-button bip-button--main" :class="{'is-disabled': $v.$invalid}" @click="openTxModal">Send!</button>
                 <span class="bip-form__error" v-if="serverError">{{ serverError }}</span>
             </div>
         </div>
@@ -285,6 +296,11 @@
         </div>
 
 
-
+        <Modal :isOpen.sync="isModalOpen" :hideCloseButton="true">
+            <h3 class="modal__title u-h2">You're sending</h3>
+            <p class="modal__text">{{ this.form.amount }} {{ this.form.coin | uppercase }}</p>
+            <button class="bip-button bip-button--main" @click="sendTx">BIP!</button>
+            <button class="bip-button bip-button--ghost-main" @click="isModalOpen = false">Cancel</button>
+        </Modal>
     </Layout>
 </template>

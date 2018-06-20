@@ -55,6 +55,14 @@
     .avatar-field__button {margin: 0; max-width: 280px;}
 }
 
+.file-input__drag-layer {
+    &::before {content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: 22px 18px; border: 3px dashed; border-radius: 20px; z-index: -1;}
+}
+.file-input__drag-layer-container {padding-left: 15px; padding-right: 15px;}
+@media (min-width: @breakpoint-small-up) {
+    .file-input__drag-layer::before {margin: 28px 25px;}
+}
+
 
 @keyframes fade-in {
     0% {opacity: 0;}

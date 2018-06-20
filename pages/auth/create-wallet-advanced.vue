@@ -83,9 +83,9 @@
                 <div class="list-item__right">
                     <label class="switch">
                         <input type="checkbox" class="switch__input" v-model="isMnemonicSaved">
-                        <div class="switch__toggle">
-                            <div class="switch__handle"></div>
-                        </div>
+                        <span class="switch__toggle">
+                            <span class="switch__handle"></span>
+                        </span>
                     </label>
                 </div>
             </div>

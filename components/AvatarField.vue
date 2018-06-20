@@ -3,12 +3,14 @@
     import FileInput from 'v-file-input/src/FileInput';
     import {putProfileAvatar} from "~/api";
     import {getValidationError, getErrorText} from "~/assets/server-error";
+    import Modal from '~/components/Modal';
 
     const MAX_FILE_SIZE = 0.5; // MB
 
     export default {
         components: {
             FileInput,
+            Modal,
         },
         data() {
             return {
@@ -71,10 +73,10 @@
             <label class="bip-button bip-button--ghost-main avatar-field__button" :class="{'is-loading': isFormSending}">
                 <span class="bip-button__content">{{ avatar ? 'Change userpic' : 'Upload userpic' }}</span>
                 <FileInput accept="image/*" class="avatar-field__input"
-                           v-on:onAdd="updateFile"
-                           v-on:onError="fileApiError = true"
-                           v-on:onDragStart="isDragLayerVisible = true"
-                           v-on:onDragEnd="isDragLayerVisible = false"
+                           @onAdd="updateFile"
+                           @onError="fileApiError = true"
+                           @onDragStart="isDragLayerVisible = true"
+                           @onDragEnd="isDragLayerVisible = false"
                 />
                 <svg class="button-loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="button-loader__path" cx="25" cy="25" r="16"></circle>
@@ -82,5 +84,14 @@
             </label>
         </div>
         <div class="bip-form__error" v-if="fileError">{{ fileError }}</div>
+
+        <Modal :isOpen.sync="isDragLayerVisible"
+               :hideCloseButton="true"
+               modal-class="file-input__drag-layer"
+               modal-container-class="file-input__drag-layer-container"
+        >
+            <h3 class="modal__title u-h2">Upload image</h3>
+            <p class="modal__text">Drop image anywhere to upload</p>
+        </Modal>
     </div>
 </template>

@@ -118,6 +118,10 @@ export function thousandsFilter(value) {
     return decode(thousands(value, '&thinsp;'));
 }
 
+export function getLocaleString(value) {
+    return decode(value.toLocaleString().replace(' ', '&thinsp;'));
+}
+
 export function removeEmptyKeys(obj) {
     let result = {};
     Object.keys(obj).forEach((key) => {

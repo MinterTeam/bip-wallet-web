@@ -146,9 +146,9 @@
                         <div class="list-item__right">
                             <label class="switch">
                                 <input type="radio" class="switch__input" :value="address.address" v-model="selectedAddress">
-                                <div class="switch__toggle">
-                                    <div class="switch__handle"></div>
-                                </div>
+                                <span class="switch__toggle">
+                                    <span class="switch__handle"></span>
+                                </span>
                             </label>
                         </div>
                     </div>

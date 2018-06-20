@@ -1,6 +1,6 @@
 <script>
     import {mapGetters, mapState} from 'vuex';
-    import {getNameLetter, thousandsFilter} from "~/assets/utils";
+    import {getNameLetter, thousandsFilter, getLocaleString} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
@@ -11,6 +11,7 @@
         },
         filters: {
             uppercase: (value) => value.toUpperCase(),
+            localeString: getLocaleString,
         },
         props: {
 
@@ -64,9 +65,6 @@
                 });
         },
         methods: {
-            formatAmount(amount) {
-                return amount.toLocaleString();
-            },
             getNameLetter,
         },
     }
@@ -123,10 +121,10 @@
                             <div class="list-item__thumbnail" v-else>{{ getNameLetter(coin.name || coin.coin) }}</div>
                         </div>
                         <div class="list-item__center">
-                            <div class="list-item__name">{{ coin.name || (coin.coin | uppercase) }}</div>
+                            <div class="list-item__name">{{ coin.name || coin.coin }}</div>
                         </div>
                         <div class="list-item__right">
-                            <div class="list-item__amount">{{ formatAmount(coin.amount) }}</div>
+                            <div class="list-item__amount">{{ coin.amount | localeString }}</div>
                             <div class="list-item__sub">{{ coin.coin | uppercase }}</div>
                         </div>
                     </li>
