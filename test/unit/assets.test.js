@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import aesjs from 'aes-js';
 import ethUtil from 'ethereumjs-util';
 import {Buffer} from 'safe-buffer';
-import {aesEncrypt, getPasswordToStore, prepareIV} from "~/assets/utils";
+import {aesEncrypt, getPasswordToStore, getPasswordToSend, prepareIV} from "~/assets/utils";
 
 const mnemonic = "globe arrange forget twice potato nurse ice dwarf arctic piano scorpion tube";
 const rawPassword = "123456";
@@ -36,7 +36,7 @@ test('to bytes aes-js', () => {
 test('prepare iv', () => {
     const bytesIV = prepareIV(MINTER_IV);
     expect(aesjs.utils.hex.fromBytes(bytesIV)).toEqual('4d696e74657220736565640000000000')
-})
+});
 
 test('aes encryption', () => {
     const hexPassword = getPasswordToStore(rawPassword);
@@ -62,5 +62,14 @@ test('aes encryption, minter iv', () => {
 
 
 test('password to store should be 32 bytes length', () => {
-    expect(aesjs.utils.hex.toBytes(getPasswordToStore(rawPassword))).toHaveLength(32);
+    const storePassword = getPasswordToStore(rawPassword);
+    expect(aesjs.utils.hex.toBytes(storePassword)).toHaveLength(32);
+    expect(storePassword).toEqual('8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
+});
+
+test('password to send', () => {
+    const storePassword = getPasswordToStore(rawPassword);
+    const sendPassword = getPasswordToSend(storePassword);
+    expect(aesjs.utils.hex.toBytes(sendPassword)).toHaveLength(32);
+    expect(sendPassword).toEqual('49dc52e6bf2abe5ef6e2bb5b0f1ee2d765b922ae6cc8b95d39dc06c21c848f8c');
 });
