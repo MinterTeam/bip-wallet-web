@@ -1,8 +1,9 @@
 <script>
+    import {generateMnemonic} from 'minterjs-wallet';
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import getTitle from '~/assets/get-title';
-    import {generateMnemonic, addressFromMnemonic} from "~/assets/utils";
+    import {addressFromMnemonic} from "minter-js-org";
     import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
     import Toast from '~/components/Toast';

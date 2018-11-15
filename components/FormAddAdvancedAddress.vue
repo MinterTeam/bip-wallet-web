@@ -2,7 +2,8 @@
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import withParams from 'vuelidate/lib/withParams';
-    import {isValidMnemonic, addressFromMnemonic} from "~/assets/utils";
+    import {isValidMnemonic} from 'minterjs-wallet';
+    import {addressFromMnemonic} from "minter-js-org";
 
     const mnemonicValidator = withParams({type: 'mnemonic'}, isValidMnemonic);
 

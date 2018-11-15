@@ -1,7 +1,7 @@
 <script>
     import {validationMixin} from 'vuelidate';
     import email from 'vuelidate/lib/validators/email';
-    import {putProfile} from "~/api";
+    import {updateProfile} from "~/api";
     import getTitle from '~/assets/get-title';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import Layout from '~/components/LayoutDefault';
@@ -51,7 +51,7 @@
                 }
                 this.isFormSending = true;
 
-                putProfile(this.form)
+                updateProfile(this.form)
                     .then(() => {
                         this.$store.commit('SET_PROFILE_USER', {
                             ...this.$store.state.auth.user,

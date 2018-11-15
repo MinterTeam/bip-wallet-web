@@ -3,7 +3,7 @@
     import required from 'vuelidate/lib/validators/required';
     import minLength from 'vuelidate/lib/validators/minLength';
     import maxLength from 'vuelidate/lib/validators/maxLength';
-    import {putProfile} from "~/api";
+    import {updateProfile} from "~/api";
     import getTitle from '~/assets/get-title';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import {makeAccepter} from "~/assets/utils";
@@ -59,7 +59,7 @@
                 }
                 this.isFormSending = true;
 
-                putProfile(this.form)
+                updateProfile(this.form)
                     .then(() => {
                         this.$store.commit('SET_PROFILE_USER', {
                             ...this.$store.state.auth.user,

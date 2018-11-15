@@ -1,7 +1,4 @@
-const nodeExternals = require('webpack-node-externals');
-
-import {BASE_TITLE} from "./assets/variables";
-const BASE_DESCRIPTION = '';
+import {BASE_TITLE, BASE_DESCRIPTION} from "./assets/variables";
 
 module.exports = {
     /*
@@ -69,28 +66,6 @@ module.exports = {
     ** Build configuration
     */
     build: {
-        /*
-        ** Run ESLint on save
-        */
-        extend (config, { isDev, isClient, isServer }) {
-            if (isDev && isClient) {
-                config.module.rules.push({
-                    enforce: 'pre',
-                    test: /\.(js|vue)$/,
-                    loader: 'eslint-loader',
-                    exclude: /(node_modules)/
-                })
-            }
-            /*
-            ** process some node_modules through webpack in server build
-            */
-            if (isServer) {
-                config.externals = [
-                    nodeExternals({
-                        whitelist: [/^v-file-input\/src/, /^date-fns\/esm/, /^lodash-es/]
-                    })
-                ]
-            }
-        }
+        transpile: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^v-file-input\/src/, /^date-fns\/esm/, /^lodash-es/],
     }
 }

@@ -1,4 +1,5 @@
-import {getNameLetter, isValidMnemonic, walletFromMnemonic} from "~/assets/utils";
+import {isValidMnemonic, walletFromMnemonic} from 'minterjs-wallet';
+import {getNameLetter} from "~/assets/utils";
 
 export default {
     /**
@@ -26,17 +27,7 @@ export default {
         return state.auth.advanced.concat(state.profileAddressList);
     },
     /**
-     * User wallet
-     * @return {Wallet|null}
-     */
-    getWallet: (state, getters) => (address) => {
-        if (!getters.isAuthorized) {
-            return null;
-        }
-        return walletFromMnemonic(address.mnemonic);
-    },
-    /**
-     * User address
+     * User address hash
      * @return {string}
      */
     mainAdvancedAddress(state, getters) {
@@ -46,7 +37,7 @@ export default {
         let mainAddress = '';
         state.auth.advanced.some((address) => {
             if (address.isMain) {
-                mainAddress = getters.getWallet(address).getAddressString();
+                mainAddress = walletFromMnemonic(address.mnemonic).getAddressString();
                 return true;
             }
         });

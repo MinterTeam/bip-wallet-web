@@ -1,7 +1,7 @@
 <script>
     import {mapGetters} from 'vuex';
     import FileInput from 'v-file-input/src/FileInput';
-    import {putProfileAvatar} from "~/api";
+    import {updateProfileAvatar} from "~/api";
     import {getValidationError, getErrorText} from "~/assets/server-error";
     import Modal from '~/components/Modal';
 
@@ -35,7 +35,7 @@
 
                 this.isFormSending = true;
                 this.fileError = '';
-                putProfileAvatar(files[0].blob)
+                updateProfileAvatar(files[0].blob)
                     .then((userAvatar) => {
                         this.$store.commit('SET_PROFILE_USER', {
                             ...this.$store.state.auth.user,

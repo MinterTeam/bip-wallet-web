@@ -1,4 +1,4 @@
-import {setAuthToken} from "~/api/myminter";
+import {setAuthToken} from "~/api/minterorg";
 
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {
@@ -40,19 +40,9 @@ export default {
     UPDATE_PROFILE_PASSWORD: (state, password) => {
         state.auth.password = password;
     },
-    CHECK_MAIN_ADDRESS: (state, newProfileAddressList) => {
-        let isProfileAddressMain = newProfileAddressList.some((address) => {
-            if (address.isMain) {
-                return true;
-            }
-        });
-        if (isProfileAddressMain) {
-            state.auth.advanced.forEach((address) => {
-                address.isMain = false;
-            });
-        }
-    },
+    CHECK_MAIN_ADDRESS,
     SET_PROFILE_ADDRESS_LIST: (state, addressList) => {
+        CHECK_MAIN_ADDRESS(state, addressList);
         state.profileAddressList = addressList;
     },
     SET_TRANSACTION_LIST: (state, txListInfo) => {
@@ -67,4 +57,17 @@ export default {
     POP_HISTORY: (state) => {
         state.history.pop();
     },
+}
+
+function CHECK_MAIN_ADDRESS(state, newProfileAddressList) {
+    let isProfileAddressMain = newProfileAddressList.some((address) => {
+        if (address.isMain) {
+            return true;
+        }
+    });
+    if (isProfileAddressMain) {
+        state.auth.advanced.forEach((address) => {
+            address.isMain = false;
+        });
+    }
 }

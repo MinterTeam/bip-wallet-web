@@ -9,7 +9,6 @@ export default {
     FETCH_PROFILE_ADDRESS_LIST: ({ commit, getters }) => {
         if (getters.isUserWithProfile) {
             return getProfileAddressList().then((addressList) => {
-                commit('CHECK_MAIN_ADDRESS', addressList);
                 commit('SET_PROFILE_ADDRESS_LIST', addressList);
                 return addressList;
             });

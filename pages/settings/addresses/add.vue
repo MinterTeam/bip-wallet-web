@@ -1,7 +1,8 @@
 <script>
+    import {generateMnemonic} from 'minterjs-wallet';
     import {addProfileAddress} from "~/api";
     import getTitle from '~/assets/get-title';
-    import {generateMnemonic, addressEncryptedFromMnemonic} from "~/assets/utils";
+    import {addressEncryptedFromMnemonic} from "minter-js-org";
     import Layout from '~/components/LayoutDefault';
     import FormAddAdvancedAddress from '~/components/FormAddAdvancedAddress';
 

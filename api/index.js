@@ -45,91 +45,49 @@
  * @property {string} [mnemonic] - Stored mnemonic (if not isServerSecured)
  */
 
-import myminter from '~/api/myminter';
-import explorer from '~/api/explorer';import {generateMnemonic, getPasswordToSend, getPasswordToStore, addressEncryptedFromMnemonic} from "~/assets/utils";
+import minterorg from '~/api/minterorg';
+import explorer from '~/api/explorer';
 
-const formDataHeaders = { 'Content-Type': 'multipart/form-data' };
-
+/**
+ * @param data
+ * @return {Promise<User|{confirmations: Array}>}
+ */
 export function register(data) {
-    const passwordToStore = getPasswordToStore(data.password);
-    const passwordToSend = getPasswordToSend(passwordToStore);
-    let userData = {
-        ...data,
-        password: passwordToSend,
-    };
-    delete userData.passwordConfirm;
-
-    const mnemonic = generateMnemonic();
-
-    return new Promise((resolve, reject) => {
-        myminter.post('register', {
-                ...userData,
-                mainAddress: addressEncryptedFromMnemonic(mnemonic, passwordToStore, true)
-            })
-            .then(() => {
-                login(data)
-                    .then((authData) => {
-                        resolve({
-                            ...authData,
-                            password: passwordToStore,
-                        });
-                    })
-                    .catch(reject);
-            })
-            .catch(reject);
-    });
+    return minterorg.register(data, true);
 }
 
 /**
- * @param username
- * @param password
+ * @param {Object} data
+ * @param {string} data.username
+ * @param {string} data.password
  * @return {Promise<User>}
  */
-export function login({username, password}) {
-    const passwordToStore = getPasswordToStore(password);
-    const passwordToSend = getPasswordToSend(passwordToStore);
-
-    return myminter.post('login', {
-            username,
-            password: passwordToSend,
-        })
-        .then((response) => {
-            return {
-                ...response.data.data,
-                password: passwordToStore,
-            }
-        });
+export function login(data) {
+    return minterorg.login(data);
 }
 
 /**
  * @return {Promise<User>}
  */
 export function getProfile() {
-    return myminter.get('profile')
-        .then((response) => response.data.data);
+    return minterorg.getProfile();
 }
 
-export function putProfile(profile) {
-    let dataToSend = Object.assign({}, profile);
-    if (dataToSend.password) {
-        dataToSend.password = getPasswordToSend(getPasswordToStore(dataToSend.password));
-    }
-    if (dataToSend.passwordConfirm) {
-        delete dataToSend.passwordConfirm;
-    }
-    return myminter.put('profile', dataToSend);
+
+export function updateProfile(profile) {
+    return minterorg.updateProfile(profile);
+}
+
+export function updateProfilePassword(oldPasswordToStore, newPasswordToStore) {
+    return minterorg.updateProfilePassword(oldPasswordToStore, newPasswordToStore);
 }
 
 /**
- * @param avatar
+ * @param {Blob|File} avatar
  * @return {Promise<UserAvatar>}
  */
-export function putProfileAvatar(avatar) {
-    return myminter
-        .post('profile/avatar', makeFormData({avatar}), {
-            headers: formDataHeaders,
-        })
-        .then((response) => response.data.data);
+export function updateProfileAvatar(avatar) {
+    return minterorg.updateProfileAvatar(avatar);
 }
 
 /**
@@ -173,35 +131,9 @@ export function getTransactionList(params) {
 export function getBalance(addressHash) {
     return explorer.get('address/' + addressHash)
         .then((response) => {
-            let coinList = {};
-            response.data.data.balance.forEach((item) => {
-                Object.keys(item).forEach((coinName) => {
-                    if (!coinList[coinName]) {
-                        coinList[coinName] = {};
-                    }
-                    coinList[coinName].amount = item[coinName];
-                });
-            });
-            response.data.data.balanceUsd.forEach((item) => {
-                Object.keys(item).forEach((coinName) => {
-                    if (!coinList[coinName]) {
-                        coinList[coinName] = {};
-                    }
-                    coinList[coinName].amountUsd = item[coinName];
-                });
-            });
-            delete response.data.data.balance;
-            delete response.data.data.balanceUsd;
-            return {
-                ...response.data.data,
-                coinList: Object.keys(coinList).reduce((accumulator, coinName) => {
-                    accumulator.push({
-                        ...coinList[coinName],
-                        coin: coinName,
-                    });
-                    return accumulator;
-                }, []),
-            }
+            response.data.data.coinList = response.data.data.coins;
+            delete response.data.data.coins;
+            return response.data.data
         });
 }
 
@@ -211,25 +143,23 @@ export function getBalance(addressHash) {
  * @return {Promise<[Address]>}
  */
 export function getProfileAddressList() {
-    return myminter.get('addresses')
-        .then((response) => response.data.data.map(markSecured));
+    return minterorg.getProfileAddressList();
 }
 
 export function getProfileAddressEncrypted(id) {
-    return myminter.get('addresses/' + id + '/encrypted')
-        .then((response) => markSecured(response.data.data));
+    return minterorg.getProfileAddressEncrypted(id);
 }
 
 export function addProfileAddress(address) {
-    return myminter.post('addresses', address);
+    return minterorg.addProfileAddress(address);
 }
 
 export function setMainProfileAddress(id) {
-    return myminter.put('addresses/' + id, {isMain: true});
+    return minterorg.updateProfileAddress(id, {isMain: true});
 }
 
 export function deleteProfileAddress(id) {
-    return myminter.delete('addresses/' + id);
+    return minterorg.deleteProfileAddress(id);
 }
 
 /**
@@ -240,21 +170,7 @@ export function deleteProfileAddress(id) {
  * @return {Promise<Object>}
  */
 export function getAddressInfo(params, cancelToken) {
-    return myminter
-        .get('info/address/by/contact', {
-            params,
-            cancelToken,
-        })
-        .then((response) => response.data.data)
-}
-
-function makeFormData(data) {
-    let formData = new FormData();
-    Object.keys(data).forEach((key) => {
-        formData.append(key, data[key]);
-    });
-
-    return formData;
+    return minterorg.getAddressInfo(params, {cancelToken});
 }
 
 // @TODO all addresses from server should be serverSecured

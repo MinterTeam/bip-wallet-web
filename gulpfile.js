@@ -10,7 +10,6 @@ const postcss = require('gulp-postcss');
 const postcssNormalize = require('postcss-normalize');
 const autoprefixer = require('autoprefixer');
 const cleanCss = require('gulp-clean-css');
-const multiProcess = require('gulp-multi-process');
 // css onsen
 const postcssImport = require('postcss-import');
 const cssnext = require('postcss-cssnext');
@@ -124,7 +123,7 @@ gulp.task('imagemin:clean-cache', function() {
 
 // Полная сборка с вотчем
 gulp.task('default', ['less', 'onsen', 'imagemin'], function() {
-    gulp.watch(paths.watch.less, () => multiProcess(['less'], () => {}));
+    gulp.watch(paths.watch.less, ['less']);
     gulp.watch(paths.watch.onsen, ['onsen']);
     gulp.watch(paths.src.img, ['imagemin']).on('change', function(event) {
         if (event.type === 'deleted') {

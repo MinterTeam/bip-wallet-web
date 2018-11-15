@@ -291,8 +291,9 @@
         </div>
 
         <div class="u-section u-container" v-else>
-            <span v-if="isBalanceLoading">Loading…</span>
-            <span v-else>No coins to send</span>
+            No coins to send
+            <!--<span v-if="isBalanceLoading">Loading…</span>
+            <span v-else>No coins to send</span>-->
         </div>
 
 

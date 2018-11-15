@@ -3,10 +3,10 @@
     import required from 'vuelidate/lib/validators/required';
     import minLength from 'vuelidate/lib/validators/minLength';
     import sameAs from 'vuelidate/lib/validators/sameAs';
-    import {putProfile} from "~/api";
+    import {updateProfilePassword} from "~/api";
     import getTitle from '~/assets/get-title';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
-    import {getPasswordToSend, getPasswordToStore} from "~/assets/utils";
+    import {getPasswordToStore} from "minter-js-org";
     import Layout from '~/components/LayoutDefault';
 
     export default {
@@ -62,11 +62,10 @@
                 this.isFormSending = true;
 
                 const passwordToStore = getPasswordToStore(this.form.password);
-                //@TODO re crypt all wallets
-
-                putProfile(this.form)
-                    .then(() => {
+                updateProfilePassword(this.$store.state.auth.password, passwordToStore)
+                    .then((newAddressList) => {
                         this.$store.commit('UPDATE_PROFILE_PASSWORD', passwordToStore);
+                        this.$store.commit('SET_PROFILE_ADDRESS_LIST', newAddressList);
                         this.$router.push('/settings');
                         this.isFormSending = false;
                     })

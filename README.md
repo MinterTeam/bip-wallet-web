@@ -2,7 +2,9 @@
 
 [wallet.bip.to](https://wallet.bip.to)
 
-## Deployment script
+## Deployment
+
+Build in Nuxt SPA mode
 ```
 npm ci && npm run production
 ```
@@ -10,7 +12,7 @@ Root folder: `./dist/`
 
 
 
-## Build Setup
+### Nuxt build cheatsheet
 
 ``` bash
 # install dependencies

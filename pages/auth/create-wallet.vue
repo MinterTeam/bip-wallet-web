@@ -5,7 +5,6 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import email from 'vuelidate/lib/validators/email';
     import sameAs from 'vuelidate/lib/validators/sameAs';
-    import {IMaskDirective} from 'vue-imask';
     import getTitle from '~/assets/get-title';
     import {register} from '~/api';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
@@ -22,9 +21,6 @@
             InputMaskedPhone,
         },
         mixins: [validationMixin],
-        directives: {
-            'imask': IMaskDirective,
-        },
         head() {
             return {
                 title: getTitle(this.$options.PAGE_TITLE),
