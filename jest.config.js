@@ -5,6 +5,6 @@ module.exports = {
     },
     transform: { '^.+\\.js$': '<rootDir>/jest-babel.config.js' },
     "transformIgnorePatterns": [
-        "node_modules/(?!(lodash-es|date-fns)/)"
-    ]
+        "node_modules/(?!(lodash-es|date-fns)/)",
+    ],
 };

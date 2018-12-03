@@ -10,9 +10,9 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
-    }
+    };
 </script>
 
 <template>

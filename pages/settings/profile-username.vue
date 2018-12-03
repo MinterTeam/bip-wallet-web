@@ -14,7 +14,7 @@
         PAGE_TITLE: 'Change Username',
         components: {
             Layout,
-            InputMaskedName
+            InputMaskedName,
         },
         mixins: [validationMixin],
         head() {
@@ -23,7 +23,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -35,7 +35,7 @@
                 sve: {
                     username: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -45,7 +45,7 @@
                     maxLength: maxLength(32),
                     server: getServerValidator('username'),
                 },
-            }
+            },
         },
         methods: {
             onAcceptUsername: makeAccepter('username', true),
@@ -75,9 +75,9 @@
                         }
                         this.isFormSending = false;
                     });
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>

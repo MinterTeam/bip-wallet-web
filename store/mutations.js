@@ -11,18 +11,16 @@ export default {
         state.auth.advanced.push(address);
     },
     DELETE_ADVANCED_ADDRESS: (state, addressHash) => {
-        let indexToDelete;
         state.auth.advanced.some((address, index) => {
-            if (address.address = addressHash) {
-                indexToDelete = index;
+            if (address.address === addressHash) {
+                state.auth.advanced.splice(index, 1);
                 return true;
             }
         });
-        state.auth.advanced.splice(indexToDelete, 1);
     },
     SET_MAIN_ADVANCED_ADDRESS: (state, addressHash) => {
         state.auth.advanced.some((address) => {
-            if (address.address = addressHash) {
+            if (address.address === addressHash) {
                 address.isMain = true;
                 return true;
             }
@@ -57,7 +55,7 @@ export default {
     POP_HISTORY: (state) => {
         state.history.pop();
     },
-}
+};
 
 function CHECK_MAIN_ADDRESS(state, newProfileAddressList) {
     let isProfileAddressMain = newProfileAddressList.some((address) => {

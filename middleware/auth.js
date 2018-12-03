@@ -1,4 +1,4 @@
-export default function ({store, route, redirect, error}) {
+export default function({store, route, redirect, error}) {
     if (process.server) {
         return;
     }
@@ -11,7 +11,7 @@ export default function ({store, route, redirect, error}) {
         /^\/transactions(\/|$)/,
         /^\/send(\/|$)/,
         /^\/recieve(\/|$)/,
-        /^\/settings(\/|$)/
+        /^\/settings(\/|$)/,
     ].some((pathRegex) => {
         return pathRegex.test(route.path);
     });

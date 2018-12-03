@@ -19,31 +19,35 @@
             },
             backUrl: {
                 type: String,
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>
     <div>
         <header class="header">
-            <slot name="toolbar">
-                <Navbar :title="title" :back-url="backUrl"/>
-            </slot>
-            <menu class="menu u-container" v-if="$store.getters.isAuthorized">
-                <li class="menu__item">
-                    <nuxt-link class="menu__link" to="/" exact>Coins</nuxt-link>
-                </li>
-                <li class="menu__item">
-                    <nuxt-link class="menu__link" to="/send">Send</nuxt-link>
-                </li>
-                <li class="menu__item">
-                    <nuxt-link class="menu__link" to="/receive">Receive</nuxt-link>
-                </li>
-                <li class="menu__item">
-                    <nuxt-link class="menu__link" to="/settings">Settings</nuxt-link>
-                </li>
-            </menu>
+            <div class="toolbar-wrap">
+                <slot name="toolbar">
+                    <Navbar :title="title" :back-url="backUrl"/>
+                </slot>
+            </div>
+            <div class="menu" v-if="$store.getters.isAuthorized">
+                <menu class="menu__container u-container">
+                    <li class="menu__item">
+                        <nuxt-link class="menu__link" to="/" exact>Coins</nuxt-link>
+                    </li>
+                    <li class="menu__item">
+                        <nuxt-link class="menu__link" to="/send">Send</nuxt-link>
+                    </li>
+                    <li class="menu__item">
+                        <nuxt-link class="menu__link" to="/receive">Receive</nuxt-link>
+                    </li>
+                    <li class="menu__item">
+                        <nuxt-link class="menu__link" to="/settings">Settings</nuxt-link>
+                    </li>
+                </menu>
+            </div>
         </header>
 
         <div class="default-layout__content-wrap">

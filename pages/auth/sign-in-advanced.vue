@@ -15,14 +15,14 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         methods: {
             authorize() {
                 this.$router.push('/');
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>

@@ -21,19 +21,19 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
                 mnemonic: '',
                 isMnemonicSaved: false,
                 isToastVisible: false,
-            }
+            };
         },
         validations: {
             isMnemonicSaved: {
                 required,
-            }
+            },
         },
         computed: {
             isClipboardSupported() {
@@ -56,8 +56,8 @@
                 this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic, true));
                 this.$router.push('/');
             },
-        }
-    }
+        },
+    };
 </script>
 
 <template>

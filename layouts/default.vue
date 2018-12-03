@@ -6,8 +6,8 @@
     export default {
         head: {
             bodyAttrs: {
-                class: 'default-layout'
-            }
-        }
-    }
+                class: 'default-layout',
+            },
+        },
+    };
 </script>

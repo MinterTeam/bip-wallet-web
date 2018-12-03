@@ -18,7 +18,7 @@
             timeout: {
                 type: Number|Boolean,
                 default: 5000,
-            }
+            },
         },
         watch: {
             isVisible(newValue) {
@@ -27,15 +27,15 @@
                     clearTimeout(timer);
                     timer = setTimeout(this.hide, this.timeout);
                 }
-            }
+            },
         },
         methods: {
             hide() {
                 this.$emit('update:isVisible', false);
                 clearTimeout(timer);
             },
-        }
-    }
+        },
+    };
 </script>
 
 <template>

@@ -18,7 +18,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         methods: {
             addressAdded() {
@@ -33,10 +33,10 @@
                     })
                     .catch(() => {
                         window.alert('Error saving address');
-                    })
-            }
-        }
-    }
+                    });
+            },
+        },
+    };
 </script>
 
 <template>

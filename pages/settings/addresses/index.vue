@@ -20,14 +20,14 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
                 isAddressListLoading: true,
                 selectedAddress: null,
                 isToastVisible: false,
-            }
+            };
         },
         computed: {
             /** @type Array<Address> */
@@ -39,7 +39,7 @@
             },
             isUserWithProfile() {
                 return this.$store.getters.isUserWithProfile;
-            }
+            },
         },
         watch: {
             // Save new isMain address
@@ -61,7 +61,7 @@
                 } else {
                     this.$store.commit('SET_MAIN_ADVANCED_ADDRESS', newVal);
                 }
-            }
+            },
         },
         beforeMount() {
             this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
@@ -96,9 +96,9 @@
             },
             getManageAddressLink(address) {
                 return {path: '/settings/addresses/manage', query: address.isServerSecured ? {id: address.id} : {hash: address.address}};
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>

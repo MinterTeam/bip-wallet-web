@@ -1,6 +1,6 @@
 <script>
     import {mapGetters, mapState} from 'vuex';
-    import {getNameLetter, thousandsFilter, getLocaleString} from "~/assets/utils";
+    import {getNameLetter, pretty} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
@@ -10,8 +10,8 @@
             TransactionTable,
         },
         filters: {
+            pretty,
             uppercase: (value) => value.toUpperCase(),
-            localeString: getLocaleString,
         },
         props: {
 
@@ -20,23 +20,23 @@
             return {
                 isTxListLoading: true,
                 isBalanceLoading: true,
-            }
+            };
         },
         computed: {
             ...mapState({
-                txList: (state) => state.transactionListInfo.data,
+                txList: (state) => state.transactionListInfo.data.slice(0, 5),
                 balance: 'balance',
             }),
             ...mapGetters([
                 'username',
                 'usernameLetter',
                 'avatar',
+                'baseCoin',
             ]),
             balanceParts() {
-                const bipTotal = this.balance.bipTotal || 0;
-                const parts = bipTotal.toString().split('.');
+                const parts = this.baseCoin ? pretty(this.baseCoin.amount).split('.') : [];
                 return {
-                    whole:  parts[0] ? thousandsFilter(parts[0]) : 0,
+                    whole:  parts[0] ? parts[0] : 0,
                     decimal: parts[1] ? '.' + parts[1] : '',
                 };
             },
@@ -67,21 +67,19 @@
         methods: {
             getNameLetter,
         },
-    }
+    };
 </script>
 
 
 <template>
     <Layout :is-bg-white="true">
         <template slot="toolbar">
-            <div class="toolbar">
-                <div class="toolbar__left">
-                    <div class="toolbar-button">
-                        <img class="" src="/img/bip-logo.svg" alt="Bip" width="37"/>
-                    </div>
+            <div class="toolbar u-container">
+                <div class="toolbar__left toolbar__left--logo">
+                    <img class="toolbar-logo" src="/img/bip-logo.svg" alt="Bip" width="42"/>
                 </div>
                 <div class="toolbar__right">
-                    <div class="toolbar-button user">
+                    <nuxt-link class="toolbar-button user" to="/settings">
                         <div class="user__name">{{ username }}</div>
                         <div class="user__avatar"
                              :style="{backgroundImage: avatar ? `url('${avatar}')` : ''}"
@@ -90,7 +88,7 @@
                             <span v-if="!avatar">{{ usernameLetter }}</span>
                         </div>
 
-                    </div>
+                    </nuxt-link>
                 </div>
             </div>
         </template>
@@ -99,7 +97,7 @@
         <div class="balance u-container">
             <div class="balance__caption">My Balance</div>
             <div>
-                <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} bips</span>
+                <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ baseCoin ? baseCoin.coin : '' }}</span>
             </div>
         </div>
 
@@ -112,10 +110,10 @@
                 </div>
             </div>
 
-            <div v-if="balance.coinList && balance.coinList.length">
+            <div v-if="balance && balance.length">
                 <div class="list-title">My coinList</div>
                 <ul class="list">
-                    <li class="list-item" v-for="coin in balance.coinList" :key="coin.coin">
+                    <li class="list-item" v-for="coin in balance" :key="coin.coin">
                         <div class="list-item__left">
                             <img class="list-item__thumbnail" :src="coin.image" alt="" role="presentation" v-if="coin.image">
                             <div class="list-item__thumbnail" v-else>{{ getNameLetter(coin.name || coin.coin) }}</div>
@@ -124,7 +122,7 @@
                             <div class="list-item__name">{{ coin.name || coin.coin }}</div>
                         </div>
                         <div class="list-item__right">
-                            <div class="list-item__amount">{{ coin.amount | localeString }}</div>
+                            <div class="list-item__amount">{{ coin.amount | pretty }}</div>
                             <div class="list-item__sub">{{ coin.coin | uppercase }}</div>
                         </div>
                     </li>

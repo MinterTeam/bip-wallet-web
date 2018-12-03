@@ -1,3 +1,7 @@
+const dotenv = require('dotenv');
+
+const envConfig = dotenv.config();
+
 import {BASE_TITLE, BASE_DESCRIPTION} from "./assets/variables";
 
 module.exports = {
@@ -17,7 +21,7 @@ module.exports = {
         link: [
             { rel: 'icon', href: '/favicon.png' },
             { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
-        ]
+        ],
     },
     css: [
         './static/css/style.min.css',
@@ -36,14 +40,12 @@ module.exports = {
             'profile',
         ],
     },
-    /*
-      ** Modules
-      */
+    env: envConfig.error ? {} : envConfig.parsed,
     modules: [
         //'@nuxtjs/pwa'
     ],
     plugins: [
-        { src: '~/plugins/persistedState.js', ssr: false }
+        { src: '~/plugins/persistedState.js', ssr: false },
     ],
     /*
     ** PWA manifest
@@ -51,7 +53,7 @@ module.exports = {
     manifest: {
         name: BASE_TITLE,
         short_name: BASE_TITLE,
-        lang: 'en'
+        lang: 'en',
     },
     /*
     ** PWA meta
@@ -67,5 +69,5 @@ module.exports = {
     */
     build: {
         transpile: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^v-file-input\/src/, /^date-fns\/esm/, /^lodash-es/],
-    }
-}
+    },
+};

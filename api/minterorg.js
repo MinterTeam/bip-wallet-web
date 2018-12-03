@@ -1,8 +1,8 @@
 import MinterOrg from 'minter-js-org';
-import {MYMINTER_API_URL} from "~/assets/variables";
+import {MINTERORG_API_URL} from "~/assets/variables";
 
 const minterOrg = new MinterOrg({
-    baseURL: MYMINTER_API_URL,
+    baseURL: MINTERORG_API_URL,
 });
 
 const TOKEN_KEY = 'auth-token';
@@ -19,11 +19,11 @@ export default minterOrg;
 /**
  * @param {TokenData} tokenData
  */
-export function setAuthToken (tokenData) {
+export function setAuthToken(tokenData) {
     minterOrg.setAuthToken(tokenData);
     localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenData));
 }
 
-export function resetAuthToken () {
+export function resetAuthToken() {
     minterOrg.resetAuthToken();
 }

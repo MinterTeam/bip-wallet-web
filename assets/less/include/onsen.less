@@ -1,16 +1,23 @@
 @import "variables";
 
 /* customize onsen components */
+.toolbar-wrap {background: @c-violet;}
 .toolbar {flex-shrink: 0; justify-content: space-between;}
 .toolbar__center {flex-shrink: 0; font-size: 18px; font-weight: 700;}
 .toolbar__left, .toolbar__right {flex-basis: 27%;}
+.toolbar__left {margin-left: -8px;}
+.toolbar__right {margin-right: -8px;}
+.toolbar__left--logo {margin-left: 0px; display: flex; align-items: center;}
 .toolbar-button {
-    display: inline-flex; height: @toolbar-height; align-items: center; font-size: 14px; line-height: 1.4; text-decoration: none;
+    display: inline-flex; height: @toolbar-height; padding: 4px 8px; align-items: center; font-size: 14px; line-height: 1.4; text-decoration: none;
     &:active {opacity: 0.5;}
 }
-.back-button {display: inline-flex; align-items: center; padding-left: 8px; text-decoration: none;}
+.back-button {display: inline-flex; align-items: center; height: @toolbar-height; line-height: @toolbar-height; text-decoration: none; padding-left: 0;}
 .back-button__label {font-size: 14px; margin-top: -1px;}
-.back-button__icon {height: auto;}
+.back-button__icon {height: auto; margin-right: 8px;}
+@media (min-width: @breakpoint-small-up) {
+    .back-button {padding-left: 6px;}
+}
 .list {
     &+& {margin-top: @section-margin;}
 }
@@ -24,7 +31,7 @@
 }
 .list-item__left, .list-item__center, .list-item__right {padding-top: 10px; padding-bottom: 10px;}
 .list-item__left {padding-right: 10px;}
-.list-item__center {padding-right: @container-padding;}
+.list-item__center {padding-right: @container-padding; flex-direction: column; align-items: flex-start; justify-content: center;}
 .list-item__right {padding-right: 0; flex-wrap: wrap; justify-content: flex-end;}
 .list-item--chevron__right {padding-right: 12px;}
 .list-item--chevron::before {margin-top: 1px; width: 9px; height: 9px;}
@@ -42,11 +49,13 @@
 
 /* extend onsen components */
 .list-item__center--overflow {overflow: hidden;}
+.list-item__right--exchange {margin-left: -50%;}
 .list-item__label--strong {opacity: 1; font-weight: 500;}
-.list-item__name {font-size: 16px; font-weight: 700;}
-.list-item__amount {font-size: 16px; font-weight: 500; line-height: 1.2; width: 100%; text-align: right;}
+.list-item__name {font-size: 16px; font-weight: 700; line-height: 1.2; max-width: 100%;}
+.list-item__amount {font-size: 16px; font-weight: 500; line-height: 1.2; width: 100%; text-align: right; white-space: nowrap}
 .list-item__amount--plus {color: @c-green;}
-.list-item__sub {font-size: 11px; font-weight: 500; color: @c-black-light; text-transform: uppercase;}
+.list-item__sup {font-size: 11px; font-weight: 500; color: @c-black-light; margin-top: -2px;}
+.list-item__sub {font-size: 11px; font-weight: 500; color: @c-black-light;}
 .list-item--address__seed-phrase {font-size: 16px; font-weight: 700; user-select: all; cursor: auto;}
 .list-item--address__hash {word-break: break-all; max-width: 260px; padding-top: 18px; padding-bottom: 18px; user-select: text;}
 .list-item--address__hash-large {word-break: break-all; padding-top: 18px; padding-bottom: 18px; user-select: text;}

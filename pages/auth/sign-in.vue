@@ -23,7 +23,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -38,7 +38,7 @@
                     username: {invalid: false, isActual: false, message: ''},
                     password: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -54,7 +54,7 @@
                     maxLength: maxLength(100),
                     server: getServerValidator('password'),
                 },
-            }
+            },
         },
         methods: {
             onAcceptUsername: makeAccepter('username', true),
@@ -81,9 +81,9 @@
                         }
                         this.isFormSending = false;
                     });
-            }
-        }
-    }
+            },
+        },
+    };
 
 
 </script>

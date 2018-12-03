@@ -8,7 +8,7 @@
         components: {
             Layout,
         },
-        asyncData ({store, query, error }) {
+        asyncData({store, query, error }) {
             if (process.server) {
                 return;
             }
@@ -27,13 +27,13 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
                 isDataLoading: true,
                 address: null,
-            }
+            };
         },
         beforeMount() {
             if (this.isDataLoading) {
@@ -59,8 +59,8 @@
                     this.$router.push('/settings/addresses');
                 }
             },
-        }
-    }
+        },
+    };
 
     function getAddress(state, {hash, id}) {
         let advancedAddress;

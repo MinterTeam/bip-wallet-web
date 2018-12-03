@@ -21,7 +21,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -35,7 +35,7 @@
                     password: {invalid: false, isActual: false, message: ''},
                     passwordConfirm: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -48,7 +48,7 @@
                     required,
                     sameAsPassword: sameAs('password'),
                 },
-            }
+            },
         },
         methods: {
             submit() {
@@ -76,9 +76,9 @@
                         }
                         this.isFormSending = false;
                     });
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>

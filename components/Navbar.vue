@@ -11,8 +11,8 @@
         },
         computed: {
             route() {
-                return this.$f7Router
-            }
+                return this.$f7Router;
+            },
         },
         methods: {
             goBack() {
@@ -21,16 +21,16 @@
                 } else {
                     this.$router.push('/');
                 }
-            }
+            },
         },
-    }
+    };
 </script>
 
 <template>
-    <div class="toolbar">
+    <div class="toolbar u-container">
         <div class="toolbar__left">
             <nuxt-link class="back-button" :to="backUrl" v-if="backUrl">
-                <img class="back-button__icon" src="/img/icon-back.svg" alt="" role="presentation"/>
+                <img class="back-button__icon" src="/img/icon-back.svg" width="14" height="24" alt="" role="presentation"/>
                 <span class="back-button__label">Back</span>
             </nuxt-link>
             <button class="back-button u-semantic-button" @click="goBack" v-else>

@@ -30,7 +30,7 @@ export default {
     FETCH_TRANSACTION_LIST_STANDALONE: ({ commit, getters }) => {
         // use only 1 address
         return getTransactionList({
-            addresses: getters.addressList.map((item) => item.address)
+            addresses: getters.addressList.map((item) => item.address),
         })
             .then((txListInfo) => {
                 commit('SET_TRANSACTION_LIST', txListInfo);
@@ -55,5 +55,5 @@ export default {
                 commit('SET_BALANCE', balance);
                 return balance;
             });
-    }
-}
+    },
+};

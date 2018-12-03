@@ -8,8 +8,8 @@
     export default {
         head: {
             bodyAttrs: {
-                class: 'splash-layout'
-            }
-        }
-    }
+                class: 'splash-layout',
+            },
+        },
+    };
 </script>

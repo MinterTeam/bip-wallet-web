@@ -27,7 +27,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -46,7 +46,7 @@
                     email: {invalid: false, isActual: false, message: ''},
                     phone: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -74,7 +74,7 @@
                     maxLength: maxLength(13),
                     server: getServerValidator('phone'),
                 },
-            }
+            },
         },
         methods: {
             onAcceptUsername: makeAccepter('username', true),
@@ -102,9 +102,9 @@
                         }
                         this.isFormSending = false;
                     });
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>
@@ -168,7 +168,7 @@
                 <div class="bip-form__error" v-if="serverError">{{ serverError }}</div>
             </div>
             <p class="bip-field--row bip-field__asterisk">
-                Email <!--and Mobile Number are--> is optional but can be very handy if you forget  your password.
+                Email <!--and Mobile Number are--> is optional but can be very handy if you forget your password.
             </p>
         </form>
 

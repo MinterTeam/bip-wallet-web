@@ -24,16 +24,16 @@
                     },
                 },
                 phoneMasked: this.initialValue,
-            }
+            };
         },
         methods: {
             onAcceptPhone(e) {
                 this.phoneMasked = e.detail._value;
                 e.detail._unmaskedValue = '+' + this.phoneMasked.replace(/\D/g, '');
-                this.$emit('accept', e)
+                this.$emit('accept', e);
             },
-        }
-    }
+        },
+    };
 </script>
 
 <template>

@@ -18,7 +18,7 @@
                 serverError: '',
                 fileError: '',
                 isDragLayerVisible: false,
-            }
+            };
         },
         computed: {
             ...mapGetters([
@@ -57,7 +57,7 @@
             //     this.fileError = '';
             // },
         },
-    }
+    };
 </script>
 
 <template>

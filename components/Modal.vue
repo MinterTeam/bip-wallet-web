@@ -33,9 +33,9 @@
                     e.preventDefault();
                     this.closeModal();
                 }
-            }
+            },
         },
-    }
+    };
 
 </script>
 

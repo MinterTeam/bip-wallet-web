@@ -20,7 +20,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         props: {
 
@@ -30,29 +30,8 @@
                 isTxListLoading: true,
                 /** @type Array<Transaction>*/
                 txList: this.$store.state.transactionListInfo.data || [],
-            }
-        },
-        beforeMount() {
-            this.$store.dispatch('FETCH_TRANSACTION_LIST')
-                .then((txListInfo) => {
-                    this.txList = txListInfo.data;
-                    this.isTxListLoading = false;
-                })
-                .catch(() => {
-                    this.isTxListLoading = false;
-                });
-        },
-        methods: {
-            formatDate(dateString) {
-                const date = toDate(dateString);
-                if (isSameDay(date, new Date())) {
-                    return 'Today';
-                }
-                if (isSameDay(date, subDays(new Date(), 1))) {
-                    return 'Yesterday';
-                }
-                return format(date, 'EEEE, dd MMMM')
-            }
+                pagination: this.$store.state.transactionListInfo.meta || {},
+            };
         },
         computed: {
             /**
@@ -73,9 +52,57 @@
 
                     return accumulator;
                 }, {});
-            }
-        }
-    }
+            },
+        },
+        beforeMount() {
+            this.$store.dispatch('FETCH_TRANSACTION_LIST')
+                .then((txListInfo) => {
+                    this.txList = txListInfo.data;
+                    this.pagination = txListInfo.meta;
+                    this.isTxListLoading = false;
+                })
+                .catch(() => {
+                    this.isTxListLoading = false;
+                });
+        },
+        methods: {
+            formatDate(dateString) {
+                const date = toDate(dateString);
+                if (isSameDay(date, new Date())) {
+                    return 'Today';
+                }
+                if (isSameDay(date, subDays(new Date(), 1))) {
+                    return 'Yesterday';
+                }
+                return format(date, 'EEEE, dd MMMM');
+            },
+            loadMore() {
+                if (this.isTxListLoading) {
+                    return;
+                }
+                this.isTxListLoading = true;
+                // use only 1 address
+                return getTransactionList({
+                    addresses: this.$store.getters.addressList.map((item) => item.address),
+                    page: this.pagination.current_page + 1,
+                })
+                    .then((txListInfo) => {
+                        txListInfo.data.forEach((tx) => {
+                            const alreadyHasTx = this.txList.find((listItem) => listItem.txn === tx.txn);
+                            if(!alreadyHasTx) {
+                                this.txList.push(tx);
+                            }
+                        });
+                        this.pagination = txListInfo.meta;
+                        this.isTxListLoading = false;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        this.isTxListLoading = false;
+                    });
+            },
+        },
+    };
 </script>
 
 
@@ -84,9 +111,20 @@
 
         <div class="u-section" v-if="transactionListGroups">
             <template v-for="(txGroup, groupDate) in transactionListGroups">
-                <div class="list-title" :key="groupDate">{{ formatDate(groupDate) }}</div>
+                <div class="list-title" :key="'title' + groupDate">{{ formatDate(groupDate) }}</div>
                 <TransactionTable :transaction-list="txGroup" :key="groupDate"/>
             </template>
+            <div class="u-container u-section--small" v-if="pagination.current_page < pagination.last_page">
+                <button class="bip-button bip-button--ghost-main" type="button"
+                        :class="{'is-loading': isTxListLoading}"
+                        @click="loadMore"
+                >
+                    <span class="bip-button__content">Load More</span>
+                    <svg class="button-loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                        <circle class="button-loader__path" cx="25" cy="25" r="16"></circle>
+                    </svg>
+                </button>
+            </div>
         </div>
         <p class="u-section u-container u-text-center" v-else>
             <span v-if="isTxListLoading">Loading…</span>

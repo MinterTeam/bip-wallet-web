@@ -18,7 +18,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -31,7 +31,7 @@
                 sve: {
                     username: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -40,14 +40,14 @@
                     //minLength: minLength(3),
                     server: getServerValidator('username'),
                 },
-            }
+            },
         },
         methods: {
             submit() {
 
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>

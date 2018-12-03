@@ -18,7 +18,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -30,7 +30,7 @@
                 sve: {
                     email: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -38,7 +38,7 @@
                     email,
                     server: getServerValidator('email'),
                 },
-            }
+            },
         },
         methods: {
             submit() {
@@ -67,9 +67,9 @@
                         }
                         this.isFormSending = false;
                     });
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>

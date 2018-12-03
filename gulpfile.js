@@ -45,7 +45,7 @@ let paths = {
 
 
 // LESS
-gulp.task('less', ['onsen'], function () {
+gulp.task('less', ['onsen'], function() {
     return gulp.src(paths.src.less)
         .pipe(plumber({errorHandler: onError}))
         .pipe(less())
@@ -59,16 +59,16 @@ gulp.task('less', ['onsen'], function () {
                 2: {
                     removeUnusedAtRules: true,
                 },
-            }
+            },
         }))
         .pipe(rename({
-            suffix: '.min'
+            suffix: '.min',
         }))
         .pipe(gulp.dest(paths.dest.css));
 });
 
 // onsen css
-gulp.task('onsen', function () {
+gulp.task('onsen', function() {
     return gulp.src(paths.src.onsen)
         .pipe(plumber({errorHandler: onError}))
         .pipe(postcss([
@@ -76,7 +76,7 @@ gulp.task('onsen', function () {
             cssnext({
                 features: {
                     autoprefixer: false,
-                }
+                },
             }),
         ]))
         .pipe(rename({
@@ -90,7 +90,7 @@ gulp.task('onsen', function () {
 
 
 // IMG
-gulp.task('imagemin', function () {
+gulp.task('imagemin', function() {
     return gulp.src(paths.src.img)
         .pipe(plumber({errorHandler: onError}))
         .pipe(cache(
@@ -100,9 +100,9 @@ gulp.task('imagemin', function () {
                 imagemin.jpegtran({progressive: true}),
                 //pngquant(),
                 imagemin.optipng({optimizationLevel: 5}),
-                imagemin.svgo({plugins: [{removeViewBox: false}]})
+                imagemin.svgo({plugins: [{removeViewBox: false}]}),
             ], {
-                verbose: true
+                verbose: true,
             }), {
                 fileCache: new cache.Cache(paths.cache),
                 name: 'default',
@@ -130,7 +130,7 @@ gulp.task('default', ['less', 'onsen', 'imagemin'], function() {
             del(paths.dest.img + path.basename(event.path));
         }
     });
-    setTimeout(function () {
+    setTimeout(function() {
         log('Watching ...');
     });
 });
@@ -146,7 +146,7 @@ let onError = function(error) {
         (error.name + ' in ' + error.plugin).bold.red,
         '',
         error.message,
-        ''
+        '',
     ].join('\n'));
     beeper();
     this.emit('end');

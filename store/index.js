@@ -1,10 +1,10 @@
-import Vuex from 'vuex'
+import Vuex from 'vuex';
 
-import actions from './actions'
-import mutations from './mutations'
-import getters from './getters'
+import actions from './actions';
+import mutations from './mutations';
+import getters from './getters';
 
-export default function createStore () {
+export default function createStore() {
     return new Vuex.Store({
         state: {
             auth: {
@@ -19,9 +19,8 @@ export default function createStore () {
             },
             /** @type Array<Address> */
             profileAddressList: [],
-            balance: {
-                coinList: {},
-            },
+            /** @type Array<CoinItem> */
+            balance: [],
             transactionListInfo: {
                 data: [],
                 meta: {},
@@ -34,7 +33,7 @@ export default function createStore () {
         /**
          * vuex-persistedstate enabled in nuxt.config.js
          */
-    })
+    });
 }
 
 

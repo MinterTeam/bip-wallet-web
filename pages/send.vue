@@ -36,7 +36,7 @@
         filters: {
             uppercase: (value) => value.toUpperCase(),
         },
-        fetch ({ store }) {
+        fetch({ store }) {
             return store.dispatch('FETCH_BALANCE');
         },
         head() {
@@ -45,10 +45,10 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
-            const coinList = this.$store.state.balance.coinList;
+            const coinList = this.$store.state.balance;
             return {
                 isFormSending: false,
                 serverError: '',
@@ -69,7 +69,7 @@
                 amountMasked: '',
                 isSendForFree: false,
                 isModalOpen: false,
-            }
+            };
         },
         validations() {
             return {
@@ -86,8 +86,8 @@
                         validAmount: isValidAmount,
                         maxValue: maxValue(this.maxAmount || 0),
                     },
-                }
-            }
+                },
+            };
         },
         computed: {
             isRecipientCheckWait() {
@@ -95,7 +95,7 @@
             },
             maxAmount() {
                 let selectedCoin;
-                this.balance.coinList.some((coin) => {
+                this.balance.some((coin) => {
                     if (coin.coin === this.form.coin) {
                         selectedCoin = coin;
                         return true;
@@ -142,7 +142,7 @@
                     // wrong recipient
                     this.setAddressError('Wrong recipient');
                 }
-            }
+            },
         },
         methods: {
             // force check after blur if needed
@@ -185,7 +185,7 @@
                                 if (recipientError[key].message) {
                                     this.setAddressError(recipientError[key].message);
                                 }
-                            })
+                            });
                         } else if (error.response && error.response.status && error.response.status < 500) {
                             // server expected error
                             this.setAddressError(getErrorText(error, ''));
@@ -194,10 +194,10 @@
                             this.setAddressError('Can\'t get address from server');
                         }
                         this.recipientLoading = false;
-                    })
+                    });
             },
             setAddressError(message) {
-                this.sve.address = {invalid: true, isActual: true, message}
+                this.sve.address = {invalid: true, isActual: true, message};
             },
             onAcceptAmount(e) {
                 this.amountMasked = e.detail._value;
@@ -218,14 +218,14 @@
 
                 this.isFormSending = true;
             },
-        }
-    }
+        },
+    };
 </script>
 
 <template>
     <Layout :title="$options.PAGE_TITLE" :is-bg-white="true">
 
-        <div v-if="balance.coinList && balance.coinList.length">
+        <div v-if="balance && balance.length">
             <div class="u-section u-container">
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.coin.$error}">
                     <span class="bip-field__label">Coin</span>
@@ -234,7 +234,7 @@
                             v-model="form.coin"
                             @blur="$v.form.coin.$touch()"
                     >
-                        <option v-for="coin in balance.coinList" :key="coin.coin" :value="coin.coin">{{ coin.coin | uppercase }} ({{ coin.amount }})</option>
+                        <option v-for="coin in balance" :key="coin.coin" :value="coin.coin">{{ coin.coin | uppercase }} ({{ coin.amount }})</option>
                     </select>
                 </label>
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.address.$error}">

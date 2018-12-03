@@ -4,9 +4,9 @@
 
 // container
 .u-container {padding-left: @container-padding; padding-right: @container-padding;}
-//@media (min-width: @breakpoint-small-up) {
-//    .u-container {padding: 0 @container-padding;}
-//}
+@media (min-width: @breakpoint-medium-up) {
+    .u-container {max-width: (375px + @container-padding * 2); margin-left: auto; margin-right: auto;}
+}
 //@media (min-width: @breakpoint-medium-up) {
 //    .u-container {max-width: @container-width + @container-padding-large * 2; padding: 0 @container-padding-large;}
 //}

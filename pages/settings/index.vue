@@ -17,7 +17,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         methods: {
             logout() {
@@ -25,7 +25,7 @@
                 this.$router.push('/auth');
             },
         },
-    }
+    };
 </script>
 
 <template>

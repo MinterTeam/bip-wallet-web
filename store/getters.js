@@ -1,5 +1,6 @@
 import {isValidMnemonic, walletFromMnemonic} from 'minterjs-wallet';
 import {getNameLetter} from "~/assets/utils";
+import {COIN_NAME} from '~/assets/variables';
 
 export default {
     /**
@@ -50,13 +51,28 @@ export default {
     //     return getters.wallet.getPublicKeyString();
     // },
     username(state, getters) {
-        return getters.isUserWithProfile ? '@' + state.auth.user.username : getters.mainAdvancedAddress;
+        if (getters.isUserWithProfile) {
+            return state.auth.user && '@' + state.auth.user.username;
+        } else {
+            return getters.mainAdvancedAddress;
+        }
+        // return getters.isUserWithProfile ? '@' + state.auth.user.username : getters.mainAdvancedAddress;
     },
     usernameLetter(state, getters) {
         return getNameLetter(getters.username);
     },
     avatar(state) {
         return state.auth.user && state.auth.user.avatar && state.auth.user.avatar.src;
-    }
-
-}
+    },
+    baseCoin(state) {
+        return state.balance.find((coinItem) => {
+            return coinItem.coin === COIN_NAME;
+        });
+    },
+    /**
+     * @return {string}
+     */
+    COIN_NAME() {
+        return COIN_NAME;
+    },
+};

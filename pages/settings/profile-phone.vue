@@ -22,7 +22,7 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
-            }
+            };
         },
         data() {
             return {
@@ -34,7 +34,7 @@
                 sve: {
                     phone: {invalid: false, isActual: false, message: ''},
                 },
-            }
+            };
         },
         validations: {
             form: {
@@ -43,7 +43,7 @@
                     maxLength: maxLength(13),
                     server: getServerValidator('phone'),
                 },
-            }
+            },
         },
         methods: {
             onAcceptPhone: makeAccepter('phone', true),
@@ -73,9 +73,9 @@
                         }
                         this.isFormSending = false;
                     });
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <template>
