@@ -108,8 +108,16 @@ export function deleteProfileAddress(id) {
  * @param {CancelToken} [cancelToken]
  * @return {Promise<Object>}
  */
-export function getAddressInfo(params, cancelToken) {
-    return minterorg.getAddressInfo(params, {cancelToken});
+export function getAddressInfoByContact(params, cancelToken) {
+    return minterorg.getAddressInfoByContact(params, {cancelToken});
+}
+
+/**
+ * @param {Array<string>} addressList
+ * @return {Promise<Array<UserInfo>>}
+ */
+export function getAddressListInfo(addressList) {
+    return minterorg.getAddressListInfo(addressList);
 }
 
 // @TODO all addresses from server should be serverSecured

@@ -28,8 +28,8 @@ export function pretty(value) {
 
 /**
  * @param {string} value
- * @param {number} endLength
- * @param {number} minLengthToShort
+ * @param {number} [endLength]
+ * @param {number} [minLengthToShort]
  * @return {string}
  */
 export function shortHashFilter(value, endLength = 6, minLengthToShort) {

@@ -1,8 +1,9 @@
+import Vue from 'vue';
 import {setAuthToken} from "~/api/minterorg";
 
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {
-        state.auth.user = user;
+        SET_PROFILE_USER(state, user);
         state.auth.token = token;
         state.auth.password = password;
         setAuthToken(token);
@@ -32,9 +33,7 @@ export default {
         state.auth.password = null;
         state.auth.advanced = [];
     },
-    SET_PROFILE_USER: (state, profile) => {
-        state.auth.user = profile;
-    },
+    SET_PROFILE_USER,
     UPDATE_PROFILE_PASSWORD: (state, password) => {
         state.auth.password = password;
     },
@@ -49,6 +48,7 @@ export default {
     SET_BALANCE: (state, balance) => {
         state.balance = balance;
     },
+    ADD_USER,
     PUSH_HISTORY: (state, historyItem) => {
         state.history.push(historyItem);
     },
@@ -56,6 +56,13 @@ export default {
         state.history.pop();
     },
 };
+
+function SET_PROFILE_USER(state, profile) {
+    state.auth.user = profile;
+    if (profile.mainAddress && profile.mainAddress.address) {
+        ADD_USER(state, {address: profile.mainAddress.address, user: profile});
+    }
+}
 
 function CHECK_MAIN_ADDRESS(state, newProfileAddressList) {
     let isProfileAddressMain = newProfileAddressList.some((address) => {
@@ -68,4 +75,12 @@ function CHECK_MAIN_ADDRESS(state, newProfileAddressList) {
             address.isMain = false;
         });
     }
+}
+
+/**
+ * @param state
+ * @param {UserInfo} userInfo
+ */
+function ADD_USER(state, userInfo) {
+    Vue.set(state.userList, userInfo.address, userInfo.user);
 }

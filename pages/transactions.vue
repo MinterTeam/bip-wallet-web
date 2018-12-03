@@ -61,7 +61,8 @@
                     this.pagination = txListInfo.meta;
                     this.isTxListLoading = false;
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.log(error);
                     this.isTxListLoading = false;
                 });
         },
@@ -81,11 +82,7 @@
                     return;
                 }
                 this.isTxListLoading = true;
-                // use only 1 address
-                return getTransactionList({
-                    addresses: this.$store.getters.addressList.map((item) => item.address),
-                    page: this.pagination.current_page + 1,
-                })
+                this.$store.dispatch('FETCH_TRANSACTION_LIST_STANDALONE', this.pagination.current_page + 1)
                     .then((txListInfo) => {
                         txListInfo.data.forEach((tx) => {
                             const alreadyHasTx = this.txList.find((listItem) => listItem.txn === tx.txn);

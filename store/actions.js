@@ -1,4 +1,5 @@
-import {getBalance, getProfile, getProfileAddressList, getTransactionList} from "~/api";
+import {getBalance, getProfile, getProfileAddressList, getTransactionList, getAddressListInfo} from "~/api";
+import {TX_TYPES} from '~/assets/variables';
 import explorer from "~/api/explorer";
 
 export default {
@@ -16,7 +17,7 @@ export default {
             return Promise.resolve();
         }
     },
-    FETCH_TRANSACTION_LIST: ({ commit, dispatch, getters }) => {
+    FETCH_TRANSACTION_LIST: ({ commit, dispatch }) => {
         return new Promise((resolve, reject) => {
             dispatch('FETCH_PROFILE_ADDRESS_LIST')
                 .then(() => {
@@ -27,13 +28,29 @@ export default {
                 .catch(reject);
         });
     },
-    FETCH_TRANSACTION_LIST_STANDALONE: ({ commit, getters }) => {
+    FETCH_TRANSACTION_LIST_STANDALONE: ({ commit, dispatch, getters }, page = 1) => {
         // use only 1 address
         return getTransactionList({
             addresses: getters.addressList.map((item) => item.address),
+            page: page || 1,
         })
             .then((txListInfo) => {
-                commit('SET_TRANSACTION_LIST', txListInfo);
+                // commit only first page
+                if (!(page > 2)) {
+                    commit('SET_TRANSACTION_LIST', txListInfo);
+                }
+                // fetch avatars and usernames for addresses found in txs
+                const addressListToFetch = txListInfo.data.reduce((accum, tx) => {
+                    if (tx.type === TX_TYPES.SEND) {
+                        if (tx.data.to === getters.addressList[0].address) {
+                            accum.add(tx.from);
+                        } else {
+                            accum.add(tx.data.to);
+                        }
+                    }
+                    return accum;
+                }, new Set());
+                dispatch('FETCH_USERS', Array.from(addressListToFetch));
                 return txListInfo;
             });
     },
@@ -54,6 +71,19 @@ export default {
             .then((balance) => {
                 commit('SET_BALANCE', balance);
                 return balance;
+            });
+    },
+    FETCH_USERS: ({ state, commit }, addressList) => {
+        // fetch only new addresses
+        addressList = addressList.filter((address) => !state.userList[address]);
+        if (!addressList.length) {
+            return Promise.resolve();
+        }
+        return getAddressListInfo(addressList)
+            .then((userInfoList) => {
+                userInfoList.forEach((userInfo) => {
+                    commit('ADD_USER', userInfo);
+                });
             });
     },
 };

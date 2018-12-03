@@ -21,10 +21,13 @@ export default function createStore() {
             profileAddressList: [],
             /** @type Array<CoinItem> */
             balance: [],
+            // store only first page here
             transactionListInfo: {
+                /** @type Array<Transaction> */
                 data: [],
                 meta: {},
             },
+            userList: {},
             history: [],
         },
         actions,
@@ -61,7 +64,7 @@ export default function createStore() {
  * @property {string} username
  * @property {string} name
  * @property {string} email
- * @property {string} phone}
+ * @property {string} phone
  * @property {string} language
  * @property {UserAvatar} avatar
  */

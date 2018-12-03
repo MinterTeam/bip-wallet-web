@@ -6,7 +6,7 @@
     import required from 'vuelidate/lib/validators/required';
     import maxValue from 'vuelidate/lib/validators/maxValue';
     import withParams from 'vuelidate/lib/withParams';
-    import {getAddressInfo} from "~/api";
+    import {getAddressInfoByContact} from "~/api";
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
@@ -167,7 +167,7 @@
                     recipientCheckCancel();
                 }
                 this.recipientLoading = this.recipient;
-                getAddressInfo(recipientCheckData, new axios.CancelToken((cancelFn) => {
+                getAddressInfoByContact(recipientCheckData, new axios.CancelToken((cancelFn) => {
                     recipientCheckCancel = cancelFn;
                 }))
                     .then((user) => {

@@ -33,9 +33,23 @@
                 }
             },
             getOtherAddress(tx) {
-                // @TODO check tx recipient username
                 if (this.isSend(tx)) {
                     return this.isIncome(tx) ? tx.from : tx.data.to;
+                }
+            },
+            getName(address) {
+                if (!address) {
+                    return '';
+                }
+                if (this.$store.state.userList[address]) {
+                    return '@' + this.$store.state.userList[address].username;
+                } else {
+                    return shortHashFilter(address);
+                }
+            },
+            getAvatar(address) {
+                if (this.$store.state.userList[address]) {
+                    return this.$store.state.userList[address].avatar.src;
                 }
             },
             getNameLetter,
@@ -72,7 +86,7 @@
             isIncome(tx) {
                 const addressList = [this.$store.getters.addressList[0]];
                 const isIncomeSend = addressList.some((address) => {
-                    if (address === tx.data.to) {
+                    if (address.address === tx.data.to) {
                         return true;
                     }
                 });
@@ -116,12 +130,12 @@
                     <img class="list-item__thumbnail" src="/img/icon-tx-exchange.svg" alt="" role="presentation" v-if="isExchange(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-delegate.svg" alt="" role="presentation" v-else-if="isDelegate(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-unbond.svg" alt="" role="presentation" v-else-if="isUnbond(tx)">
-                    <img class="list-item__thumbnail" :src="tx.image" alt="" role="presentation" v-else-if="tx.image">
-                    <div class="list-item__thumbnail" v-else>{{ getNameLetter(getOtherAddress(tx)) }}</div>
+                    <img class="list-item__thumbnail" :src="getAvatar(getOtherAddress(tx))" alt="" role="presentation" v-else-if="getAvatar(getOtherAddress(tx))">
+                    <div class="list-item__thumbnail" v-else>{{ getNameLetter(getName(getOtherAddress(tx))) }}</div>
                 </div>
                 <!-- name -->
                 <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-if="isSend(tx)">
-                    <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getOtherAddress(tx) | short }}</div>
+                    <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getName(getOtherAddress(tx)) }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-else-if="isExchange(tx)">
                     <div class="list-item__sup">Exchange</div>
@@ -248,7 +262,7 @@
                     </div>
 
                     <!-- fee -->
-                    <div class="u-cell" v-if="isSell(tx)">
+                    <div class="u-cell">
                         <div class="tx-info__name">Fee</div>
                         <div class="tx-info__value">{{ tx.fee | pretty }} {{ $store.getters.COIN_NAME }}</div>
                     </div>
