@@ -2,6 +2,7 @@ import decode from 'entity-decode';
 import prettyNum from 'pretty-num';
 import toDate from "date-fns/esm/toDate";
 import format from "date-fns/esm/format";
+import {EXPLORER_URL} from "~/assets/variables";
 
 
 
@@ -14,6 +15,18 @@ export function getNameLetter(name) {
     return name && name.replace(/^@/, '').replace(/^Mx/, '')[0];
 }
 
+export function getExplorerBlockUrl(block) {
+    return EXPLORER_URL + '/blocks/' + block;
+}
+
+export function getExplorerTxUrl(hash) {
+    return EXPLORER_URL + '/transactions/' + hash;
+}
+
+export function getExplorerAddressUrl(address) {
+    return EXPLORER_URL + '/address/' + address;
+}
+
 /**
  * @param {string|number} value
  * @return {string}
@@ -24,6 +37,14 @@ export function pretty(value) {
     } else {
         return decode(prettyNum(value, {precision: 2, rounding: 'significant', thousandsSeparator: '&thinsp;'}));
     }
+}
+
+/**
+ * @param {string|number} value
+ * @return {string}
+ */
+export function prettyExact(value) {
+    return decode(prettyNum(value, {thousandsSeparator: '&thinsp;'}));
 }
 
 /**

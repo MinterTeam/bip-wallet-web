@@ -81,9 +81,9 @@
                 <div class="toolbar__right">
                     <nuxt-link class="toolbar-button user" to="/settings">
                         <div class="user__name">{{ username }}</div>
-                        <div class="user__avatar"
+                        <div class="user__avatar avatar"
                              :style="{backgroundImage: avatar ? `url('${avatar}')` : ''}"
-                             :class="{'user__avatar--letter': !avatar}"
+                             :class="{'avatar--letter': !avatar}"
                         >
                             <span v-if="!avatar">{{ usernameLetter }}</span>
                         </div>

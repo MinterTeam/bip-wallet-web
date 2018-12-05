@@ -84,14 +84,14 @@
         <form class="u-section u-container" novalidate @submit.prevent="submit">
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.phone.$error}">
                 <span class="bip-field__label">Mobile number</span>
-                <span class="bip-field__error" v-if="$v.form.phone.$error">Not valid number</span>
-                <!--<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>-->
                 <InputMaskedPhone class="bip-field__input"
                                   :initialValue="form.phone"
                                   @accept="onAcceptPhone"
                                   @blur.native="$v.form.phone.$touch()"
                                   @input.native="sve.phone.isActual = false"
                 />
+                <span class="bip-field__error" v-if="$v.form.phone.$error">Not valid number</span>
+                <!--<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>-->
             </label>
             <div class="bip-field--row">
                 <button class="bip-button bip-button--main">Save</button>

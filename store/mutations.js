@@ -42,6 +42,16 @@ export default {
         CHECK_MAIN_ADDRESS(state, addressList);
         state.profileAddressList = addressList;
     },
+    SET_PROFILE_ADDRESS_ENCRYPTED: (state, address) => {
+        state.profileAddressList.some((addressItem, index) => {
+            if (addressItem.id === address.id) {
+                // use Array instance methods to notify Vue reactivity system
+                state.profileAddressList.splice(index, 1, address);
+                return true;
+            }
+        });
+
+    },
     SET_TRANSACTION_LIST: (state, txListInfo) => {
         state.transactionListInfo = txListInfo;
     },

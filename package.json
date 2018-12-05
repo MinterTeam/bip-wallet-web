@@ -26,6 +26,7 @@
     "dotenv": "^6.1.0",
     "entity-decode": "^2.0.1",
     "minter-js-org": "0.1.0",
+    "minter-js-sdk": "^0.5.4",
     "minterjs-wallet": "^2.2.1",
     "nuxt": "^2.3.4",
     "onsenui": "^2.10.6",

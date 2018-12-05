@@ -44,12 +44,12 @@
     <form class="u-section u-container" @submit.prevent="addAddress">
         <label class="bip-field bip-field--row" :class="{'is-error': $v.mnemonic.$error, 'is-success': !$v.mnemonic.$invalid}">
             <span class="bip-field__label">Paste Seed Phrase</span>
-            <span class="bip-field__error" v-if="$v.mnemonic.$dirty && !$v.mnemonic.required">Enter phrase</span>
-            <span class="bip-field__error" v-if="$v.mnemonic.$dirty && $v.mnemonic.required && !$v.mnemonic.validMnemonic">Invalid phrase</span>
             <textarea class="bip-field__input" rows="3"
                       v-model="mnemonic"
                       @blur="$v.mnemonic.$touch()"
             ></textarea>
+            <span class="bip-field__error" v-if="$v.mnemonic.$dirty && !$v.mnemonic.required">Enter phrase</span>
+            <span class="bip-field__error" v-if="$v.mnemonic.$dirty && $v.mnemonic.required && !$v.mnemonic.validMnemonic">Invalid phrase</span>
         </label>
         <div class="bip-field--row">
             <button class="bip-button bip-button--main" :class="{'is-disabled': $v.$invalid}">Activate</button>

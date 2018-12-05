@@ -63,9 +63,9 @@
 <template>
     <div class="u-section u-container u-bg-white">
         <div class="avatar-field">
-            <div class="avatar-field__avatar user__avatar user__avatar--large"
+            <div class="avatar-field__avatar avatar avatar--large"
                  :style="{backgroundImage: avatar ? `url('${avatar}')` : ''}"
-                 :class="{'user__avatar--letter': !avatar}"
+                 :class="{'avatar--letter': !avatar}"
             >
                 <span v-if="!avatar">{{ usernameLetter }}</span>
             </div>
@@ -78,8 +78,8 @@
                            @onDragStart="isDragLayerVisible = true"
                            @onDragEnd="isDragLayerVisible = false"
                 />
-                <svg class="button-loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
-                    <circle class="button-loader__path" cx="25" cy="25" r="16"></circle>
+                <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                    <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                 </svg>
             </label>
         </div>

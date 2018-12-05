@@ -113,55 +113,55 @@
         <form class="u-section u-container" novalidate @submit.prevent="submit">
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.username.$error}">
                 <span class="bip-field__label">Choose @username</span>
-                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.required">Enter username</span>
-                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.minLength">Username is too short</span>
-                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.maxLength">Username is too long</span>
-                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.server">{{ sve.username.message }}</span>
                 <InputMaskedName class="bip-field__input"
                                  @accept="onAcceptUsername"
                                  @blur.native="$v.form.username.$touch()"
                                  @input.native="sve.username.isActual = false"
                 />
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.required">Enter username</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.minLength">Username is too short</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.maxLength">Username is too long</span>
+                <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.username.server">{{ sve.username.message }}</span>
             </label>
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.password.$error}">
                 <span class="bip-field__label">Choose password</span>
-                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.required">Enter password</span>
-                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.minLength">Password is too short</span>
-                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
                 <input class="bip-field__input" type="password"
                        v-model="form.password"
                        @blur="$v.form.password.$touch()"
                        @input="sve.password.isActual = false"
                 >
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.required">Enter password</span>
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.minLength">Password is too short</span>
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
             </label>
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.passwordConfirm.$error}">
                 <span class="bip-field__label">Confirm password</span>
-                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && !$v.form.passwordConfirm.required">Confirm password</span>
-                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && $v.form.passwordConfirm.required && !$v.form.passwordConfirm.sameAsPassword">Passwords don't match</span>
                 <input class="bip-field__input" type="password"
                        v-model="form.passwordConfirm"
                        @blur="$v.form.passwordConfirm.$touch()"
                 >
+                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && !$v.form.passwordConfirm.required">Confirm password</span>
+                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && $v.form.passwordConfirm.required && !$v.form.passwordConfirm.sameAsPassword">Passwords don't match</span>
             </label>
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.email.$error}">
                 <span class="bip-field__label">Email (Optional *)</span>
-                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.email">Not valid email</span>
-                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.server">{{ sve.email.message }}</span>
                 <input class="bip-field__input" type="email"
                        v-model="form.email"
                        @blur="$v.form.email.$touch()"
                        @input="sve.email.isActual = false"
                 >
+                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.email">Not valid email</span>
+                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.server">{{ sve.email.message }}</span>
             </label>
             <!--<label class="bip-field bip-field&#45;&#45;row" :class="{'is-error': $v.form.phone.$error}">
-                <span class="bip-field__label">Mobile Number (Optional *)</span>
-                <span class="bip-field__error" v-if="$v.form.phone.$error">Not valid number</span>
-                &lt;!&ndash;<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>&ndash;&gt;
                 <InputMaskedPhone class="bip-field__input"
                                   @accept="onAcceptPhone"
                                   @blur.native="$v.form.phone.$touch()"
                                   @input.native="sve.phone.isActual = false"
                 />
+                <span class="bip-field__label">Mobile Number (Optional *)</span>
+                <span class="bip-field__error" v-if="$v.form.phone.$error">Not valid number</span>
+                &lt;!&ndash;<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>&ndash;&gt;
             </label>-->
             <div class="bip-field--row">
                 <button class="bip-button bip-button--main">Create Wallet</button>

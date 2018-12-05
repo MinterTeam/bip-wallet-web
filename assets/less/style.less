@@ -45,14 +45,16 @@
 //.title {font-size: 14px; text-transform: uppercase; font-weight: 700; margin: 0;}
 
 // toolbar user
+.avatar {width: 26px; height: 26px; border: 2px solid #fff; border-radius: 50%; background: no-repeat 50% 50%; background-size: cover; font-size: 16px; line-height: 20px;}
+.avatar--large {width: 50px; height: 50px; box-shadow: 0 2px 18px rgba(0,0,0,0.2); font-size: 28px; line-height: 42px;}
+.avatar--letter {background-color: @c-violet; color: #fff; font-weight: 700; text-align: center;}
+
 .user {display: inline-flex; align-items: center;}
 .user__name {line-height: 1.4; font-weight: 700;}
-.user__avatar {width: 26px; height: 26px; border: 2px solid #fff; border-radius: 50%; margin-left: 10px; background: no-repeat 50% 50%; background-size: cover; font-size: 16px; line-height: 20px;}
-.user__avatar--large {width: 50px; height: 50px; box-shadow: 0 2px 18px rgba(0,0,0,0.2); font-size: 28px; line-height: 42px;}
-.user__avatar--letter {background-color: @c-violet; color: #fff; font-weight: 700; text-align: center;}
+.user__avatar {margin-left: 10px;}
 
 .avatar-field {display: flex; align-items: center; justify-content: center;}
-.avatar-field__avatar {margin-left: 0; margin-right: 20px; flex-shrink: 0;}
+.avatar-field__avatar {margin-right: 20px; flex-shrink: 0;}
 .avatar-field__button {position: relative;  flex-grow: 2;}
 .avatar-field__input {position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none;}
 @media (min-width: @breakpoint-small-up) {
@@ -118,5 +120,9 @@
 .tx-info__value {font-size: 12px; font-weight: 500; overflow-wrap: break-word; user-select: text;}
 .tx-info__button {margin-top: @section-margin;}
 
+
+// send
+.send__modal-value {font-size: 24px; font-weight: 700; line-height: 28px;}
+//.send__modal-p {&+& {margin-top: 10px;}}
 
 

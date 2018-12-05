@@ -91,7 +91,7 @@
                     <span>Address</span>
                 </div>
                 <div class="list">
-                    <div class="list-item list-item--address__hash-large">
+                    <div class="list-item list-item--address__hash-large u-text-decent">
                         {{ address.address }}
                     </div>
                     <div class="list-item">

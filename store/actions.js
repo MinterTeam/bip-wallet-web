@@ -1,4 +1,4 @@
-import {getBalance, getProfile, getProfileAddressList, getTransactionList, getAddressListInfo} from "~/api";
+import {getBalance, getProfile, getProfileAddressList, getProfileAddressEncrypted, getTransactionList, getAddressListInfo} from "~/api";
 import {TX_TYPES} from '~/assets/variables';
 import explorer from "~/api/explorer";
 
@@ -16,6 +16,14 @@ export default {
         } else {
             return Promise.resolve();
         }
+    },
+    FETCH_ADDRESS_ENCRYPTED: ({ state, commit, getters }) => {
+        if (getters.isUserAdvanced || getters.mainProfileAddress.encrypted) {
+            return Promise.resolve();
+        }
+        // profile address fetched in the middleware
+        return getProfileAddressEncrypted(getters.mainProfileAddress.id)
+            .then((address) => commit('SET_PROFILE_ADDRESS_ENCRYPTED', address));
     },
     FETCH_TRANSACTION_LIST: ({ commit, dispatch }) => {
         return new Promise((resolve, reject) => {

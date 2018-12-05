@@ -1,4 +1,5 @@
 import {isValidMnemonic, walletFromMnemonic} from 'minterjs-wallet';
+import {decryptMnemonic} from 'minter-js-org';
 import {getNameLetter} from "~/assets/utils";
 import {COIN_NAME} from '~/assets/variables';
 
@@ -31,18 +32,21 @@ export default {
      * User address hash
      * @return {string}
      */
-    mainAdvancedAddress(state, getters) {
-        if (!getters.isAuthorized) {
-            return '';
-        }
-        let mainAddress = '';
-        state.auth.advanced.some((address) => {
-            if (address.isMain) {
-                mainAddress = walletFromMnemonic(address.mnemonic).getAddressString();
-                return true;
-            }
-        });
-        return mainAddress;
+    // mainAdvancedAddress(state, getters) {
+    //     if (!getters.isAuthorized) {
+    //         return '';
+    //     }
+    //     let mainAddress = '';
+    //     state.auth.advanced.some((address) => {
+    //         if (address.isMain) {
+    //             mainAddress = walletFromMnemonic(address.mnemonic).getAddressString();
+    //             return true;
+    //         }
+    //     });
+    //     return mainAddress;
+    // },
+    mainProfileAddress(state) {
+        return state.profileAddressList.find((addressItem) => addressItem.isMain);
     },
     // pub(state, getters) {
     //     if (!getters.isAuthorized) {
@@ -50,11 +54,36 @@ export default {
     //     }
     //     return getters.wallet.getPublicKeyString();
     // },
+    wallet(state, getters) {
+        if (getters.isUserAdvanced) {
+            return walletFromMnemonic(state.auth.advanced.find((addressItem) => addressItem.isMain));
+        } else if (getters.isUserWithProfile && getters.mainProfileAddress && getters.mainProfileAddress.encrypted) {
+            const profileMnemonic = decryptMnemonic(getters.mainProfileAddress.encrypted, state.auth.password);
+            return walletFromMnemonic(profileMnemonic);
+        }
+        return null;
+    },
+    address(state, getters) {
+        if (getters.isUserAdvanced) {
+            return getters.wallet.getAddressString();
+        } else {
+            return getters.mainProfileAddress ? getters.mainProfileAddress.address : '';
+        }
+    },
+    // addressUrl(state, getters) {
+    //     return getExplorerAddressUrl(getters.address);
+    // },
+    mnemonic(state, getters) {
+        return getters.wallet ? getters.wallet.getMnemonic() : '';
+    },
+    privateKey(state, getters) {
+        return getters.wallet ? getters.wallet.getPrivateKeyString() : '';
+    },
     username(state, getters) {
         if (getters.isUserWithProfile) {
             return state.auth.user && '@' + state.auth.user.username;
         } else {
-            return getters.mainAdvancedAddress;
+            return getters.address;
         }
         // return getters.isUserWithProfile ? '@' + state.auth.user.username : getters.mainAdvancedAddress;
     },

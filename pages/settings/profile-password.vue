@@ -87,23 +87,23 @@
         <form class="u-section u-container" @submit.prevent="submit">
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.password.$error}">
                 <span class="bip-field__label">New password</span>
-                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.required">Enter password</span>
-                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.minLength">Password is too short</span>
-                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
                 <input class="bip-field__input" type="password"
                        v-model="form.password"
                        @blur="$v.form.password.$touch()"
                        @input="sve.password.isActual = false"
                 >
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.required">Enter password</span>
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.minLength">Password is too short</span>
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
             </label>
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.passwordConfirm.$error}">
                 <span class="bip-field__label">Repeat new password</span>
-                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && !$v.form.passwordConfirm.required">Confirm password</span>
-                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && $v.form.passwordConfirm.required && !$v.form.passwordConfirm.sameAsPassword">Passwords don't match</span>
                 <input class="bip-field__input" type="password"
                        v-model="form.passwordConfirm"
                        @blur="$v.form.passwordConfirm.$touch()"
                 >
+                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && !$v.form.passwordConfirm.required">Confirm password</span>
+                <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && $v.form.passwordConfirm.required && !$v.form.passwordConfirm.sameAsPassword">Passwords don't match</span>
             </label>
             <div class="bip-field--row">
                 <button class="bip-button bip-button--main">Save</button>

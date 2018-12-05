@@ -70,7 +70,7 @@
             <div class="list-item">
                 <div class="list-item__center list-item--address__seed-phrase">{{ mnemonic }}</div>
                 <div class="list-item__right" v-if="isClipboardSupported">
-                    <button class="bip-button--value u-semantic-button" @click="copyMnemonic">Copy</button>
+                    <button class="bip-link u-semantic-button" @click="copyMnemonic">Copy</button>
                 </div>
             </div>
             <a class="list-item list-item--tappable list-item--chevron">

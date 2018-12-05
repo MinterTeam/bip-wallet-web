@@ -75,3 +75,15 @@ export function getErrorText(error, startErrorText = 'Error: ') {
         return 'Something went wrong';
     }
 }
+
+/**
+ * Получает код ошибки из ответа сервера
+ * @param {AxiosError} error - axios error
+ * @returns {String}
+ */
+export function getErrorCode(error) {
+    if (error.response && error.response.data && (error.response.data.code || error.response.data.error)) {
+        // server error
+        return (error.response.data.error && error.response.data.error.code) || error.response.data.code;
+    }
+}

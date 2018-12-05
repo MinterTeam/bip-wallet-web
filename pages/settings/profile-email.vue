@@ -78,13 +78,13 @@
         <form class="u-section u-container" novalidate @submit.prevent="submit">
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.email.$error}">
                 <span class="bip-field__label">Email</span>
-                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.email">Not valid email</span>
-                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.server">{{ sve.email.message }}</span>
                 <input class="bip-field__input" type="email"
                        v-model="form.email"
                        @blur="$v.form.email.$touch()"
                        @input="sve.email.isActual = false"
                 >
+                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.email">Not valid email</span>
+                <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.server">{{ sve.email.message }}</span>
             </label>
             <div class="bip-field--row">
                 <button class="bip-button bip-button--main">Save</button>

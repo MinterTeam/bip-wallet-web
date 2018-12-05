@@ -10,6 +10,7 @@
         &:not(.is-loading) {opacity: 0.4; box-shadow: none;}
     }
     &.is-loading .bip-button__content {color: transparent;}
+    &+& {margin-top: 16px;}
 }
 .bip-button-shadow() {
     box-shadow: 0 4px 8px fade(@c-main, 15%), 0 1px 2px fade(@c-main, 20%);
@@ -40,10 +41,6 @@
     &:hover, &:focus {color: @c-main; background: #fff;}
     &:active {color: @c-main; background: mix(#fff, @c-main, 80%); border-color: mix(#fff, @c-main, 80%);}
 }
-.bip-button--value {
-    font-weight: 500; color: @c-violet;
-    &:active {opacity: 0.5;}
-}
 .bip-button__content {transition: 0.15s;}
 // button group
 //.button-group {
@@ -66,19 +63,27 @@
     .bip-button {max-width: none;}
 }
 
+.bip-link {
+    font-weight: 500; color: @c-violet;
+    &:hover, &:focus {color: tint(@c-violet, 20%);}
+    &:active {color: tint(@c-violet, 40%);}
+}
+
 
 // button-loader
 @loader-length: 16 * 3.14 * 2; // длина окружности
-.button-loader {
-    position: absolute; left: 0; right: 0; top: 0; bottom: 0; width: 40px; height: 40px; margin: auto; opacity: 0; pointer-events: none; animation: button-loader-rotate 2s linear infinite; transition: 0.05s;
+.loader {width: 40px; height: 40px; margin: auto; pointer-events: none; animation: loader-rotate 2s linear infinite;}
+.loader--button {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0; opacity: 0; transition: 0.05s;
     .is-loading > & { opacity: 1; transition: 0.15s 0.15s;}
 }
-.button-loader__path { fill: none; stroke: currentColor; stroke-width: 3px; stroke-linecap: round; animation: button-loader-dash 1.5s ease-in-out infinite; }
-@keyframes button-loader-rotate {
+.loader--inline {vertical-align: middle; margin-right: 10px;}
+.loader__path { fill: none; stroke: currentColor; stroke-width: 3px; stroke-linecap: round; animation: loader-dash 1.5s ease-in-out infinite; }
+@keyframes loader-rotate {
     0% {transform: rotate(-90deg);}
     100% { transform: rotate(270deg); }
 }
-@keyframes button-loader-dash {
+@keyframes loader-dash {
     0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
     50% { stroke-dasharray: @loader-length * 0.8, 200; stroke-dashoffset: 0; }
     100% { stroke-dasharray: @loader-length * 0.8, 200; stroke-dashoffset: -@loader-length + 1px; }
@@ -98,31 +103,40 @@
 @field-padding: (@field-label-height * @field-label-scale);
 @field-label-top: (@field-padding + @field-input-padding);
 @field-label-translate: (@field-label-height + @field-input-padding);
+.bg-field-layer() {content: ''; position: absolute; top: (2px + 7px + 17px); right: 2px; width: 40px; height: 40px; border-radius: 6px;}
 .bip-field--row {
     &+& {margin-top: 20px;}
 }
 .bip-field {
     display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%; position: relative; cursor: pointer; font-weight: 500; pointer-events: none;
-    .bg-field-icon() {content: ''; position: absolute; bottom: 18px; right: 16px;}
+    &::before {.bg-field-layer(); background: linear-gradient(to right, transparent, #fff 40%);}
+    .bg-field-icon() {content: ''; position: absolute; top: (18px + 7px + 17px); right: 16px;}
     &.is-success::after {.bg-field-icon(); .bg-url("../img/icon-success.svg");}
     &.is-error::after {.bg-field-icon(); .bg-url("../img/icon-error.svg");}
 }
+.bip-field--select {
+    .bip-field__input {appearance: none;}
+    &::after {.bg-field-layer(); background: url(../img/icon-dropdown.svg) no-repeat right 6px top 50%;;}
+}
+.bip-field--with-max {
+    .bip-field__input {padding-right: 77px;}
+}
 .bip-field__input {
-    padding: 10px 16px; margin-top: 7px; font-size: 16px; line-height: 22px; color: inherit; background: #fff; border: 2px solid tint(@c-black-light, 60%); transition: 0.2s; display: block; width: 100%; pointer-events: auto; border-radius: 8px;
+    padding: 10px 26px 10px 16px; margin-top: 7px; font-size: 16px; line-height: 22px; color: inherit; background: #fff; border: 2px solid tint(@c-black-light, 60%); transition: 0.2s; display: block; width: 100%; pointer-events: auto; border-radius: 8px; min-height: 46px;
     &:focus {border-color: @c-main;}
     .is-success > & {border-color: @c-green;}
     .is-error > & {border-color: @c-red;}
 }
-.bip-field__input--select {appearance: none; background: url(../img/icon-dropdown.svg) no-repeat right 6px top 50%;}
 .field-label-text() {font-size: 12px; /*line-height: 16px;*/ text-transform: uppercase; font-weight: 500;}
 .bip-field__label {
-    .field-label-text(); padding-left: 10px; margin-right: 10px; pointer-events: auto;
+    .field-label-text(); padding-left: 10px; pointer-events: auto;
 }
 .bip-field__error {
-    .field-label-text(); color: @c-red; display: none; flex-grow: 2; text-align: right;
+    .field-label-text(); padding-left: 10px; color: @c-red; display: none; margin-top: 6px;
     .is-error > & {display: block;}
 }
 .bip-field__asterisk {
     padding-left: 22px; position: relative;
     &::before {content: '*'; position: absolute; left: 0; top: 0;}
 }
+.bip-field__button {text-transform: uppercase; position: absolute; top: (13px + 7px + 17px); right: 16px; pointer-events: auto; padding-left: 10px; background: linear-gradient(to right, transparent, #fff 10px); z-index: 1;}

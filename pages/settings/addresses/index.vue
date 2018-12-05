@@ -118,15 +118,15 @@
             </div>
             <template v-for="(address, index) in addressList">
 
-                <div class="list-title" :key="address.address">
+                <div class="list-title" :key="'title' + address.address">
                     <span v-if="index === 0">Main address</span>
                     <span v-else>Address #{{ index + 1 }}</span>
                 </div>
                 <div class="list" :key="address.address">
                     <div class="list-item">
-                        <div class="list-item__center list-item--address__hash">{{ address.address }}</div>
+                        <div class="list-item__center list-item--address__hash u-text-decent">{{ address.address }}</div>
                         <div class="list-item__right" v-if="isClipboardSupported">
-                            <button class="bip-button--value u-semantic-button" @click="copy(address.address)">Copy</button>
+                            <button class="bip-link u-text-decent u-semantic-button" @click="copy(address.address)">Copy</button>
                         </div>
                     </div>
                     <a class="list-item list-item--chevron list-item--tappable" :href="getAddressLink(address.address)" target="_blank">

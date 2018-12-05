@@ -15,7 +15,7 @@
             },
             modalContainerClass: {
                 type: String,
-                default: '',
+                default: 'u-container',
             },
         },
         methods: {
@@ -29,7 +29,7 @@
                 }
             },
             handleModalKeydown(e) {
-                if (e.keyCode === 27) {
+                if (e.code === 'Escape' || e.keyCode === 27) {
                     e.preventDefault();
                     this.closeModal();
                 }
