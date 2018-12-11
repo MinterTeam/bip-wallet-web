@@ -12,11 +12,11 @@
                 required: true,
             },
             closeText: {
-                type: String|Boolean,
+                type: [String, Boolean],
                 default: 'OK',
             },
             timeout: {
-                type: Number|Boolean,
+                type: [Number, Boolean],
                 default: 5000,
             },
         },

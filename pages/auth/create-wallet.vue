@@ -11,14 +11,12 @@
     import {makeAccepter, removeEmptyKeys} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import InputMaskedName from '~/components/InputMaskedName';
-    import InputMaskedPhone from '~/components/InputMaskedPhone';
 
     export default {
         PAGE_TITLE: 'Create Wallet',
         components: {
             Layout,
             InputMaskedName,
-            InputMaskedPhone,
         },
         mixins: [validationMixin],
         head() {

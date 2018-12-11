@@ -13,7 +13,7 @@
         props: {
             /** @type Array<Transaction>*/
             transactionList: {
-                type: Array|null,
+                type: [Array, null],
                 required: true,
             },
         },
