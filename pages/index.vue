@@ -102,15 +102,15 @@
         </div>
 
         <div class="u-section">
-            <div v-if="txList && txList.length">
+            <template v-if="txList && txList.length">
                 <div class="list-title">Latest Transactions</div>
                 <TransactionTable :transaction-list="txList"/>
                 <div class="u-container u-section--small">
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
                 </div>
-            </div>
+            </template>
 
-            <div v-if="balance && balance.length">
+            <template v-if="balance && balance.length">
                 <div class="list-title">My coinList</div>
                 <ul class="list">
                     <li class="list-item" v-for="coin in balance" :key="coin.coin">
@@ -130,7 +130,7 @@
                 <div class="u-container u-section--small">
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/convert">Convert</nuxt-link>
                 </div>
-            </div>
+            </template>
         </div>
     </Layout>
 </template>

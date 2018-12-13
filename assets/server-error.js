@@ -65,9 +65,12 @@ export function getValidationError(error, startErrorText = 'Error: ') {
  */
 export function getErrorText(error, startErrorText = 'Error: ') {
     console.log(error);
-    if (error.response && error.response.data && (error.response.data.message || error.response.data.error)) {
+    console.log(error.response);
+    const resData = error.response && error.response.data;
+    console.log(resData);
+    if (resData && (resData.message || resData.error)) {
         // server error
-        return startErrorText + ((error.response.data.error && error.response.data.error.message) || error.response.data.message);
+        return startErrorText + ((resData.error && resData.error.message) || (resData.error && resData.error.log) || resData.message);
     } else if (error.message) {
         // network error
         return error.message;

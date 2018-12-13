@@ -11,9 +11,12 @@
 //    .u-container {max-width: @container-width + @container-padding-large * 2; padding: 0 @container-padding-large;}
 //}
 
-.u-section {padding-top: @section-margin; padding-bottom: @section-margin;}
+.u-section {
+    padding-top: @section-margin; padding-bottom: @section-margin;
+    & > .u-section--small:last-child {padding-bottom: 5px;}
+}
 .u-section--bottom {padding-bottom: @section-margin;}
-.u-section--small {padding-top: 10px; padding-bottom: 10px;}
+.u-section--small {padding-top: 14px; padding-bottom: 14px;}
 
 
 

@@ -46,6 +46,7 @@ module.exports = {
     ],
     plugins: [
         { src: '~/plugins/persistedState.js', ssr: false },
+        { src: '~/plugins/vue-onsen.js', ssr: false },
     ],
     /*
     ** PWA manifest

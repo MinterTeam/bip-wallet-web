@@ -1,6 +1,26 @@
 @import "variables";
 
 /* customize onsen components */
+// tabbar
+.page, .page__content, .tabbar__content, .tabbar {position: relative;}
+.ons-swiper-target {
+    display: flex;
+    & > .page {flex-shrink: 0;}
+}
+.ons-tabbar {
+    display: flex; flex-direction: column;
+    .tabbar__content {order: 2;}
+}
+.tabbar {border: none; border-bottom: 1px solid @c-border;}
+.tabbar--material__border {background: @c-violet;}
+.tabbar--material__button::after {display: none;}
+.tabbar__button {font-weight: 700; color: inherit; font-family: inherit; cursor: pointer;}
+:checked + .tabbar__button {color: @c-violet;}
+.tabbar__border {bottom: -1px;}
+.u-bg-white {
+    .page--material, .page--material__background, .page__content {background: #fff;}
+}
+// toolbar
 .toolbar-wrap {background: @c-violet;}
 .toolbar {flex-shrink: 0; justify-content: space-between;}
 .toolbar__center {flex-shrink: 0; font-size: 18px; font-weight: 700;}
@@ -24,6 +44,8 @@
 .list-title {
     font-size: 12px;
     * + & {margin-top: @section-margin;}
+    .u-section--small + & {margin-top: 10px;}
+
 }
 .list-item {min-height: 54px; padding-left: @container-padding; padding-right: @container-padding; text-decoration: none;}
 .list-item--tappable {

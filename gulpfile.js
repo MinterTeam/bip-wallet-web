@@ -124,7 +124,7 @@ gulp.task('imagemin:clean-cache', function() {
 // Полная сборка с вотчем
 gulp.task('default', ['less', 'onsen', 'imagemin'], function() {
     gulp.watch(paths.watch.less, ['less']);
-    gulp.watch(paths.watch.onsen, ['onsen']);
+    gulp.watch(paths.watch.onsen, ['onsen', 'less']);
     gulp.watch(paths.src.img, ['imagemin']).on('change', function(event) {
         if (event.type === 'deleted') {
             del(paths.dest.img + path.basename(event.path));
