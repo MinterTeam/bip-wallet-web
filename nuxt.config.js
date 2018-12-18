@@ -69,6 +69,30 @@ module.exports = {
     ** Build configuration
     */
     build: {
-        transpile: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^v-file-input\/src/, /^date-fns\/esm/, /^lodash-es/],
+        watch: [
+            './api/',
+            // `./lang/`, // this watcher dont-work yet
+        ],
+        babel: {
+            presets: ['@nuxt/babel-preset-app'],
+            // prevent @babel/plugin-transform-runtime from inserting `import` statement into commonjs files (bc. it breaks webpack)
+            sourceType: 'unambiguous',
+        },
+        transpile: [
+            /es6-promise|\.(?!(?:js|json)$).{1,5}$/i,
+            '/base-x/',
+            'date-fns/esm',
+            'lodash-es',
+            // 'nuxt-i18n/src',
+            'v-file-input/src',
+            'clipbrd/src',
+            'pretty-num/src',
+            'from-exponential/src',
+            'minterjs-util/src',
+            'minterjs-tx/src',
+            'minterjs-wallet/src',
+            'minter-js-sdk/src',
+            'minter-js-org/src',
+        ],
     },
 };
