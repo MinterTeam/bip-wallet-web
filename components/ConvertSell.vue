@@ -158,7 +158,7 @@
                     .then(() => {
                         //@TODO fee coin
                         //@TODO minBuyAmount
-                        //@TODO sell all
+                        //@TODO use sellAllTx
                         postTx(new SellTxParams({
                             privateKey: this.$store.getters.privateKey,
                             ...this.form,

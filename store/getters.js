@@ -1,6 +1,6 @@
 import {isValidMnemonic, walletFromMnemonic} from 'minterjs-wallet';
 import {decryptMnemonic} from 'minter-js-org';
-import {getNameLetter} from "~/assets/utils";
+import {getNameLetter, shortHashFilter} from "~/assets/utils";
 import {COIN_NAME} from '~/assets/variables';
 
 export default {
@@ -56,7 +56,7 @@ export default {
     // },
     wallet(state, getters) {
         if (getters.isUserAdvanced) {
-            return walletFromMnemonic(state.auth.advanced.find((addressItem) => addressItem.isMain));
+            return walletFromMnemonic(state.auth.advanced.find((addressItem) => addressItem.isMain).mnemonic);
         } else if (getters.isUserWithProfile && getters.mainProfileAddress && getters.mainProfileAddress.encrypted) {
             const profileMnemonic = decryptMnemonic(getters.mainProfileAddress.encrypted, state.auth.password);
             return walletFromMnemonic(profileMnemonic);
@@ -83,7 +83,7 @@ export default {
         if (getters.isUserWithProfile) {
             return state.auth.user && '@' + state.auth.user.username;
         } else {
-            return getters.address;
+            return shortHashFilter(getters.address, 4);
         }
         // return getters.isUserWithProfile ? '@' + state.auth.user.username : getters.mainAdvancedAddress;
     },
