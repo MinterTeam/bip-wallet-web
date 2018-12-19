@@ -42,6 +42,7 @@
                 serverError: '',
                 form: {
                     coinFrom: coinList && coinList.length ? coinList[0].coin : '',
+                    //@TODO coin autocomplete
                     coinTo: '',
                     sellAmount: '',
                 },
@@ -53,6 +54,7 @@
                 estimationTimer: null,
                 estimationLoading: false,
                 estimationError: false,
+                isSellAll: false, // should sellAllTx be used
             };
         },
         validations() {
@@ -90,7 +92,7 @@
         computed: {
             maxAmount() {
                 let selectedCoin;
-                this.balance.some((coin) => {
+                this.$store.state.balance.some((coin) => {
                     if (coin.coin === this.form.coinFrom) {
                         selectedCoin = coin;
                         return true;
@@ -98,14 +100,15 @@
                 });
                 return selectedCoin ? selectedCoin.amount : 0;
             },
-            ...mapState({
-                balance: 'balance',
-            }),
-            ...mapGetters({
-                COIN_NAME: 'COIN_NAME',
-            }),
+            feeCoinSymbol() {
+                const CONVERT_FEE = 0.1;
+                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= CONVERT_FEE) {
+                    return this.$store.getters.baseCoin.coin;
+                }
+                // otherwise coinSymbol will be used as feeCoinSymbol
+                return undefined;
+            },
         },
-
         methods: {
             // force estimation after blur if needed
             inputBlur() {
@@ -145,8 +148,9 @@
             onAcceptAmount(e) {
                 this.amountMasked = e.detail._value;
                 this.form.sellAmount = e.detail._unmaskedValue;
+                // use sellTx if value typed by user manually
+                this.isSellAll = false;
             },
-
             submit() {
                 if (this.isFormSending) {
                     return;
@@ -156,12 +160,13 @@
                 this.serverError = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
                     .then(() => {
-                        //@TODO fee coin
                         //@TODO minBuyAmount
-                        //@TODO use sellAllTx
-                        postTx(new SellTxParams({
+                        //@TODO use sellAllTx if sellAmount == maxAmount ?
+                        const TxParamsConstructor = this.isSellAll ? SellAllTxParams : SellTxParams;
+                        postTx(new TxParamsConstructor({
                             privateKey: this.$store.getters.privateKey,
                             ...this.form,
+                            feeCoinSymbol: this.feeCoinSymbol,
                         })).then((txHash) => {
                             this.$emit('successTx', {hash: txHash});
                             this.isFormSending = false;
@@ -181,10 +186,13 @@
             useMax() {
                 this.form.sellAmount = this.maxAmount;
                 this.amountMasked = this.maxAmount;
+                // update maskRef state
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
+                // use sellAllTx if "Use max" button pressed
+                this.isSellAll = true;
             },
             clearForm() {
-                this.form.coinFrom = this.balance && this.balance.length ? this.balance[0].coin : '';
+                this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.form.coinTo = '';
                 this.form.sellAmount = null;
                 this.amountMasked = '';
@@ -204,7 +212,7 @@
                         v-model="form.coinFrom"
                         @blur="$v.form.coinFrom.$touch(); inputBlur()"
                 >
-                    <option v-for="coin in balance" :key="coin.coin" :value="coin.coin">{{ coin.coin }} ({{ coin.amount | pretty }})</option>
+                    <option v-for="coin in $store.state.balance" :key="coin.coin" :value="coin.coin">{{ coin.coin }} ({{ coin.amount | pretty }})</option>
                 </select>
                 <span class="bip-field__error" v-if="$v.form.coinFrom.$dirty && !$v.form.coinFrom.required">Enter coin</span>
             </label>

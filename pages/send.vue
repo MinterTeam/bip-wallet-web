@@ -1,5 +1,4 @@
 <script>
-    import {mapState, mapGetters} from 'vuex';
     import axios from 'axios';
     import {IMaskDirective} from 'vue-imask';
     import {validationMixin} from 'vuelidate';
@@ -111,7 +110,7 @@
             },
             maxAmount() {
                 let selectedCoin;
-                this.balance.some((coin) => {
+                this.$store.state.balance.some((coin) => {
                     if (coin.coin === this.form.coinSymbol) {
                         selectedCoin = coin;
                         return true;
@@ -119,12 +118,14 @@
                 });
                 return selectedCoin ? selectedCoin.amount : 0;
             },
-            ...mapState({
-                balance: 'balance',
-            }),
-            ...mapGetters({
-                COIN_NAME: 'COIN_NAME',
-            }),
+            feeCoinSymbol() {
+                const SEND_FEE = 0.01;
+                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= SEND_FEE) {
+                    return this.$store.getters.baseCoin.coin;
+                }
+                // otherwise coinSymbol will be used as feeCoinSymbol
+                return undefined;
+            },
         },
         watch: {
             //@TODO loading indicator instead of error
@@ -264,16 +265,17 @@
                 this.serverSuccess = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
                     .then(() => {
-                        //@TODO fee coin
                         postTx(new SendTxParams({
                             privateKey: this.$store.getters.privateKey,
                             ...this.form,
+                            feeCoinSymbol: this.feeCoinSymbol,
                         })).then((txHash) => {
                             this.isFormSending = false;
                             this.isWaitModalOpen = false;
                             this.isSuccessModalOpen = true;
                             this.serverSuccess = txHash;
                             this.clearForm();
+                            this.$store.dispatch('FETCH_BALANCE');
                         }).catch((error) => {
                             console.log(error);
                             this.isFormSending = false;
@@ -296,7 +298,7 @@
             clearForm() {
                 this.form.address = '';
                 this.form.amount = null;
-                this.form.coinSymbol = this.balance && this.balance.length ? this.balance[0].coin : '';
+                this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.recipient.name = '';
                 this.recipient.type = '';
                 this.recipient.avatar = '';
@@ -312,7 +314,7 @@
 <template>
     <Layout :title="$options.PAGE_TITLE" :is-bg-white="true">
 
-        <form novalidate @submit.prevent="openTxModal" v-if="balance && balance.length">
+        <form novalidate @submit.prevent="openTxModal" v-if="$store.state.balance && $store.state.balance.length">
             <div class="u-section u-container">
                 <label class="bip-field bip-field--row bip-field--select" :class="{'is-error': $v.form.coinSymbol.$error}">
                     <span class="bip-field__label">Coin</span>
@@ -320,7 +322,7 @@
                             v-model="form.coinSymbol"
                             @blur="$v.form.coinSymbol.$touch()"
                     >
-                        <option v-for="coin in balance" :key="coin.coin" :value="coin.coin">{{ coin.coin }} ({{ coin.amount | pretty }})</option>
+                        <option v-for="coin in $store.state.balance" :key="coin.coin" :value="coin.coin">{{ coin.coin }} ({{ coin.amount | pretty }})</option>
                     </select>
                     <span class="bip-field__error" v-if="$v.form.coinSymbol.$dirty && !$v.form.coinSymbol.required">Enter coin</span>
                 </label>
@@ -353,7 +355,7 @@
                 <a class="list-item">
                     <div class="list-item__center">Transaction Fee</div>
                     <div class="list-item__right">
-                        <div class="list-item__label list-item__label--strong">0.0100 {{ COIN_NAME }}</div>
+                        <div class="list-item__label list-item__label--strong">0.0100 {{ $store.getters.COIN_NAME }}</div>
                     </div>
                 </a>
                 <!--
@@ -423,7 +425,7 @@
         <!-- success modal -->
         <Modal :isOpen.sync="isSuccessModalOpen" :hideCloseButton="true">
             <div class="modal__panel">
-                <h3 class="modal__title u-h2">Success!</h3>
+                <h3 class="modal__title u-h2">Success</h3>
                 <div class="modal__content">
                     <p>Coins are received by</p>
                     <p v-if="lastRecipient.avatar">

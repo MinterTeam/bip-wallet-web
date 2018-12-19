@@ -10,8 +10,9 @@ export default function({store, route, redirect, error}) {
         /^\/$/,
         /^\/transactions(\/|$)/,
         /^\/send(\/|$)/,
-        /^\/recieve(\/|$)/,
+        /^\/receive(\/|$)/,
         /^\/settings(\/|$)/,
+        /^\/convert(\/|$)/,
     ].some((pathRegex) => {
         return pathRegex.test(route.path);
     });

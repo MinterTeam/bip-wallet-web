@@ -70,20 +70,20 @@
                 </nuxt-link>
             </div>
             <!-- Settings for all users -->
-            <div class="list">
-                <!--<nuxt-link class="list-item list-item&#45;&#45;chevron list-item&#45;&#45;tappable" to="/settings/language">
+            <!--<div class="list">
+                <nuxt-link class="list-item list-item&#45;&#45;chevron list-item&#45;&#45;tappable" to="/settings/language">
                     <div class="list-item__center">Language</div>
                     <div class="list-item__right list-item&#45;&#45;chevron__right">
                         <div class="list-item__label list-item__label&#45;&#45;strong">{{ $store.state.auth.user.language }}</div>
                     </div>
-                </nuxt-link>-->
-                <nuxt-link class="list-item list-item--chevron list-item--tappable" to="/settings/addresses">
+                </nuxt-link>
+                <nuxt-link class="list-item list-item&#45;&#45;chevron list-item&#45;&#45;tappable" to="/settings/addresses">
                     <div class="list-item__center">My addresses</div>
-                    <div class="list-item__right list-item--chevron__right">
+                    <div class="list-item__right list-item&#45;&#45;chevron__right">
                         <div class="list-item__label">Manage</div>
                     </div>
                 </nuxt-link>
-            </div>
+            </div>-->
         </div>
 
     </Layout>

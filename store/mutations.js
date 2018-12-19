@@ -32,6 +32,13 @@ export default {
         state.auth.token = {};
         state.auth.password = null;
         state.auth.advanced = [];
+        // clear data
+        state.balance = [];
+        state.profileAddressList = [];
+        state.transactionListInfo = {
+            data: [],
+            meta: {},
+        };
     },
     SET_PROFILE_USER,
     UPDATE_PROFILE_PASSWORD: (state, password) => {

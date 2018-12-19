@@ -84,7 +84,7 @@
         </v-ons-tabbar>
 
         <div class="u-section u-container" v-else>
-            No coins to convert
+            No coins to exchange
             <!--<span v-if="isBalanceLoading">Loading…</span>
             <span v-else>No coins to send</span>-->
         </div>
@@ -92,11 +92,9 @@
         <!-- success modal -->
         <Modal :isOpen.sync="isSuccessModalOpen">
             <div class="modal__panel">
-                <h3 class="modal__title u-h2">Success!</h3>
+                <h3 class="modal__title u-h2">Success</h3>
                 <div class="modal__content">
-                    <p>Coins are received by</p>
-
-                    <p><strong>{{ successHash }}</strong></p>
+                    <p>Coins successfully exchanged!</p>
                 </div>
                 <div class="modal__footer">
                     <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(successHash)" target="_blank">View Transaction</a>
