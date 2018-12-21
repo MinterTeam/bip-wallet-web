@@ -94,6 +94,7 @@ export default {
         return state.auth.user && state.auth.user.avatar && state.auth.user.avatar.src;
     },
     baseCoin(state) {
+        console.log('calculate baseCoin');
         return state.balance.find((coinItem) => {
             return coinItem.coin === COIN_NAME;
         });
