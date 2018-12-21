@@ -111,7 +111,7 @@
             </template>
 
             <template v-if="balance && balance.length">
-                <div class="list-title">My coinList</div>
+                <div class="list-title">My coins</div>
                 <ul class="list">
                     <li class="list-item" v-for="coin in balance" :key="coin.coin">
                         <div class="list-item__left">

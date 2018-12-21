@@ -75,10 +75,8 @@ export default {
     },
     FETCH_BALANCE_STANDALONE: ({ commit, getters }) => {
         // use only 1 address
-        console.log('fetch balance');
         return getBalance(getters.addressList[0].address)
             .then((balance) => {
-                console.log('fetch balance then');
                 commit('SET_BALANCE', balance);
                 return balance;
             });

@@ -63,7 +63,6 @@ export default {
         state.transactionListInfo = txListInfo;
     },
     SET_BALANCE: (state, balance) => {
-        console.log('mutate balance');
         state.balance = balance;
     },
     ADD_USER,
