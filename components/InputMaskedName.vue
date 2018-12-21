@@ -14,7 +14,7 @@
         data() {
             return {
                 imaskNameOptions: {
-                    mask: /^@\w*$/,
+                    mask: /^@[a-zA-Z0-9]*$/,
                     prepare: (char, masked) => {
                         if (char && char !== '@' && !masked._value.length) {
                             return '@' + char;
@@ -37,5 +37,5 @@
 </script>
 
 <template>
-    <input type="text" :value="usernameMasked" v-imask="imaskNameOptions" @accept="onAcceptUsername"/>
+    <input type="text" autocapitalize="off" :value="usernameMasked" v-imask="imaskNameOptions" @accept="onAcceptUsername"/>
 </template>

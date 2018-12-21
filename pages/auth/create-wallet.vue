@@ -9,6 +9,7 @@
     import {register} from '~/api';
     import {getServerValidator, fillServerErrors, getErrorText} from "~/assets/server-error";
     import {makeAccepter, removeEmptyKeys} from "~/assets/utils";
+    import {USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH} from '~/assets/variables';
     import Layout from '~/components/LayoutDefault';
     import InputMaskedName from '~/components/InputMaskedName';
 
@@ -50,13 +51,14 @@
             form: {
                 username: {
                     required,
-                    minLength: minLength(5),
-                    maxLength: maxLength(32),
+                    minLength: minLength(USERNAME_MIN_LENGTH),
+                    maxLength: maxLength(USERNAME_MAX_LENGTH),
                     server: getServerValidator('username'),
                 },
                 password: {
                     required,
-                    minLength: minLength(6),
+                    minLength: minLength(PASSWORD_MIN_LENGTH),
+                    maxLength: maxLength(PASSWORD_MAX_LENGTH),
                     server: getServerValidator('password'),
                 },
                 passwordConfirm: {
@@ -130,6 +132,7 @@
                 >
                 <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.required">Enter password</span>
                 <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.minLength">Password is too short</span>
+                <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.maxLength">Password is too long</span>
                 <span class="bip-field__error" v-if="$v.form.password.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
             </label>
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.passwordConfirm.$error}">
