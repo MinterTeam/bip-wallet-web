@@ -55,10 +55,10 @@
 .list-item__left, .list-item__center, .list-item__right {padding-top: 10px; padding-bottom: 10px;}
 .list-item__left {padding-right: 10px;}
 .list-item__center {padding-right: @container-padding; flex-direction: column; align-items: flex-start; justify-content: center;}
-.list-item__right {padding-right: 0; flex-wrap: wrap; justify-content: flex-end;}
+.list-item__right {padding-right: 0; flex-wrap: wrap; justify-content: flex-end; overflow: hidden;}
 .list-item--chevron__right {padding-right: 12px;}
 .list-item--chevron::before {margin-top: 1px; width: 9px; height: 9px;}
-.list-item__label {font-size: 16px;}
+.list-item__label {font-size: 16px; overflow: hidden; text-overflow: ellipsis;}
 .list-item__thumbnail {width: 34px; height: 34px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 1px 9px rgba(0,0,0,0.2); background-color: @c-violet; color: #fff; font-size: 18px; line-height: 28px; font-weight: 700; text-align: center;}
 .switch {cursor: pointer;}
 .switch__toggle, .switch__handle {transition-duration: 0.25s;}
