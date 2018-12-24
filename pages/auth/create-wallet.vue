@@ -165,7 +165,7 @@
                 &lt;!&ndash;<span class="bip-field__error" v-if="$v.form.phone.$dirty && !$v.form.phone.server">{{ sve.phone.message }}</span>&ndash;&gt;
             </label>-->
             <div class="bip-field--row">
-                <button class="bip-button bip-button--main">Create Wallet</button>
+                <button class="bip-button bip-button--main" :class="{'is-disabled': $v.form.$invalid}">Create Wallet</button>
                 <div class="bip-form__error" v-if="serverError">{{ serverError }}</div>
             </div>
             <p class="bip-field--row bip-field__asterisk">
