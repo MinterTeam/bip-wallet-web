@@ -118,7 +118,7 @@
                 <span class="bip-field__error" v-if="$v.form.username.$dirty && !$v.form.password.server">{{ sve.password.message }}</span>
             </label>
             <div class="bip-field--row">
-                <button class="bip-button bip-button--main">Continue</button>
+                <button class="bip-button bip-button--main" :class="{'is-disabled': $v.form.$invalid}">Continue</button>
             </div>
             <div class="bip-form__error" v-if="serverError">{{ serverError }}</div>
         </form>
