@@ -25,7 +25,7 @@
                 isFormSending: false,
                 serverError: '',
                 form: {
-                    email: this.$store.state.auth.email || '',
+                    email: this.$store.state.auth.user.email || '',
                 },
                 sve: {
                     email: {invalid: false, isActual: false, message: ''},
