@@ -33,7 +33,7 @@
                     <nuxt-link to="/auth/sign-in" class="bip-button bip-button--ghost-white">Sign In</nuxt-link>
                 </div>
                 <div class="u-cell u-cell--1-2">
-                    <a href="https://help.beta.minter.network" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
+                    <a href="https://help.minter.network" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
                 </div>
             </div>
         </div>
