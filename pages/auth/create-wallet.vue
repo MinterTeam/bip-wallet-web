@@ -36,13 +36,13 @@
                     username: '',
                     password: '',
                     passwordConfirm: '',
-                    email: '',
+                    // email: '',
                     phone: '',
                 },
                 sve: {
                     username: {invalid: false, isActual: false, message: ''},
                     password: {invalid: false, isActual: false, message: ''},
-                    email: {invalid: false, isActual: false, message: ''},
+                    // email: {invalid: false, isActual: false, message: ''},
                     phone: {invalid: false, isActual: false, message: ''},
                 },
             };
@@ -65,10 +65,10 @@
                     required,
                     sameAsPassword: sameAs('password'),
                 },
-                email: {
-                    email,
-                    server: getServerValidator('email'),
-                },
+                // email: {
+                //     email,
+                //     server: getServerValidator('email'),
+                // },
                 phone: {
                     minLength: minLength(11),
                     maxLength: maxLength(13),
@@ -144,7 +144,7 @@
                 <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && !$v.form.passwordConfirm.required">Confirm password</span>
                 <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && $v.form.passwordConfirm.required && !$v.form.passwordConfirm.sameAsPassword">Passwords don't match</span>
             </label>
-            <label class="bip-field bip-field--row" :class="{'is-error': $v.form.email.$error}">
+            <!--<label class="bip-field bip-field&#45;&#45;row" :class="{'is-error': $v.form.email.$error}">
                 <span class="bip-field__label">Email (Optional *)</span>
                 <input class="bip-field__input" type="email"
                        v-model="form.email"
@@ -153,7 +153,7 @@
                 >
                 <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.email">Not valid email</span>
                 <span class="bip-field__error" v-if="$v.form.email.$dirty && !$v.form.email.server">{{ sve.email.message }}</span>
-            </label>
+            </label>-->
             <!--<label class="bip-field bip-field&#45;&#45;row" :class="{'is-error': $v.form.phone.$error}">
                 <InputMaskedPhone class="bip-field__input"
                                   @accept="onAcceptPhone"
@@ -168,9 +168,9 @@
                 <button class="bip-button bip-button--main" :class="{'is-disabled': $v.form.$invalid}">Create Wallet</button>
                 <div class="bip-form__error" v-if="serverError">{{ serverError }}</div>
             </div>
-            <p class="bip-field--row bip-field__asterisk">
-                Email <!--and Mobile Number are--> is optional but can be very handy if you forget your password.
-            </p>
+            <!--<p class="bip-field&#45;&#45;row bip-field__asterisk">
+                Email &lt;!&ndash;and Mobile Number are&ndash;&gt; is optional but can be very handy if you forget your password.
+            </p>-->
         </form>
 
     </Layout>
