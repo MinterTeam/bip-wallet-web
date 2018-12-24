@@ -92,7 +92,7 @@
             </div>
         </div>
         <div class="u-section u-container">
-            <button class="bip-button bip-button--main" :class="{'is-disabled': !isMnemonicSaved}" @click="authorize">Launch the Wallet</button>
+            <button class="bip-button bip-button--main" :disabled="!isMnemonicSaved" @click="authorize">Launch the Wallet</button>
             <span class="bip-form__error" v-if="$v.isMnemonicSaved.$error">You need to save the phrase</span>
         </div>
 
