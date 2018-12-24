@@ -139,12 +139,13 @@
                         return;
                     }
                     if (newVal.substr(0, 2) === 'Mx') {
+                        this.recipient.type = 'address';
                         // address
                         if (newVal.length !== 42) {
                             this.setAddressError('Wrong address length');
                             return;
                         }
-                        if (!/^Mx[0-9abcdefABCDEF]$/.test(newVal)) {
+                        if (!/^Mx[0-9abcdefABCDEF]*$/.test(newVal)) {
                             this.setAddressError('Wrong address');
                             return;
                         }
@@ -187,11 +188,16 @@
                 this.recipientCheckTimer = null;
             },
             checkRecipient() {
+                // cancel previous request
                 this.clearRecipientTimer();
                 if (this.recipientLoading && typeof recipientCheckCancel === 'function') {
-                    // cancel previous request
                     recipientCheckCancel();
                 }
+                // check only username and email
+                if (this.recipient.type !== 'username' || this.recipient.type !== 'email') {
+                    return;
+                }
+                // new request
                 this.recipientLoading = this.recipient.name;
                 getAddressInfoByContact(recipientCheckData, new axios.CancelToken((cancelFn) => {
                     recipientCheckCancel = cancelFn;
