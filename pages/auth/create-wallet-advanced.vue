@@ -1,12 +1,18 @@
 <script>
     import {generateMnemonic} from 'minterjs-wallet';
     import {validationMixin} from 'vuelidate';
-    import required from 'vuelidate/lib/validators/required';
+    import withParams from 'vuelidate/lib/withParams';
+    import {req} from 'vuelidate/lib/validators/common';
     import getTitle from '~/assets/get-title';
     import {addressFromMnemonic} from "minter-js-org";
     import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
     import Toast from '~/components/Toast';
+
+    // checkbox validator
+    const checked = withParams({ type: 'checked' }, (value) => {
+        return !req(value) || value === true;
+    });
 
     export default {
         PAGE_TITLE: 'Generate Address',
@@ -32,7 +38,7 @@
         },
         validations: {
             isMnemonicSaved: {
-                required,
+                checked,
             },
         },
         computed: {
@@ -92,7 +98,7 @@
             </div>
         </div>
         <div class="u-section u-container">
-            <button class="bip-button bip-button--main" :disabled="!isMnemonicSaved" @click="authorize">Launch the Wallet</button>
+            <button class="bip-button bip-button--main" :class="{'is-disabled': !isMnemonicSaved}" @click="authorize">Launch the Wallet</button>
             <span class="bip-form__error" v-if="$v.isMnemonicSaved.$error">You need to save the phrase</span>
         </div>
 
