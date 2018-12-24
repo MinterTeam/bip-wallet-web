@@ -9,7 +9,7 @@
     import {getAddressInfoByContact} from "~/api";
     import {postTx} from '~/api/minter-node';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
-    import {pretty, getExplorerTxUrl} from '~/assets/utils';
+    import {getAvatarUrl, pretty, getExplorerTxUrl} from '~/assets/utils';
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
@@ -65,13 +65,13 @@
                 },
                 recipient: {
                     name: '',
-                    avatar: '',
+                    address: '',
                     type: '',
                 },
                 // saved recipient entry for success modal
                 lastRecipient: {
                     name: '',
-                    avatar: '',
+                    address: '',
                     type: '',
                 },
                 recipientCheckTimer: null,
@@ -150,6 +150,7 @@
                             return;
                         }
                         this.form.address = newVal;
+                        this.recipient.address = newVal;
                     } else if (newVal.substr(0, 1) === '@') {
                         // username
                         if (!/^@\w*$/.test(newVal)) {
@@ -204,8 +205,8 @@
                 }))
                     .then((userInfo) => {
                         this.form.address = userInfo.address;
+                        this.recipient.address = userInfo.address;
                         // @TODO user stored users
-                        this.recipient.avatar = userInfo.user.avatar && userInfo.user.avatar.src;
                         this.recipientLoading = false;
                     })
                     .catch((error) => {
@@ -307,11 +308,12 @@
                 this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.recipient.name = '';
                 this.recipient.type = '';
-                this.recipient.avatar = '';
+                this.recipient.address = '';
                 this.amountMasked = '';
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
+            getAvatarUrl,
             getExplorerTxUrl,
         },
     };
@@ -403,8 +405,8 @@
                 <div class="modal__content">
                     <p class="send__modal-value">{{ form.amount | pretty }} {{ form.coinSymbol }}</p>
                     <p>to</p>
-                    <p v-if="recipient.avatar">
-                        <img class="send__modal-image avatar avatar--large" :src="recipient.avatar" alt="" role="presentation">
+                    <p>
+                        <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(form.address)" alt="" role="presentation">
                     </p>
                     <p><strong>{{ recipient.name }}</strong></p>
                 </div>
@@ -434,8 +436,8 @@
                 <h3 class="modal__title u-h2">Success</h3>
                 <div class="modal__content">
                     <p>Coins are received by</p>
-                    <p v-if="lastRecipient.avatar">
-                        <img class="send__modal-image avatar avatar--large" :src="lastRecipient.avatar" alt="" role="presentation">
+                    <p>
+                        <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(lastRecipient.address)" alt="" role="presentation">
                     </p>
                     <p><strong>{{ lastRecipient.name }}</strong></p>
                 </div>

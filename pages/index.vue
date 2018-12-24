@@ -1,6 +1,6 @@
 <script>
     import {mapGetters, mapState} from 'vuex';
-    import {getNameLetter, pretty} from "~/assets/utils";
+    import {getCoinIconUrl, pretty} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
@@ -29,8 +29,7 @@
             }),
             ...mapGetters([
                 'username',
-                'usernameLetter',
-                'avatar',
+                'address',
                 'baseCoin',
             ]),
             balanceParts() {
@@ -65,7 +64,7 @@
                 });
         },
         methods: {
-            getNameLetter,
+            getCoinIconUrl,
         },
     };
 </script>
@@ -82,11 +81,8 @@
                     <nuxt-link class="toolbar-button user" to="/settings">
                         <div class="user__name">{{ username }}</div>
                         <div class="user__avatar avatar"
-                             :style="{backgroundImage: avatar ? `url('${avatar}')` : ''}"
-                             :class="{'avatar--letter': !avatar}"
-                        >
-                            <span v-if="!avatar">{{ usernameLetter }}</span>
-                        </div>
+                             :style="{backgroundImage: `url('${$store.getters.avatar}')`}"
+                        ></div>
 
                     </nuxt-link>
                 </div>
@@ -115,8 +111,7 @@
                 <ul class="list">
                     <li class="list-item" v-for="coin in balance" :key="coin.coin">
                         <div class="list-item__left">
-                            <img class="list-item__thumbnail" :src="coin.image" alt="" role="presentation" v-if="coin.image">
-                            <div class="list-item__thumbnail" v-else>{{ getNameLetter(coin.name || coin.coin) }}</div>
+                            <img class="list-item__thumbnail" :src="getCoinIconUrl(coin.coin)" alt="" role="presentation">
                         </div>
                         <div class="list-item__center">
                             <div class="list-item__name">{{ coin.name || coin.coin }}</div>

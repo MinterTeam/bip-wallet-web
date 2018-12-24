@@ -2,18 +2,27 @@ import decode from 'entity-decode';
 import prettyNum from 'pretty-num';
 import toDate from "date-fns/esm/toDate";
 import format from "date-fns/esm/format";
-import {EXPLORER_URL} from "~/assets/variables";
+import {EXPLORER_URL, MINTERORG_API_URL} from "~/assets/variables";
 
 
 
-/**
- * Get first letter from name string
- * @param {string} name
- * @return {string}
- */
-export function getNameLetter(name) {
-    return name && name.replace(/^@/, '').replace(/^Mx/, '')[0];
+export function getAvatarUrl(address) {
+    return `${MINTERORG_API_URL}avatar/by/address/${address}`;
 }
+
+export function getCoinIconUrl(coinSymbol) {
+    return `${MINTERORG_API_URL}avatar/by/coin/${coinSymbol}`;
+}
+
+
+// /**
+//  * Get first letter from name string
+//  * @param {string} name
+//  * @return {string}
+//  */
+// export function getNameLetter(name) {
+//     return name && name.replace(/^@/, '').replace(/^Mx/, '')[0];
+// }
 
 export function getExplorerBlockUrl(block) {
     return EXPLORER_URL + '/blocks/' + block;

@@ -11,7 +11,7 @@
     import Modal from '~/components/Modal';
 
     export default {
-        PAGE_TITLE: 'Send Coins',
+        PAGE_TITLE: 'Convert Coins',
         components: {
             VOnsPage,
             VOnsTabbar,

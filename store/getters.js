@@ -1,6 +1,6 @@
 import {isValidMnemonic, walletFromMnemonic} from 'minterjs-wallet';
 import {decryptMnemonic} from 'minter-js-org';
-import {getNameLetter, shortHashFilter} from "~/assets/utils";
+import {getAvatarUrl, shortHashFilter} from "~/assets/utils";
 import {COIN_NAME} from '~/assets/variables';
 
 export default {
@@ -87,11 +87,14 @@ export default {
         }
         // return getters.isUserWithProfile ? '@' + state.auth.user.username : getters.mainAdvancedAddress;
     },
-    usernameLetter(state, getters) {
-        return getNameLetter(getters.username);
-    },
-    avatar(state) {
-        return state.auth.user && state.auth.user.avatar && state.auth.user.avatar.src;
+    // usernameLetter(state, getters) {
+    //     return getNameLetter(getters.username);
+    // },
+    avatar(state, getters) {
+        const avatarStored = state.auth.user && state.auth.user.avatar && state.auth.user.avatar.src;
+        const avatarByAddress = getters.address ? getAvatarUrl(getters.address) : '';
+        // stored avatar first, bc. it can be changed manually after uploading new
+        return avatarStored || avatarByAddress;
     },
     baseCoin(state) {
         return state.balance.find((coinItem) => {

@@ -1,6 +1,6 @@
 <script>
     import {EXPLORER_URL} from "~/assets/variables";
-    import {getNameLetter, getTimeStamp, pretty, txTypeFilter, shortHashFilter} from "~/assets/utils";
+    import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter} from "~/assets/utils";
     import {TX_TYPES} from '~/assets/variables';
 
     export default {
@@ -41,18 +41,13 @@
                 if (!address) {
                     return '';
                 }
-                if (this.$store.state.userList[address]) {
+                if (this.$store.state.userList[address] && this.$store.state.userList[address].username) {
                     return '@' + this.$store.state.userList[address].username;
                 } else {
                     return shortHashFilter(address);
                 }
             },
-            getAvatar(address) {
-                if (this.$store.state.userList[address]) {
-                    return this.$store.state.userList[address].avatar.src;
-                }
-            },
-            getNameLetter,
+            getAvatarUrl,
             getTxUrl(hash) {
                 return EXPLORER_URL + '/transactions/' + hash;
             },
@@ -130,8 +125,7 @@
                     <img class="list-item__thumbnail" src="/img/icon-tx-exchange.svg" alt="" role="presentation" v-if="isExchange(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-delegate.svg" alt="" role="presentation" v-else-if="isDelegate(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-unbond.svg" alt="" role="presentation" v-else-if="isUnbond(tx)">
-                    <img class="list-item__thumbnail" :src="getAvatar(getOtherAddress(tx))" alt="" role="presentation" v-else-if="getAvatar(getOtherAddress(tx))">
-                    <div class="list-item__thumbnail" v-else>{{ getNameLetter(getName(getOtherAddress(tx))) }}</div>
+                    <img class="list-item__thumbnail" :src="getAvatarUrl(getOtherAddress(tx))" alt="" role="presentation" v-else>
                 </div>
                 <!-- name -->
                 <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-if="isSend(tx)">

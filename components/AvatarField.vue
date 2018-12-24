@@ -1,5 +1,4 @@
 <script>
-    import {mapGetters} from 'vuex';
     import FileInput from 'v-file-input/src/FileInput';
     import {updateProfileAvatar} from "~/api";
     import {getValidationError, getErrorText} from "~/assets/server-error";
@@ -21,10 +20,7 @@
             };
         },
         computed: {
-            ...mapGetters([
-                'usernameLetter',
-                'avatar',
-            ]),
+
         },
         methods: {
             updateFile(files) {
@@ -64,14 +60,11 @@
     <div class="u-section u-container u-bg-white">
         <div class="avatar-field">
             <div class="avatar-field__avatar avatar avatar--large"
-                 :style="{backgroundImage: avatar ? `url('${avatar}')` : ''}"
-                 :class="{'avatar--letter': !avatar}"
-            >
-                <span v-if="!avatar">{{ usernameLetter }}</span>
-            </div>
+                 :style="{backgroundImage: `url('${$store.getters.avatar}')`}"
+            ></div>
 
             <label class="bip-button bip-button--ghost-main avatar-field__button" :class="{'is-loading': isFormSending}">
-                <span class="bip-button__content">{{ avatar ? 'Change userpic' : 'Upload userpic' }}</span>
+                <span class="bip-button__content">Change userpic</span>
                 <FileInput accept="image/*" class="avatar-field__input"
                            @onAdd="updateFile"
                            @onError="fileApiError = true"
