@@ -106,7 +106,7 @@
                 <span class="bip-field__error" v-if="$v.form.passwordConfirm.$dirty && $v.form.passwordConfirm.required && !$v.form.passwordConfirm.sameAsPassword">Passwords don't match</span>
             </label>
             <div class="bip-field--row">
-                <button class="bip-button bip-button--main">Save</button>
+                <button class="bip-button bip-button--main" :class="{'is-disabled': $v.form.$invalid}">Save</button>
             </div>
             <div class="bip-form__error" v-if="serverError">{{ serverError }}</div>
         </form>
