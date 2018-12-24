@@ -194,7 +194,7 @@
                     recipientCheckCancel();
                 }
                 // check only username and email
-                if (this.recipient.type !== 'username' || this.recipient.type !== 'email') {
+                if (this.recipient.type !== 'username' && this.recipient.type !== 'email') {
                     return;
                 }
                 // new request
