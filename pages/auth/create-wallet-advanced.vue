@@ -73,12 +73,12 @@
                     <button class="bip-link u-semantic-button" @click="copyMnemonic">Copy</button>
                 </div>
             </div>
-            <a class="list-item list-item--tappable list-item--chevron">
+            <!--<a class="list-item list-item&#45;&#45;tappable list-item&#45;&#45;chevron">
                 <div class="list-item__center">Secured by</div>
-                <div class="list-item__right list-item--chevron__right">
-                    <div class="list-item__label list-item__label--strong">Bip Wallet</div>
+                <div class="list-item__right list-item&#45;&#45;chevron__right">
+                    <div class="list-item__label list-item__label&#45;&#45;strong">Bip Wallet</div>
                 </div>
-            </a>
+            </a>-->
             <div class="list-item">
                 <div class="list-item__center">I've saved the phrase!</div>
                 <div class="list-item__right">
