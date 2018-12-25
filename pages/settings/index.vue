@@ -57,8 +57,8 @@
                 </nuxt-link>-->
                 <nuxt-link class="list-item list-item--chevron list-item--tappable" to="/settings/profile-email">
                     <div class="list-item__center">Email</div>
-                    <div class="list-item__right list-item--chevron__right">
-                        <div class="list-item__label list-item__label--strong" v-if="$store.state.auth.user.email">{{ $store.state.auth.user.email }}</div>
+                    <div class="list-item__right list-item__overflow list-item--chevron__right">
+                        <div class="list-item__label list-item__label--strong u-text-overflow" v-if="$store.state.auth.user.email">{{ $store.state.auth.user.email }}</div>
                         <div class="list-item__label" v-else>Add</div>
                     </div>
                 </nuxt-link>

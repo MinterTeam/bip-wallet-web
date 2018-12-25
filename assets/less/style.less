@@ -87,7 +87,7 @@
 
 .default-layout {overflow-y: scroll;}
 .default-layout__container {min-height: 100vh; display: flex; flex-direction: column;}
-.default-layout__content-wrap {flex-grow: 2; overflow-y: auto; display: flex;}
+.default-layout__content-wrap {flex-grow: 2; /*overflow-y: auto;*/ /* breaks ios safari modal */ display: flex;}
 .default-layout__content {width: 100%; background: @c-bg;}
 @media (min-width: @breakpoint-medium-up) {
     .default-layout__content-wrap {display: block;}
