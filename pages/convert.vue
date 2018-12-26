@@ -90,7 +90,7 @@
         </div>
 
         <!-- success modal -->
-        <Modal :isOpen.sync="isSuccessModalOpen">
+        <Modal :isOpen.sync="isSuccessModalOpen" :hideCloseButton="true">
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">Success</h3>
                 <div class="modal__content">

@@ -1,5 +1,5 @@
 <script>
-    import * as clipboard from '~/assets/clipboard';
+    import * as clipboard from 'clipbrd';
     import QrcodeVue from 'qrcode.vue';
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';

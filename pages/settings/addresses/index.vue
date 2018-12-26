@@ -1,8 +1,8 @@
 <script>
+    import * as clipboard from 'clipbrd';
     import {setMainProfileAddress} from "~/api";
     import {EXPLORER_URL} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
-    import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
     import Navbar from '~/components/Navbar';
     import Toast from '~/components/Toast';

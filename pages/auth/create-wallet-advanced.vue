@@ -3,9 +3,9 @@
     import {validationMixin} from 'vuelidate';
     import withParams from 'vuelidate/lib/withParams';
     import {req} from 'vuelidate/lib/validators/common';
+    import * as clipboard from 'clipbrd';
     import getTitle from '~/assets/get-title';
     import {addressFromMnemonic} from "minter-js-org";
-    import * as clipboard from '~/assets/clipboard';
     import Layout from '~/components/LayoutDefault';
     import Toast from '~/components/Toast';
 
