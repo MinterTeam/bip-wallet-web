@@ -104,13 +104,16 @@
 @field-label-top: (@field-padding + @field-input-padding);
 @field-label-translate: (@field-label-height + @field-input-padding);
 .bg-field-layer() {content: ''; position: absolute; top: (2px + 7px + 17px); right: 2px; width: 40px; height: 40px; border-radius: 6px;}
+.bg-field-icon() {content: ''; position: absolute; top: (18px + 7px + 17px); right: 16px;}
 .bip-field--row {
     &+& {margin-top: 20px;}
 }
 .bip-field {
     display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%; position: relative; cursor: pointer; font-weight: 500; pointer-events: none;
-    &::before {.bg-field-layer(); background: linear-gradient(to right, #fff0, #fff 40%);}
-    .bg-field-icon() {content: ''; position: absolute; top: (18px + 7px + 17px); right: 16px;}
+    // show layer only when needed
+    &.is-success, &.is-error, &.bip-field--select {
+        &::before {.bg-field-layer(); background: linear-gradient(to right, #fff0, #fff 40%);}
+    }
     &.is-success::after {.bg-field-icon(); .bg-url("../img/icon-success.svg");}
     &.is-error::after {.bg-field-icon(); .bg-url("../img/icon-error.svg");}
 }

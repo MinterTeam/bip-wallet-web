@@ -408,7 +408,7 @@
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(form.address)" alt="" role="presentation">
                     </p>
-                    <p><strong>{{ recipient.name }}</strong></p>
+                    <p class="u-text-wrap"><strong>{{ recipient.name }}</strong></p>
                 </div>
                 <div class="modal__footer">
                     <button class="bip-button bip-button--main" @click="sendTx">Send</button>
@@ -439,7 +439,7 @@
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(lastRecipient.address)" alt="" role="presentation">
                     </p>
-                    <p><strong>{{ lastRecipient.name }}</strong></p>
+                    <p class="u-text-wrap"><strong>{{ lastRecipient.name }}</strong></p>
                 </div>
                 <div class="modal__footer">
                     <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View Transaction</a>
