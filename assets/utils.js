@@ -1,6 +1,6 @@
 import decode from 'entity-decode';
 import prettyNum from 'pretty-num';
-import toDate from "date-fns/esm/toDate";
+import parseISO from "date-fns/esm/parseISO";
 import format from "date-fns/esm/format";
 import {EXPLORER_URL, MINTERORG_API_URL} from "~/assets/variables";
 
@@ -109,7 +109,7 @@ export function makeAccepter(propName, isAcceptUnmasked) {
 
 
 export function getTimeStamp(timestamp) {
-    const time = format(toDate(timestamp), 'dd MMMM yyyy HH:mm:ss (O)');
+    const time = format(parseISO(timestamp), 'dd MMMM yyyy HH:mm:ss (O)');
 
     return time && time !== 'Invalid Date' ? time : false;
 }
