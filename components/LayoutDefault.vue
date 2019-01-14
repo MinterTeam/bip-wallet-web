@@ -21,15 +21,35 @@
                 type: String,
             },
         },
+        data() {
+            return {
+                isTestnetNoticeActive: window && !window.localStorage.getItem('minter-testnet-notice-hidden'),
+            };
+        },
+        mounted() {
+            // ssr fallback
+            this.isTestnetNoticeActive = !window.localStorage.getItem('minter-testnet-notice-hidden');
+        },
+        methods: {
+            testnetNoticeHide() {
+                window.localStorage.setItem('minter-testnet-notice-hidden', 'true');
+                this.isTestnetNoticeActive = false;
+            },
+        },
     };
 </script>
 
 <template>
     <div>
-        <div class="testnet-panel">
-            <div class="testnet-panel__container u-container u-container--large">
-                <span class="testnet-panel__icon">👨🏻‍🔬</span>
-                <span class="testnet-panel__caption">You are using testnet version. <br class="u-hidden-mini-down"> Not&nbsp;real&nbsp;money</span>
+        <div class="testnet-notice" v-if="isTestnetNoticeActive">
+            <div class="testnet-notice__container u-container u-container--large">
+                <div class="testnet-notice__content">
+                    <span class="testnet-notice__icon">👨🏻‍🔬</span>
+                    <span class="testnet-notice__caption">You are using testnet version. <br class="u-hidden-mini-down"> Not&nbsp;real&nbsp;money</span>
+                </div>
+                <button class="testnet-notice__close u-semantic-button" @click="testnetNoticeHide">
+                    <span class="testnet-notice__close-icon">Close</span>
+                </button>
             </div>
         </div>
 
