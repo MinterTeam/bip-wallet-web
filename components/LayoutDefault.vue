@@ -23,7 +23,7 @@
         },
         data() {
             return {
-                isTestnetNoticeActive: window && !window.localStorage.getItem('minter-testnet-notice-hidden'),
+                isTestnetNoticeActive: typeof window !== 'undefined' && !window.localStorage.getItem('minter-testnet-notice-hidden'),
             };
         },
         mounted() {
