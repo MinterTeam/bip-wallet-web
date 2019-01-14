@@ -26,6 +26,13 @@
 
 <template>
     <div>
+        <div class="testnet-panel">
+            <div class="testnet-panel__container u-container u-container--large">
+                <span class="testnet-panel__icon">👨🏻‍🔬</span>
+                <span class="testnet-panel__caption">You are using testnet version. <br class="u-hidden-mini-down"> Not&nbsp;real&nbsp;money</span>
+            </div>
+        </div>
+
         <header class="header">
             <div class="toolbar-wrap">
                 <slot name="toolbar">
