@@ -1,5 +1,5 @@
 <script>
-    import toDate from 'date-fns/esm/toDate';
+    import parseISO from 'date-fns/esm/parseISO';
     import format from 'date-fns/esm/format';
     import isSameDay from 'date-fns/esm/isSameDay';
     import subDays from 'date-fns/esm/subDays';
@@ -43,7 +43,7 @@
                     return null;
                 }
                 return this.txList.reduce((accumulator, tx) => {
-                    const date = toDate(tx.timestamp);
+                    const date = parseISO(tx.timestamp);
                     const groupKey = format(date, 'yyyy-MM-dd');
                     if (!accumulator[groupKey]) {
                         accumulator[groupKey] = [];
@@ -68,7 +68,7 @@
         },
         methods: {
             formatDate(dateString) {
-                const date = toDate(dateString);
+                const date = parseISO(dateString);
                 if (isSameDay(date, new Date())) {
                     return 'Today';
                 }
