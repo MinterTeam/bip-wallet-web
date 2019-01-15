@@ -34,7 +34,7 @@
     "pretty-num": "^0.2.2",
     "qrcode.vue": "^1.6.1",
     "thousands": "^1.0.1",
-    "v-file-input": "0.0.1",
+    "v-file-input": "^0.1.1",
     "vue-imask": "^4.1.4",
     "vue-onsenui": "^2.6.2",
     "vuelidate": "^0.7.4",

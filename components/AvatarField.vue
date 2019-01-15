@@ -5,8 +5,12 @@
     import Modal from '~/components/Modal';
 
     const MAX_FILE_SIZE = 0.5; // MB
+    const MAX_FILE_WIDTH = 500;
+    const MAX_FILE_HEIGHT = 500;
 
     export default {
+        MAX_FILE_WIDTH,
+        MAX_FILE_HEIGHT,
         components: {
             FileInput,
             Modal,
@@ -66,10 +70,12 @@
             <label class="bip-button bip-button--ghost-main avatar-field__button" :class="{'is-loading': isFormSending}">
                 <span class="bip-button__content">Change userpic</span>
                 <FileInput accept="image/*" class="avatar-field__input"
-                           @onAdd="updateFile"
-                           @onError="fileApiError = true"
-                           @onDragStart="isDragLayerVisible = true"
-                           @onDragEnd="isDragLayerVisible = false"
+                           :max-width="$options.MAX_FILE_WIDTH"
+                           :max-height="$options.MAX_FILE_HEIGHT"
+                           @on-add="updateFile"
+                           @on-error="fileApiError = true"
+                           @on-drag-start="isDragLayerVisible = true"
+                           @on-drag-end="isDragLayerVisible = false"
                 />
                 <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>

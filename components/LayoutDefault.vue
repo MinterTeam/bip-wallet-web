@@ -23,7 +23,7 @@
         },
         data() {
             return {
-                isTestnetNoticeActive: typeof window !== 'undefined' && !window.localStorage.getItem('minter-testnet-notice-hidden'),
+                isTestnetNoticeActive: false, // don't init value here because of https://github.com/nuxt/nuxt.js/issues/1552
             };
         },
         mounted() {
