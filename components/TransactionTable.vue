@@ -218,7 +218,7 @@
                         <div class="tx-info__value">{{ tx.data.constant_reserve_ratio }}&thinsp;%</div>
                     </div>
 
-                    <!-- type DECLARE_CANDIDACY, DELEGATE, UNBOND, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE -->
+                    <!-- type DECLARE_CANDIDACY, EDIT_CANDIDATE, DELEGATE, UNBOND, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE -->
                     <div class="u-cell" v-if="tx.data.pub_key">
                         <div class="tx-info__name">Public Key</div>
                         <div class="tx-info__value">{{ tx.data.pub_key }}</div>
@@ -234,6 +234,14 @@
                     <div class="u-cell" v-if="isUnbond(tx)">
                         <div class="tx-info__name">Unbond Block</div>
                         <div class="tx-info__value">{{ tx.block + $options.UNBOND_PERIOD }}</div>
+                    </div>
+                    <div class="u-cell" v-if="tx.data.reward_address">
+                        <div class="tx-info__name">Reward Address</div>
+                        <div class="tx-info__value">{{ tx.data.reward_address }}</div>
+                    </div>
+                    <div class="u-cell" v-if="tx.data.owner_address">
+                        <div class="tx-info__name">Owner Address</div>
+                        <div class="tx-info__value">{{ tx.data.owner_address }}</div>
                     </div>
 
                     <!-- type REDEEM_CHECK -->
