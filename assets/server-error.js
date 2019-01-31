@@ -70,7 +70,7 @@ export function getErrorText(error, startErrorText = 'Error: ') {
     console.log(resData);
     if (resData && (resData.message || resData.error)) {
         // server error
-        return startErrorText + ((resData.error && resData.error.message) || (resData.error && resData.error.log) || resData.message);
+        return startErrorText + ((resData.error && resData.error.message) || resData.message);
     } else if (error.message) {
         // network error
         return error.message;
