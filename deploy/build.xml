@@ -16,5 +16,8 @@
         <fail unless="env.app_minterorg_url" message="app_minterorg_url environment variable is not set"/>
         <fail unless="env.app_minter_url" message="app_minter_url environment variable is not set"/>
         <fail unless="env.app_explorer_url" message="app_explorer_url environment variable is not set"/>
+        <fail unless="env.app_bot_wallet_url" message="app_bot_wallet_url environment variable is not set"/>
+        <fail unless="env.app_bot_wallet_encrypted" message="app_bot_wallet_encrypted environment variable is not set"/>
+        <fail unless="env.app_bot_wallet_password" message="app_bot_wallet_password environment variable is not set"/>
     </target>
 </project>

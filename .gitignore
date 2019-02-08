@@ -2,6 +2,7 @@
 /static/css/
 /static/img/
 /tmp/
+/.env
 sw.*
 
 

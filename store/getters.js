@@ -16,7 +16,8 @@ export default {
      * @return {boolean}
      */
     isUserAdvanced(state) {
-        return state.auth.advanced.length && isValidMnemonic(state.auth.advanced[0].mnemonic);
+        console.log(state.auth.advanced, window.$nuxt.$store.state.auth.advanced);
+        return state.auth.advanced && state.auth.advanced.length && isValidMnemonic(state.auth.advanced[0].mnemonic);
     },
     /**
      * Checks if user is authorized by server
@@ -46,7 +47,7 @@ export default {
     //     return mainAddress;
     // },
     mainProfileAddress(state) {
-        return state.profileAddressList.find((addressItem) => addressItem.isMain);
+        return state.auth.user.mainAddress || state.profileAddressList.find((addressItem) => addressItem.isMain);
     },
     // pub(state, getters) {
     //     if (!getters.isAuthorized) {

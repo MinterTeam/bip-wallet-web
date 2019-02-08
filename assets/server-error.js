@@ -41,7 +41,7 @@ export function fillServerErrors(error, sve) {
  * @returns {String|boolean}
  */
 export function getValidationError(error, startErrorText = 'Error: ') {
-    let resErrors = error.response && error.response.data && error.response.data.error && error.response.data.error.data;
+    let resErrors = error.response && error.response.data && error.response.data.errors;
     let errorMessage = false;
     if (resErrors) {
         Object.keys(resErrors).some((key) => {
