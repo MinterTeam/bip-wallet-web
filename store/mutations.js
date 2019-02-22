@@ -47,6 +47,17 @@ export default {
     CHECK_MAIN_ADDRESS,
     SET_PROFILE_ADDRESS_LIST: (state, addressList) => {
         CHECK_MAIN_ADDRESS(state, addressList);
+        // @TODO saves only first encrypted (not compatible with multiple addresses)
+        // save encrypted data
+        const addressWithEncrypted = state.profileAddressList.find((addressItem) => addressItem.encrypted);
+        if (addressWithEncrypted) {
+            addressList.some((addressItem) => {
+                if (addressItem.id === addressWithEncrypted.id) {
+                    addressItem.encrypted = addressWithEncrypted.encrypted;
+                    return true;
+                }
+            });
+        }
         state.profileAddressList = addressList;
     },
     SET_PROFILE_ADDRESS_ENCRYPTED: (state, address) => {

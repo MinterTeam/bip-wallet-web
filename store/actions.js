@@ -8,6 +8,7 @@ export default {
             .then((profile) => commit('SET_PROFILE_USER', profile));
     },
     FETCH_PROFILE_ADDRESS_LIST: ({ commit, getters }) => {
+        //@TODO is it required to update address list each time?
         if (getters.isUserWithProfile) {
             return getProfileAddressList().then((addressList) => {
                 commit('SET_PROFILE_ADDRESS_LIST', addressList);

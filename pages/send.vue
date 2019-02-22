@@ -403,6 +403,7 @@
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">You're sending</h3>
                 <div class="modal__content">
+                    <!-- @TODO don't round here -->
                     <p class="send__modal-value">{{ form.amount | pretty }} {{ form.coinSymbol }}</p>
                     <p>to</p>
                     <p>
