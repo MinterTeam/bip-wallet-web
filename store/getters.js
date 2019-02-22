@@ -46,7 +46,7 @@ export default {
     //     return mainAddress;
     // },
     mainProfileAddress(state) {
-        return state.auth.user.mainAddress || state.profileAddressList.find((addressItem) => addressItem.isMain);
+        return state.profileAddressList.find((addressItem) => addressItem.isMain);
     },
     // pub(state, getters) {
     //     if (!getters.isAuthorized) {

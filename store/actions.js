@@ -18,24 +18,25 @@ export default {
             return Promise.resolve();
         }
     },
-    FETCH_ADDRESS_ENCRYPTED: ({ state, commit, getters }) => {
-        if (getters.isUserAdvanced || getters.mainProfileAddress.encrypted) {
+    FETCH_ADDRESS_ENCRYPTED: ({ state, commit, getters, dispatch }) => {
+        if (getters.isUserAdvanced || (getters.mainProfileAddress && getters.mainProfileAddress.encrypted)) {
             return Promise.resolve();
         }
-        // profile address fetched in the middleware
-        return getProfileAddressEncrypted(getters.mainProfileAddress.id)
+        // ensure mainProfileAddress exists
+        let mainProfileAddressPromise;
+        if (getters.mainProfileAddress) {
+            mainProfileAddressPromise = Promise.resolve(getters.mainProfileAddress);
+        } else {
+            mainProfileAddressPromise = dispatch('FETCH_PROFILE_ADDRESS_LIST');
+        }
+
+        return mainProfileAddressPromise
+            .then(() => getProfileAddressEncrypted(getters.mainProfileAddress.id))
             .then((address) => commit('SET_PROFILE_ADDRESS_ENCRYPTED', address));
     },
     FETCH_TRANSACTION_LIST: ({ commit, dispatch }) => {
-        return new Promise((resolve, reject) => {
-            dispatch('FETCH_PROFILE_ADDRESS_LIST')
-                .then(() => {
-                    dispatch('FETCH_TRANSACTION_LIST_STANDALONE')
-                        .then(resolve)
-                        .catch(reject);
-                })
-                .catch(reject);
-        });
+        return dispatch('FETCH_PROFILE_ADDRESS_LIST')
+            .then(() => dispatch('FETCH_TRANSACTION_LIST_STANDALONE'));
     },
     FETCH_TRANSACTION_LIST_STANDALONE: ({ commit, dispatch, getters }, page = 1) => {
         // use only 1 address
@@ -64,15 +65,8 @@ export default {
             });
     },
     FETCH_BALANCE: ({ commit, dispatch, getters }) => {
-        return new Promise((resolve, reject) => {
-            dispatch('FETCH_PROFILE_ADDRESS_LIST')
-                .then(() => {
-                    dispatch('FETCH_BALANCE_STANDALONE')
-                        .then(resolve)
-                        .catch(reject);
-                })
-                .catch(reject);
-        });
+        return dispatch('FETCH_PROFILE_ADDRESS_LIST')
+            .then(() => dispatch('FETCH_BALANCE_STANDALONE'));
     },
     FETCH_BALANCE_STANDALONE: ({ commit, getters }) => {
         // use only 1 address

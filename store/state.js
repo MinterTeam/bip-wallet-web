@@ -10,7 +10,7 @@ export default function() {
             /** @type string|null - stored password */
             password: null,
         },
-        /** @type Array<Address> */
+        /** @type Array<Address> - source of truth for encrypted mnemonic data */
         profileAddressList: [],
         /** @type Array<CoinItem> */
         balance: [],
