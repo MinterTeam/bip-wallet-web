@@ -16,7 +16,6 @@ export default {
      * @return {boolean}
      */
     isUserAdvanced(state) {
-        console.log(state.auth.advanced, window.$nuxt.$store.state.auth.advanced);
         return state.auth.advanced && state.auth.advanced.length && isValidMnemonic(state.auth.advanced[0].mnemonic);
     },
     /**
