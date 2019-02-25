@@ -361,7 +361,9 @@
 
             <div class="list">
                 <a class="list-item">
-                    <div class="list-item__center">Transaction Fee</div>
+                    <div class="list-item__center">
+                        <span class="list-item__name">Transaction Fee</span>
+                    </div>
                     <div class="list-item__right">
                         <div class="list-item__label list-item__label--strong">0.0100 {{ $store.getters.COIN_NAME }}</div>
                     </div>

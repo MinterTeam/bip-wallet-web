@@ -71,6 +71,8 @@
 
                 login(this.form)
                     .then((authData) => {
+                        // clear old format stored data
+                        this.$store.commit('LOGOUT');
                         this.$store.commit('SET_AUTH_PROFILE', authData);
                         this.$router.push('/');
                         this.isFormSending = false;

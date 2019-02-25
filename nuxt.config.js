@@ -45,6 +45,7 @@ module.exports = {
         //'@nuxtjs/pwa'
     ],
     plugins: [
+        { src: '~/plugins/custom-event-polyfill.js', ssr: false },
         { src: '~/plugins/persistedState.js', ssr: false },
         { src: '~/plugins/vue-onsen.js', ssr: false },
     ],
@@ -88,11 +89,12 @@ module.exports = {
             'clipbrd/src',
             'pretty-num/src',
             'from-exponential/src',
-            'minterjs-util/src',
-            'minterjs-tx/src',
-            'minterjs-wallet/src',
-            'minter-js-sdk/src',
-            'minter-js-org/src',
+            '@minterteam/bip-wallet-js-coins',
+            'minterjs-util',
+            'minterjs-tx',
+            'minterjs-wallet',
+            'minter-js-sdk',
+            'minter-js-org',
         ],
     },
 };

@@ -132,7 +132,7 @@
 }
 .field-label-text() {font-size: 12px; /*line-height: 16px;*/ text-transform: uppercase; font-weight: 500;}
 .bip-field__label {
-    .field-label-text(); padding-left: 10px; pointer-events: auto;
+    .field-label-text(); padding-left: 10px; pointer-events: auto; flex-grow: 2; /* fix IE11 justify-content: space-between */
 }
 .bip-field__error {
     .field-label-text(); padding-left: 10px; color: @c-red; display: none; margin-top: 6px;

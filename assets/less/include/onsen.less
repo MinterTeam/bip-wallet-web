@@ -23,7 +23,7 @@
 }
 // toolbar
 .toolbar-wrap {background: @c-violet;}
-.toolbar {flex-shrink: 0; justify-content: space-between;}
+.toolbar {flex-shrink: 0; /*justify-content: space-between; */ /* space-between breaks IE11 */}
 .toolbar__center {flex-shrink: 0; font-size: 18px; font-weight: 700; line-height: (@toolbar-height - 2px);}
 .toolbar__left, .toolbar__right {flex-basis: 27%; flex-grow: 1;}
 .toolbar__left {margin-left: -8px;}
@@ -56,7 +56,7 @@
 }
 .list-item__left, .list-item__center, .list-item__right {padding-top: 10px; padding-bottom: 10px;}
 .list-item__left {padding-right: 10px;}
-.list-item__center {padding-right: @container-padding; flex-direction: column; align-items: flex-start; justify-content: center; letter-spacing: 0.033em;}
+.list-item__center {padding-right: @container-padding; flex-direction: column; align-items: stretch; /* IE11 need this instead of 'flex-start' */ justify-content: center; letter-spacing: 0.033em;}
 .list-item__right {padding-right: 0; flex-wrap: wrap; justify-content: flex-end;}
 .list-item--chevron__right {padding-right: 12px;}
 .list-item--chevron::before {margin-top: 1px; width: 9px; height: 9px;}
@@ -81,7 +81,7 @@
 .list-item__amount--plus {color: @c-green;}
 .list-item__sup {font-size: 11px; font-weight: 500; color: @c-black-light; margin-top: -2px;}
 .list-item__sub {font-size: 11px; font-weight: 500; color: @c-black-light;}
-.list-item--address__seed-phrase {font-size: 16px; font-weight: 700; user-select: all; cursor: auto;}
+.list-item--address__seed-phrase {font-size: 16px; font-weight: 700; user-select: all; cursor: auto; flex-basis: 1%; /* fix IE11 */}
 .list-item--address__hash {word-break: break-all; max-width: 260px; padding-top: 18px; padding-bottom: 18px; user-select: text;}
 .list-item--address__hash-large {word-break: break-all; padding-top: 18px; padding-bottom: 18px; user-select: text;}
 .list-item--qr {padding-right: 0; padding-top: 18px; padding-bottom: 18px; align-items: center;}

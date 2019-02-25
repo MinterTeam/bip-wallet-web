@@ -33,6 +33,8 @@
                     this.$v.$touch();
                     return;
                 }
+                // clear old format stored data
+                this.$store.commit('LOGOUT');
                 this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic, this.isAuthAddress));
                 this.$emit('addressAdded');
             },
