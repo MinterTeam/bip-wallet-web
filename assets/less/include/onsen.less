@@ -47,6 +47,7 @@
     .u-section--small + & {margin-top: 10px;}
 
 }
+.list-title--bold {font-weight: 700; font-size: 20px; line-height: 1.2; text-transform: none;}
 .list-item {min-height: 54px; padding-left: @container-padding; padding-right: @container-padding; text-decoration: none;}
 .list-item--tappable {
     cursor: pointer;
@@ -54,7 +55,7 @@
 }
 .list-item__left, .list-item__center, .list-item__right {padding-top: 10px; padding-bottom: 10px;}
 .list-item__left {padding-right: 10px;}
-.list-item__center {padding-right: @container-padding; flex-direction: column; align-items: flex-start; justify-content: center;}
+.list-item__center {padding-right: @container-padding; flex-direction: column; align-items: flex-start; justify-content: center; letter-spacing: 0.033em;}
 .list-item__right {padding-right: 0; flex-wrap: wrap; justify-content: flex-end;}
 .list-item--chevron__right {padding-right: 12px;}
 .list-item--chevron::before {margin-top: 1px; width: 9px; height: 9px;}
@@ -75,7 +76,7 @@
 .list-item__right--exchange {margin-left: -50%;}
 .list-item__label--strong {opacity: 1; font-weight: 500;}
 .list-item__name {font-size: 16px; font-weight: 700; line-height: 1.2; max-width: 100%;}
-.list-item__amount {font-size: 16px; font-weight: 500; line-height: 1.2; width: 100%; text-align: right; white-space: nowrap}
+.list-item__amount {font-size: 16px; font-weight: 500; line-height: 1.2; letter-spacing: 0.0375em; width: 100%; text-align: right; white-space: nowrap}
 .list-item__amount--plus {color: @c-green;}
 .list-item__sup {font-size: 11px; font-weight: 500; color: @c-black-light; margin-top: -2px;}
 .list-item__sub {font-size: 11px; font-weight: 500; color: @c-black-light;}

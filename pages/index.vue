@@ -99,7 +99,7 @@
 
         <div class="u-section">
             <template v-if="txList && txList.length">
-                <div class="list-title">Latest Transactions</div>
+                <div class="list-title list-title--bold">Latest Transactions</div>
                 <TransactionTable :transaction-list="txList"/>
                 <div class="u-container u-section--small">
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
@@ -107,7 +107,7 @@
             </template>
 
             <template v-if="balance && balance.length">
-                <div class="list-title">My coins</div>
+                <div class="list-title list-title--bold">My coins</div>
                 <ul class="list">
                     <li class="list-item" v-for="coin in balance" :key="coin.coin">
                         <div class="list-item__left">
