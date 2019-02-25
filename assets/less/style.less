@@ -108,6 +108,8 @@
     .default-layout__content-wrap {display: block;}
     .default-layout__content {
         max-width: 375px; overflow: hidden; margin: @section-margin auto; border-radius: 10px; border: 1px solid @c-border; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        // fix safari overflow not working with <ons-tabbar>
+        position: relative; z-index: 1;
         &:empty {display: none;}
     }
 }
