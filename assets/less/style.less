@@ -140,6 +140,7 @@
 
 // send
 .send__modal-value {font-size: 24px; font-weight: 700; line-height: 28px;}
+.send__modal-amount {.u-text-overflow(); display: inline-block; max-width: 100%; vertical-align: text-top;}
 //.send__modal-p {&+& {margin-top: 10px;}}
 
 
@@ -153,17 +154,15 @@
 .convert__divider-icon  {vertical-align: top;}
 .convert__panel {
     background: #F0F0F0; border-radius: 8px; padding: 16px 24px; text-align: center; position: relative;
-    &.is-loading, &.is-error {
+    &.is-loading {
         & > .convert__panel-content {opacity: 0;}
 
     }
-    &.is-error > .convert__panel-error {opacity: 1;}
-    &.is-loading > .convert__panel-error {opacity: 0;}
 }
 .convert__panel-content {text-transform: uppercase; font-size: 12px; font-weight: 500; transition: 0.2s;}
 
 .convert__panel-amount {font-size: 22px;}
-.convert__panel-error {position: absolute; left: 50%; top: 50%; width: 100%; max-height: 100%; transform: translate(-50%, -50%); padding: 16px 24px; opacity: 0; transition: 0.2s;}
+.convert__panel-error {}
 .convert__panel-note {
     text-align: center;
     .convert__panel + & {margin-top: 16px;}

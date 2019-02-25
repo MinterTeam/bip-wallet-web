@@ -93,6 +93,12 @@
                 // otherwise coinSymbol will be used as feeCoinSymbol
                 return undefined;
             },
+            isEstimationWaiting() {
+                return this.estimationTimer || this.estimationLoading;
+            },
+            isEstimationErrorVisible() {
+                return this.estimationError && !this.isEstimationWaiting;
+            },
         },
         methods: {
             // force estimation after blur if needed
@@ -221,7 +227,7 @@
         </div>
 
         <div class="u-container">
-            <div class="convert__panel" :class="{'is-loading': estimationTimer || estimationLoading, 'is-error': estimationError}" v-if="!$v.$invalid">
+            <div class="convert__panel" :class="{'is-loading': isEstimationWaiting}" v-if="!$v.$invalid && !isEstimationErrorVisible">
                 <div class="convert__panel-content">
                     You will pay approximately
                     <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinFrom }}</p>
@@ -229,8 +235,8 @@
                 <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                 </svg>
-                <div class="convert__panel-error">{{ estimationError }}</div>
             </div>
+            <div class="convert__panel" v-if="!$v.$invalid && isEstimationErrorVisible">{{ estimationError }}</div>
             <p class="convert__panel-note">The final amount depends on&nbsp;the&nbsp;exchange rate at&nbsp;the&nbsp;moment of&nbsp;transaction.</p>
         </div>
 

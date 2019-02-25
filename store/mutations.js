@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import {setAuthToken} from "~/api/minterorg";
+import stripZeros from 'pretty-num/src/strip-zeros';
 
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {
@@ -74,7 +75,13 @@ export default {
         state.transactionListInfo = txListInfo;
     },
     SET_BALANCE: (state, balance) => {
-        state.balance = balance;
+        state.balance = balance.map((coinItem) => {
+            return {
+                ...coinItem,
+                amount: stripZeros(coinItem.amount),
+                baseCoinAmount: stripZeros(coinItem.baseCoinAmount),
+            };
+        });
     },
     ADD_USER,
     PUSH_HISTORY: (state, historyItem) => {

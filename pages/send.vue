@@ -9,7 +9,7 @@
     import {getAddressInfoByContact} from "~/api";
     import {postTx} from '~/api/minter-node';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
-    import {getAvatarUrl, pretty, getExplorerTxUrl} from '~/assets/utils';
+    import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
@@ -37,6 +37,7 @@
         },
         filters: {
             pretty,
+            prettyExact,
         },
         fetch({ store }) {
             return store.dispatch('FETCH_BALANCE');
@@ -405,8 +406,10 @@
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">You're sending</h3>
                 <div class="modal__content">
-                    <!-- @TODO don't round here -->
-                    <p class="send__modal-value">{{ form.amount | pretty }} {{ form.coinSymbol }}</p>
+                    <p class="send__modal-value">
+                        <span class="send__modal-amount">{{ form.amount | prettyExact }}</span>
+                        {{ form.coinSymbol }}
+                    </p>
                     <p>to</p>
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(form.address)" alt="" role="presentation">
