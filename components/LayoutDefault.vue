@@ -4,10 +4,12 @@
      * @see https://github.com/nuxt/nuxt.js/issues/190#issuecomment-277304451
      * */
     import Navbar from '~/components/Navbar';
+    import TestnetNotice from '~/components/TestnetNotice';
 
     export default {
         components: {
             Navbar,
+            TestnetNotice,
         },
         props: {
             title: {
@@ -21,37 +23,12 @@
                 type: String,
             },
         },
-        data() {
-            return {
-                isTestnetNoticeActive: false, // don't init value here because of https://github.com/nuxt/nuxt.js/issues/1552
-            };
-        },
-        mounted() {
-            // ssr fallback
-            this.isTestnetNoticeActive = !window.localStorage.getItem('minter-testnet-notice-hidden');
-        },
-        methods: {
-            testnetNoticeHide() {
-                window.localStorage.setItem('minter-testnet-notice-hidden', 'true');
-                this.isTestnetNoticeActive = false;
-            },
-        },
     };
 </script>
 
 <template>
     <div>
-        <div class="testnet-notice" v-if="isTestnetNoticeActive">
-            <div class="testnet-notice__container u-container u-container--large">
-                <div class="testnet-notice__content">
-                    <span class="testnet-notice__icon">👨🏻‍🔬</span>
-                    <span class="testnet-notice__caption">You are using testnet version. <br class="u-hidden-mini-down"> Not&nbsp;real&nbsp;money</span>
-                </div>
-                <button class="testnet-notice__close u-semantic-button" @click="testnetNoticeHide">
-                    <span class="testnet-notice__close-icon">Close</span>
-                </button>
-            </div>
-        </div>
+        <TestnetNotice/>
 
         <header class="header">
             <div class="toolbar-wrap">
