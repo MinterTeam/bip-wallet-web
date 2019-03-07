@@ -46,7 +46,7 @@
     <form class="u-section u-container" @submit.prevent="addAddress">
         <label class="bip-field bip-field--row" :class="{'is-error': $v.mnemonic.$error, 'is-success': !$v.mnemonic.$invalid}">
             <span class="bip-field__label">Paste Seed Phrase</span>
-            <textarea class="bip-field__input" rows="3"
+            <textarea class="bip-field__input" rows="3" autocapitalize="off"
                       v-model="mnemonic"
                       @blur="$v.mnemonic.$touch()"
             ></textarea>
