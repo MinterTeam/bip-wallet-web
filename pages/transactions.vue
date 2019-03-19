@@ -3,7 +3,6 @@
     import format from 'date-fns/esm/format';
     import isSameDay from 'date-fns/esm/isSameDay';
     import subDays from 'date-fns/esm/subDays';
-    import {getTransactionList} from "~/api";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";

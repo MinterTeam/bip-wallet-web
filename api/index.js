@@ -1,3 +1,4 @@
+import stripZeros from 'pretty-num/src/strip-zeros';
 import minterorg from '~/api/minterorg';
 import explorer from '~/api/explorer';
 
@@ -50,18 +51,14 @@ export function updateProfileAvatar(avatar) {
  */
 
 /**
+ * @param {string} address
  * @param {Object} [params]
- * @param {number} [params.block]
- * @param {number} [params.address]
- * @param {number} [params.addresses]
  * @param {number} [params.page]
+ * @param {number} [params.limit]
  * @return {Promise<TransactionListInfo>}
  */
-export function getTransactionList(params) {
-    return explorer
-        .get('transactions', {
-            params,
-        })
+export function getAddressTransactionList(address, params = {}) {
+    return explorer.get(`addresses/${address}/transactions`, {params})
         .then((response) => response.data);
 }
 
@@ -70,10 +67,21 @@ export function getTransactionList(params) {
  * @return {Promise<Array<CoinItem>>}
  */
 export function getBalance(addressHash) {
-    return explorer.get('address/' + addressHash)
-        .then((response) => response.data.data.coins.sort((a, b) => {
-            return b.baseCoinAmount - a.baseCoinAmount;
-        }));
+    return explorer.get('addresses/' + addressHash)
+        .then((response) => response.data.data.balances.sort((coinItem) => {
+            // set MNT first
+            if (coinItem.coin === 'MNT') {
+                return -1;
+            } else {
+                return 0;
+            }
+        })
+            .map((coinItem) => {
+                return {
+                    ...coinItem,
+                    amount: stripZeros(coinItem.amount),
+                };
+            }));
 }
 
 
@@ -163,43 +171,43 @@ function markSecured(address) {
  * @property {number} fee
  * @property {number} type
  * @property {Object} data
- * -- type: TX_TYPES.SEND
+ * -- type: TX_TYPE_SEND
  * @property {string} [data.to]
  * @property {string} [data.coin]
  * @property {number} [data.amount]
- * -- type: TX_TYPES.CONVERT
+ * -- type: TX_TYPE_CONVERT
  * @property {string} [data.coin_to_sell]
  * @property {string} [data.coin_to_buy]
  * @property {number} [data.value_to_sell]
  * @property {number} [data.value_to_buy]
- * -- type: TX_TYPES.CREATE_COIN
+ * -- type: TX_TYPE_CREATE_COIN
  * @property {string} [data.name]
  * @property {string} [data.symbol]
  * @property {number} [data.initial_amount]
  * @property {number} [data.initial_reserve]
  * @property {number} [data.constant_reserve_ratio]
- * -- type: TX_TYPES.DECLARE_CANDIDACY
+ * -- type: TX_TYPE_DECLARE_CANDIDACY
  * @property {string} [data.address]
  * @property {string} [data.pub_key]
  * @property {number} [data.commission]
  * @property {string} [data.coin]
  * @property {number} [data.stake]
- * -- type: TX_TYPES.EDIT_CANDIDATE
+ * -- type: TX_TYPE_EDIT_CANDIDATE
  * @property {string} [data.pub_key]
  * @property {string} [data.reward_address]
  * @property {string} [data.owner_address]
- * -- type: TX_TYPES.DELEGATE
+ * -- type: TX_TYPE_DELEGATE
  * @property {string} [data.pub_key]
  * @property {string} [data.coin]
  * @property {number} [data.stake]
- * -- type: TX_TYPES.UNBOND
+ * -- type: TX_TYPE_UNBOND
  * @property {string} [data.pub_key]
  * @property {string} [data.coin]
  * @property {number} [data.value]
- * -- type: TX_TYPES.REDEEM_CHECK
+ * -- type: TX_TYPE_REDEEM_CHECK
  * @property {string} [data.raw_check]
  * @property {string} [data.proof]
- * - type: TX_TYPES.SET_CANDIDATE_ONLINE, TX_TYPES.SET_CANDIDATE_OFFLINE
+ * - type: TX_TYPE_SET_CANDIDATE_ON, TX_TYPE_SET_CANDIDATE_OFF
  * @property {string} [data.pub_key]
  */
 
@@ -216,8 +224,6 @@ function markSecured(address) {
 /**
  * @typedef {Object} CoinItem
  * @property {string|number} amount
- * @property {string|number} baseCoinAmount
- * @property {string|number} usdAmount
  * @property {string} coin
  */
 

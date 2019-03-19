@@ -1,7 +1,7 @@
 <script>
+    import * as TX_TYPES from 'minterjs-tx/src/tx-types';
     import {EXPLORER_URL} from "~/assets/variables";
     import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter} from "~/assets/utils";
-    import {TX_TYPES} from '~/assets/variables';
 
     export default {
         filters: {
@@ -52,31 +52,31 @@
                 return EXPLORER_URL + '/transactions/' + hash;
             },
             isSend(tx) {
-                return tx.type === TX_TYPES.SEND;
+                return tx.type === Number(TX_TYPES.TX_TYPE_SEND);
             },
             isCreateCoin(tx) {
-                return tx.type === TX_TYPES.CREATE_COIN;
+                return tx.type === Number(TX_TYPES.TX_TYPE_CREATE_COIN);
             },
             isSell(tx) {
-                return tx.type === TX_TYPES.SELL_COIN || tx.type === TX_TYPES.SELL_ALL_COIN;
+                return tx.type === Number(TX_TYPES.TX_TYPE_SELL_COIN) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL_COIN);
             },
             isBuy(tx) {
-                return tx.type === TX_TYPES.BUY_COIN;
+                return tx.type === Number(TX_TYPES.TX_TYPE_BUY_COIN);
             },
             isExchange(tx) {
                 return this.isSell(tx) || this.isBuy(tx);
             },
             isMining(tx) {
-                return tx.type === TX_TYPES.DECLARE_CANDIDACY || tx.type === TX_TYPES.DELEGATE || tx.type === TX_TYPES.UNBOND || tx.type === TX_TYPES.SET_CANDIDATE_OFFLINE || tx.type === TX_TYPES.SET_CANDIDATE_ONLINE;
+                return tx.type === Number(TX_TYPES.TX_TYPE_DECLARE_CANDIDACY) || tx.type === Number(TX_TYPES.TX_TYPE_DELEGATE) || tx.type === Number(TX_TYPES.TX_TYPE_UNBOND) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_OFF) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_ON);
             },
             isUnbond(tx) {
-                return tx.type === TX_TYPES.UNBOND;
+                return tx.type === Number(TX_TYPES.TX_TYPE_UNBOND);
             },
             isDelegate(tx) {
-                return tx.type === TX_TYPES.DELEGATE;
+                return tx.type === Number(TX_TYPES.TX_TYPE_DELEGATE);
             },
             isRedeem(tx) {
-                return tx.type === TX_TYPES.REDEEM_CHECK;
+                return tx.type === Number(TX_TYPES.TX_TYPE_REDEEM_CHECK);
             },
             isIncome(tx) {
                 const addressList = [this.$store.getters.addressList[0]];
@@ -91,24 +91,25 @@
                 return typeof value !== 'undefined';
             },
             hasAmount(tx) {
-                return typeof tx.data.amount !== 'undefined'
+                return typeof tx.data.value !== 'undefined'
                     || typeof tx.data.value_to_buy !== 'undefined'
                     || typeof tx.data.stake !== 'undefined'
-                    || typeof tx.data.initial_amount !== 'undefined';
+                    || typeof tx.data.initial_amount !== 'undefined'
+                    || (tx.data.check && typeof tx.data.check.value !== 'undefined');
             },
             getConvertCoinSymbol(tx) {
-                if (tx.type === TX_TYPES.SELL_COIN || tx.type === TX_TYPES.SELL_ALL_COIN) {
+                if (tx.type === Number(TX_TYPES.TX_TYPE_SELL_COIN) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL_COIN)) {
                     return tx.data.coin_to_sell;
                 }
-                if (tx.type === TX_TYPES.BUY_COIN) {
+                if (tx.type === Number(TX_TYPES.TX_TYPE_BUY_COIN)) {
                     return tx.data.coin_to_buy;
                 }
             },
             getConvertValue(tx) {
-                if (tx.type === TX_TYPES.SELL_COIN || tx.type === TX_TYPES.SELL_ALL_COIN) {
+                if (tx.type === Number(TX_TYPES.TX_TYPE_SELL_COIN) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL_COIN)) {
                     return tx.data.value_to_sell;
                 }
-                if (tx.type === TX_TYPES.BUY_COIN) {
+                if (tx.type === Number(TX_TYPES.TX_TYPE_BUY_COIN)) {
                     return tx.data.value_to_buy;
                 }
             },
@@ -152,9 +153,9 @@
                 <!-- amount -->
                 <div class="list-item__right" :class="{'list-item__right--exchange': isExchange(tx)}" v-if="hasAmount(tx)">
                     <div class="list-item__amount" :class="{'list-item__amount--plus': isIncome(tx)}">
-                        {{ isIncome(tx) ? '+' : '-' }}&nbsp;{{ tx.data.amount || tx.data.value_to_buy || tx.data.stake || tx.data.initial_amount || 0 | pretty }}
+                        {{ isIncome(tx) ? '+' : '-' }}&nbsp;{{ tx.data.value || tx.data.value_to_buy || tx.data.stake || tx.data.initial_amount || (tx.data.check && tx.data.check.value) || 0 | pretty }}
                     </div>
-                    <div class="list-item__sub">{{ tx.data.coin || tx.data.symbol || tx.data.coin_to_buy }}</div>
+                    <div class="list-item__sub">{{ tx.data.coin || tx.data.symbol || tx.data.coin_to_buy || (tx.data.check && tx.data.check.coin) }}</div>
                 </div>
             </div>
             <!-- expand -->

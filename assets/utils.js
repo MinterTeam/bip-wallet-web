@@ -2,6 +2,7 @@ import decode from 'entity-decode';
 import prettyNum from 'pretty-num';
 import parseISO from "date-fns/esm/parseISO";
 import format from "date-fns/esm/format";
+import {txTypeList} from 'minterjs-tx/src/tx-types';
 import {EXPLORER_URL, MINTERORG_API_URL} from "~/assets/variables";
 
 
@@ -73,15 +74,13 @@ export function shortHashFilter(value, endLength = 6, minLengthToShort) {
 }
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {string}
  */
 export function txTypeFilter(value) {
-    value = value.replace(/Data$/, ''); // remove "Data" from the end
-    value = value.replace( /([A-Z])/g, " $1" ); // add space before capital letters
-    value = value.toLowerCase(); // convert capitalized words to lower case
-    value = value.charAt(0).toUpperCase() + value.slice(1); // capitalize the first letter
-    return value;
+    let name = txTypeList[value].name; // get type name
+    name = name.charAt(0).toUpperCase() + name.slice(1); // capitalize the first letter
+    return name;
 }
 
 export function removeEmptyKeys(obj) {

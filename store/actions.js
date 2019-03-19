@@ -1,6 +1,5 @@
-import {getBalance, getProfile, getProfileAddressList, getProfileAddressEncrypted, getTransactionList, getAddressListInfo} from "~/api";
-import {TX_TYPES} from '~/assets/variables';
-import explorer from "~/api/explorer";
+import * as TX_TYPES from 'minterjs-tx/src/tx-types';
+import {getBalance, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo} from "~/api";
 
 export default {
     FETCH_PROFILE: ({ commit }) => {
@@ -40,8 +39,7 @@ export default {
     },
     FETCH_TRANSACTION_LIST_STANDALONE: ({ commit, dispatch, getters }, page = 1) => {
         // use only 1 address
-        return getTransactionList({
-            addresses: getters.addressList.map((item) => item.address),
+        return getAddressTransactionList(getters.addressList[0].address, {
             page: page || 1,
         })
             .then((txListInfo) => {
@@ -51,7 +49,7 @@ export default {
                 }
                 // fetch avatars and usernames for addresses found in txs
                 const addressListToFetch = txListInfo.data.reduce((accum, tx) => {
-                    if (tx.type === TX_TYPES.SEND) {
+                    if (tx.type === Number(TX_TYPES.TX_TYPE_SEND)) {
                         if (tx.data.to === getters.addressList[0].address) {
                             accum.add(tx.from);
                         } else {
