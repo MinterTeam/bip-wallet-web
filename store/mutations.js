@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {setAuthToken} from "~/api/minterorg";
+import {setAuthToken} from "~/api/accounts";
 
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {

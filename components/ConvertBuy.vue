@@ -7,7 +7,9 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
     import BuyTxParams from "minter-js-sdk/src/tx-params/convert-buy";
-    import {postTx, estimateCoinBuy} from '~/api/minter-node';
+    import {getFeeValue} from 'minterjs-util/src/fee';
+    import {TX_TYPE_SELL} from 'minterjs-tx/src/tx-types';
+    import {postTx, estimateCoinBuy} from '~/api/gate';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
 
@@ -86,7 +88,7 @@
         },
         computed: {
             feeCoinSymbol() {
-                const CONVERT_FEE = 0.1;
+                const CONVERT_FEE = getFeeValue(TX_TYPE_SELL, 0);
                 if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= CONVERT_FEE) {
                     return this.$store.getters.baseCoin.coin;
                 }

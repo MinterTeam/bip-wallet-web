@@ -1,5 +1,5 @@
 import stripZeros from 'pretty-num/src/strip-zeros';
-import minterorg from '~/api/minterorg';
+import accounts from '~/api/accounts';
 import explorer from '~/api/explorer';
 
 /**
@@ -7,7 +7,7 @@ import explorer from '~/api/explorer';
  * @return {Promise<User|{confirmations: Array}>}
  */
 export function register(data) {
-    return minterorg.register(data, true);
+    return accounts.register(data, true);
 }
 
 /**
@@ -17,23 +17,23 @@ export function register(data) {
  * @return {Promise<User>}
  */
 export function login(data) {
-    return minterorg.login(data);
+    return accounts.login(data);
 }
 
 /**
  * @return {Promise<User>}
  */
 export function getProfile() {
-    return minterorg.getProfile();
+    return accounts.getProfile();
 }
 
 
 export function updateProfile(profile) {
-    return minterorg.updateProfile(profile);
+    return accounts.updateProfile(profile);
 }
 
 export function updateProfilePassword(oldPasswordToStore, newPasswordToStore) {
-    return minterorg.updateProfilePassword(oldPasswordToStore, newPasswordToStore);
+    return accounts.updateProfilePassword(oldPasswordToStore, newPasswordToStore);
 }
 
 /**
@@ -41,7 +41,7 @@ export function updateProfilePassword(oldPasswordToStore, newPasswordToStore) {
  * @return {Promise<UserAvatar>}
  */
 export function updateProfileAvatar(avatar) {
-    return minterorg.updateProfileAvatar(avatar);
+    return accounts.updateProfileAvatar(avatar);
 }
 
 /**
@@ -90,23 +90,23 @@ export function getBalance(addressHash) {
  * @return {Promise<[Address]>}
  */
 export function getProfileAddressList() {
-    return minterorg.getProfileAddressList();
+    return accounts.getProfileAddressList();
 }
 
 export function getProfileAddressEncrypted(id) {
-    return minterorg.getProfileAddressEncrypted(id);
+    return accounts.getProfileAddressEncrypted(id);
 }
 
 export function addProfileAddress(address) {
-    return minterorg.addProfileAddress(address);
+    return accounts.addProfileAddress(address);
 }
 
 export function setMainProfileAddress(id) {
-    return minterorg.updateProfileAddress(id, {isMain: true});
+    return accounts.updateProfileAddress(id, {isMain: true});
 }
 
 export function deleteProfileAddress(id) {
-    return minterorg.deleteProfileAddress(id);
+    return accounts.deleteProfileAddress(id);
 }
 
 /**
@@ -117,7 +117,7 @@ export function deleteProfileAddress(id) {
  * @return {Promise<Object>}
  */
 export function getAddressInfoByContact(params, cancelToken) {
-    return minterorg.getAddressInfoByContact(params, {cancelToken});
+    return accounts.getAddressInfoByContact(params, {cancelToken});
 }
 
 /**
@@ -125,7 +125,7 @@ export function getAddressInfoByContact(params, cancelToken) {
  * @return {Promise<Array<UserInfo>>}
  */
 export function getAddressListInfo(addressList) {
-    return minterorg.getAddressListInfo(addressList);
+    return accounts.getAddressListInfo(addressList);
 }
 
 // @TODO all addresses from server should be serverSecured
@@ -196,17 +196,19 @@ function markSecured(address) {
  * @property {string} [data.pub_key]
  * @property {string} [data.reward_address]
  * @property {string} [data.owner_address]
- * -- type: TX_TYPE_DELEGATE
- * @property {string} [data.pub_key]
- * @property {string} [data.coin]
- * @property {number} [data.stake]
- * -- type: TX_TYPE_UNBOND
+ * -- type: TX_TYPE_DELEGATE, TX_TYPE_UNBOND
  * @property {string} [data.pub_key]
  * @property {string} [data.coin]
  * @property {number} [data.value]
  * -- type: TX_TYPE_REDEEM_CHECK
  * @property {string} [data.raw_check]
  * @property {string} [data.proof]
+ * @property {Object} [data.check]
+ * @property {string} [data.check.sender]
+ * @property {number} [data.check.nonce]
+ * @property {number|string} [data.check.value]
+ * @property {string} [data.check.coin]
+ * @property {number} [data.check.due_block]
  * - type: TX_TYPE_SET_CANDIDATE_ON, TX_TYPE_SET_CANDIDATE_OFF
  * @property {string} [data.pub_key]
  */

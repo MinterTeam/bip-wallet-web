@@ -3,16 +3,16 @@ import prettyNum from 'pretty-num';
 import parseISO from "date-fns/esm/parseISO";
 import format from "date-fns/esm/format";
 import {txTypeList} from 'minterjs-tx/src/tx-types';
-import {EXPLORER_URL, MINTERORG_API_URL} from "~/assets/variables";
+import {EXPLORER_URL, MINTER_ACCOUNTS_API_URL} from "~/assets/variables";
 
 
 
 export function getAvatarUrl(address) {
-    return `${MINTERORG_API_URL}avatar/by/address/${address}`;
+    return `${MINTER_ACCOUNTS_API_URL}avatar/by/address/${address}`;
 }
 
 export function getCoinIconUrl(coinSymbol) {
-    return `${MINTERORG_API_URL}avatar/by/coin/${coinSymbol}`;
+    return `${MINTER_ACCOUNTS_API_URL}avatar/by/coin/${coinSymbol}`;
 }
 
 

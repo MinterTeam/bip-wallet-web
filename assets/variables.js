@@ -1,9 +1,9 @@
 export const BASE_TITLE = 'Bip Wallet';
 export const BASE_DESCRIPTION = '';
-export const MINTERORG_API_URL = process.env.APP_MINTERORG_URL + '/api/v1/';
+export const MINTER_ACCOUNTS_API_URL = process.env.APP_MINTER_ACCOUNTS_URL + '/api/v1/';
 export const EXPLORER_URL = process.env.APP_EXPLORER_URL;
 export const EXPLORER_API_URL = process.env.APP_EXPLORER_API_URL + '/api/v1/';
-export const MINTER_URL = process.env.APP_MINTER_URL || 'https://testnet.explorer.minter.network';
+export const MINTER_GATE_URL = process.env.APP_MINTER_GATE_URL;
 export const BOT_WALLET_URL = process.env.APP_BOT_WALLET_URL + '/api/';
 export const BOT_WALLET_ENCRYPTED = process.env.APP_BOT_WALLET_ENCRYPTED;
 export const BOT_WALLET_PASSWORD = process.env.APP_BOT_WALLET_PASSWORD;

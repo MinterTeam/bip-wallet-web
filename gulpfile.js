@@ -138,9 +138,6 @@ gulp.task('default', gulp.series(
                 del(paths.dest.img + path.basename(event.path));
             }
         });
-        setTimeout(function() {
-            log('Watching...');
-        });
     }
 ));
 

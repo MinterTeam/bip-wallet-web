@@ -27,11 +27,12 @@
     "date-fns": "^2.0.0-alpha.27",
     "entity-decode": "^2.0.2",
     "minter-js-org": "0.3.0",
-    "minter-js-sdk": "^0.13.0",
-    "minterjs-tx": "^4.4.0",
+    "minter-js-sdk": "^0.14.1",
+    "minterjs-tx": "^4.5.0",
+    "minterjs-util": "^0.7.1",
     "minterjs-wallet": "^3.0.1",
-    "nuxt": "^2.4.5",
-    "onsenui": "^2.10.6",
+    "nuxt": "^2.6.1",
+    "onsenui": "^2.10.8",
     "pretty-num": "^0.2.2",
     "qrcode.vue": "^1.6.1",
     "thousands": "^1.0.1",
@@ -42,13 +43,13 @@
     "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {
-    "autoprefixer": "^9.5.0",
+    "autoprefixer": "^9.5.1",
     "babel-eslint": "^10.0.1",
-    "beeper": "^1.1.1",
+    "beeper": "^2.0.0",
     "cross-env": "^5.2.0",
-    "del": "^4.0.0",
+    "del": "^4.1.0",
     "dotenv": "^7.0.0",
-    "eslint": "^5.15.3",
+    "eslint": "^5.16.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-loader": "^2.1.2",
     "eslint-plugin-vue": "^5.2.2",
@@ -70,6 +71,7 @@
   "browserslist": [
     "> 0.5%",
     "last 2 versions",
-    "Firefox ESR"
+    "Firefox ESR",
+    "not dead"
   ]
 }

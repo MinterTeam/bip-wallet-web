@@ -6,8 +6,10 @@
     import maxValue from 'vuelidate/lib/validators/maxValue';
     import withParams from 'vuelidate/lib/withParams';
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
+    import {getFeeValue} from 'minterjs-util/src/fee';
+    import {TX_TYPE_SEND} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
-    import {postTx} from '~/api/minter-node';
+    import {postTx} from '~/api/gate';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
     import getTitle from '~/assets/get-title';
@@ -120,7 +122,7 @@
                 return selectedCoin ? selectedCoin.amount : 0;
             },
             feeCoinSymbol() {
-                const SEND_FEE = 0.01;
+                const SEND_FEE = getFeeValue(TX_TYPE_SEND, 0);
                 if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= SEND_FEE) {
                     return this.$store.getters.baseCoin.coin;
                 }

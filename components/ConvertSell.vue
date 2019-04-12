@@ -10,7 +10,9 @@
     import withParams from 'vuelidate/lib/withParams';
     import SellTxParams from "minter-js-sdk/src/tx-params/convert-sell";
     import SellAllTxParams from "minter-js-sdk/src/tx-params/convert-sell-all";
-    import {postTx, estimateCoinSell} from '~/api/minter-node';
+    import {getFeeValue} from 'minterjs-util/src/fee';
+    import {TX_TYPE_SELL} from 'minterjs-tx/src/tx-types';
+    import {postTx, estimateCoinSell} from '~/api/gate';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
 
@@ -101,7 +103,7 @@
                 return selectedCoin ? selectedCoin.amount : 0;
             },
             feeCoinSymbol() {
-                const CONVERT_FEE = 0.1;
+                const CONVERT_FEE = getFeeValue(TX_TYPE_SELL, 0);
                 if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= CONVERT_FEE) {
                     return this.$store.getters.baseCoin.coin;
                 }
