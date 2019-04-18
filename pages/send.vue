@@ -6,6 +6,7 @@
     import maxValue from 'vuelidate/lib/validators/maxValue';
     import withParams from 'vuelidate/lib/withParams';
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
+    import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
     import {getFeeValue} from 'minterjs-util/src/fee';
     import {TX_TYPE_SEND} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
@@ -60,7 +61,9 @@
                 serverError: '',
                 form: {
                     coinSymbol: coinList && coinList.length ? coinList[0].coin : '',
+                    // address or public key
                     address: '',
+                    // amount or stake
                     amount: '',
                 },
                 sve: {
@@ -150,6 +153,19 @@
                         }
                         if (!/^Mx[0-9abcdefABCDEF]*$/.test(newVal)) {
                             this.setAddressError('Wrong address');
+                            return;
+                        }
+                        this.form.address = newVal;
+                        this.recipient.address = newVal;
+                    } else if (newVal.substr(0, 2) === 'Mp') {
+                        this.recipient.type = 'publicKey';
+                        // public key
+                        if (newVal.length !== 66) {
+                            this.setAddressError('Wrong public key length');
+                            return;
+                        }
+                        if (!/^Mp[0-9abcdefABCDEF]*$/.test(newVal)) {
+                            this.setAddressError('Wrong public key');
                             return;
                         }
                         this.form.address = newVal;
@@ -275,11 +291,24 @@
                 this.serverSuccess = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
                     .then(() => {
-                        postTx(new SendTxParams({
-                            privateKey: this.$store.getters.privateKey,
-                            ...this.form,
-                            feeCoinSymbol: this.feeCoinSymbol,
-                        })).then((txHash) => {
+                        let txParams;
+                        if (this.recipient.type === 'publicKey') {
+                            txParams = new DelegateTxParams({
+                                privateKey: this.$store.getters.privateKey,
+                                stake: this.form.amount,
+                                publicKey: this.form.address,
+                                coinSymbol: this.form.coinSymbol,
+                                feeCoinSymbol: this.feeCoinSymbol,
+                            });
+                        } else {
+                            txParams = new SendTxParams({
+                                privateKey: this.$store.getters.privateKey,
+                                ...this.form,
+                                feeCoinSymbol: this.feeCoinSymbol,
+                            });
+                        }
+
+                        postTx(txParams).then((txHash) => {
                             this.isFormSending = false;
                             this.isWaitModalOpen = false;
                             this.isSuccessModalOpen = true;
@@ -316,7 +345,13 @@
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
-            getAvatarUrl,
+            getAvatar(address) {
+                if (this.recipient.type === 'publicKey') {
+                    return '/img/icon-tx-delegate.svg';
+                } else {
+                    return getAvatarUrl(address);
+                }
+            },
             getExplorerTxUrl,
         },
     };
@@ -338,7 +373,7 @@
                     <span class="bip-field__error" v-if="$v.form.coinSymbol.$dirty && !$v.form.coinSymbol.required">Enter coin</span>
                 </label>
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.address.$error}">
-                    <span class="bip-field__label">To (@username, email or Mx address)</span>
+                    <span class="bip-field__label">To (@username, email, address or public key)</span>
                     <input class="bip-field__input " type="text"
                            v-model.trim="recipient.name"
                            @blur="$v.form.address.$touch(); recipientBlur()"
@@ -414,7 +449,7 @@
                     </p>
                     <p>to</p>
                     <p>
-                        <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(form.address)" alt="" role="presentation">
+                        <img class="send__modal-image avatar avatar--large" :src="getAvatar(form.address)" alt="" role="presentation">
                     </p>
                     <p class="u-text-wrap"><strong>{{ recipient.name }}</strong></p>
                 </div>
@@ -445,7 +480,7 @@
                 <div class="modal__content">
                     <p>Coins are received by</p>
                     <p>
-                        <img class="send__modal-image avatar avatar--large" :src="getAvatarUrl(lastRecipient.address)" alt="" role="presentation">
+                        <img class="send__modal-image avatar avatar--large" :src="getAvatar(lastRecipient.address)" alt="" role="presentation">
                     </p>
                     <p class="u-text-wrap"><strong>{{ lastRecipient.name }}</strong></p>
                 </div>
