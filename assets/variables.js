@@ -1,3 +1,6 @@
+export const MAINNET = 'mainnet';
+export const TESTNET = 'testnet';
+export const NETWORK = process.env.APP_ENV === 'production' ? MAINNET : TESTNET;
 export const BASE_TITLE = 'Bip Wallet';
 export const BASE_DESCRIPTION = '';
 export const MINTER_ACCOUNTS_API_URL = process.env.APP_MINTER_ACCOUNTS_URL + '/api/v1/';
@@ -7,7 +10,7 @@ export const MINTER_GATE_URL = process.env.APP_MINTER_GATE_URL;
 export const BOT_WALLET_URL = process.env.APP_BOT_WALLET_URL + '/api/';
 export const BOT_WALLET_ENCRYPTED = process.env.APP_BOT_WALLET_ENCRYPTED;
 export const BOT_WALLET_PASSWORD = process.env.APP_BOT_WALLET_PASSWORD;
-export const COIN_NAME = process.env.APP_ENV === 'production' ? 'BIP' : 'MNT';
+export const COIN_NAME = NETWORK === MAINNET ? 'BIP' : 'MNT';
 export const USERNAME_MIN_LENGTH = 5;
 export const USERNAME_MAX_LENGTH = 16;
 export const PASSWORD_MIN_LENGTH = 6;

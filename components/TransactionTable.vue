@@ -129,25 +129,25 @@
                     <img class="list-item__thumbnail" :src="getAvatarUrl(getOtherAddress(tx))" alt="" role="presentation" v-else>
                 </div>
                 <!-- name -->
-                <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-if="isSend(tx)">
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isSend(tx)">
                     <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getName(getOtherAddress(tx)) }}</div>
                 </div>
-                <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-else-if="isExchange(tx)">
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isExchange(tx)">
                     <div class="list-item__sup">Exchange</div>
                     <div class="list-item__name">{{ tx.data.coin_to_sell }} → {{ tx.data.coin_to_buy }}</div>
                 </div>
-                <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-else-if="isMining(tx)">
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isMining(tx)">
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
-                    <div class="list-item__name">{{ tx.data.pub_key | short }}</div>
+                    <div class="list-item__name u-text-nowrap">{{ tx.data.pub_key | short }}</div>
                 </div>
                 <!--@TODO check amount-->
-                <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-else-if="isRedeem(tx)">
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isRedeem(tx)">
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
-                    <div class="list-item__name">{{ tx.data.raw_check | short }}</div>
+                    <div class="list-item__name u-text-nowrap">{{ tx.data.raw_check | short }}</div>
                 </div>
-                <div class="list-item__center" :class="{'list-item__center--overflow': true}" v-else>
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-else>
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
-                    <div class="list-item__name">{{ tx.hash | short }}</div>
+                    <div class="list-item__name u-text-nowrap">{{ tx.hash | short }}</div>
                 </div>
 
                 <!-- amount -->
