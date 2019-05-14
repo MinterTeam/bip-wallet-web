@@ -20,6 +20,7 @@
                 isFormSending: false,
                 serverError: '',
                 fileError: '',
+                fileApiError: false,
                 isDragLayerVisible: false,
             };
         },
@@ -67,7 +68,10 @@
                  :style="{backgroundImage: `url('${$store.getters.avatar}')`}"
             ></div>
 
-            <label class="bip-button bip-button--ghost-main avatar-field__button" :class="{'is-loading': isFormSending}">
+            <label class="bip-button bip-button--ghost-main avatar-field__button"
+                   :class="{'is-loading': isFormSending}"
+                   v-if="!fileApiError"
+            >
                 <span class="bip-button__content">Change userpic</span>
                 <FileInput accept="image/*" class="avatar-field__input"
                            :max-width="$options.MAX_FILE_WIDTH"

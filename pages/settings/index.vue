@@ -1,7 +1,7 @@
 <script>
     import getTitle from '~/assets/get-title';
     import {getErrorText, getValidationError} from '~/assets/server-error';
-    import {BOT_WALLET_URL, BOT_WALLET_ENCRYPTED, BOT_WALLET_PASSWORD} from '~/assets/variables';
+    import {BOT_WALLET_API_URL, BOT_WALLET_ENCRYPTED, BOT_WALLET_PASSWORD} from '~/assets/variables';
     import Layout from '~/components/LayoutDefault';
     import Navbar from '~/components/Navbar';
     import AvatarField from '~/components/AvatarField';
@@ -54,7 +54,7 @@
                 }
                 this.isCoinsRequestPending = true;
                 getCoinsDecrypt({
-                    baseURL: BOT_WALLET_URL,
+                    baseURL: BOT_WALLET_API_URL,
                     address: this.$store.getters.address,
                     secretKeyEncrypted: BOT_WALLET_ENCRYPTED,
                     encryptionPassword: BOT_WALLET_PASSWORD,

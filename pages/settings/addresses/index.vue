@@ -1,7 +1,7 @@
 <script>
     import * as clipboard from 'clipbrd';
     import {setMainProfileAddress} from "~/api";
-    import {EXPLORER_URL} from "~/assets/variables";
+    import {EXPLORER_HOST} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Navbar from '~/components/Navbar';
@@ -92,7 +92,7 @@
                 this.isToastVisible = true;
             },
             getAddressLink(addressHash) {
-                return EXPLORER_URL + '/address/' + addressHash;
+                return EXPLORER_HOST + '/address/' + addressHash;
             },
             getManageAddressLink(address) {
                 return {path: '/settings/addresses/manage', query: address.isServerSecured ? {id: address.id} : {hash: address.address}};

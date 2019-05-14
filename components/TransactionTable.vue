@@ -1,6 +1,6 @@
 <script>
     import * as TX_TYPES from 'minterjs-tx/src/tx-types';
-    import {EXPLORER_URL} from "~/assets/variables";
+    import {EXPLORER_HOST} from "~/assets/variables";
     import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter} from "~/assets/utils";
 
     export default {
@@ -49,7 +49,7 @@
             },
             getAvatarUrl,
             getTxUrl(hash) {
-                return EXPLORER_URL + '/transactions/' + hash;
+                return EXPLORER_HOST + '/transactions/' + hash;
             },
             isSend(tx) {
                 return tx.type === Number(TX_TYPES.TX_TYPE_SEND);

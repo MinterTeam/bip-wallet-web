@@ -1,8 +1,8 @@
 import MinterOrg from 'minter-js-org';
-import {MINTER_ACCOUNTS_API_URL} from "~/assets/variables";
+import {ACCOUNTS_API_URL} from "~/assets/variables";
 
 const minterOrg = new MinterOrg({
-    baseURL: MINTER_ACCOUNTS_API_URL,
+    baseURL: ACCOUNTS_API_URL,
 });
 
 const TOKEN_KEY = 'auth-token';
