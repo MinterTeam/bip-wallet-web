@@ -4,10 +4,12 @@
      * @see https://github.com/nuxt/nuxt.js/issues/190#issuecomment-277304451
      * */
     import Navbar from '~/components/Navbar';
+    import TestnetNotice from '~/components/TestnetNotice';
 
     export default {
         components: {
             Navbar,
+            TestnetNotice,
         },
         props: {
             title: {
@@ -26,6 +28,8 @@
 
 <template>
     <div>
+        <TestnetNotice/>
+
         <header class="header">
             <div class="toolbar-wrap">
                 <slot name="toolbar">

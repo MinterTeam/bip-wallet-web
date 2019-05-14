@@ -17,6 +17,20 @@
     .main-content {padding-top: 20px; padding-bottom: 50px; }
 }
 
+.testnet-notice {background: #FFF100; color: @c-black; padding-top: 8px; padding-bottom: 8px; box-shadow: inset 0 -2px 0 #EDE100;}
+.testnet-notice__container {display: flex; align-items: center;}
+.testnet-notice__content {display: flex; align-items: center; flex-grow: 2;}
+.testnet-notice__icon {font-size: 36px; line-height: 1; margin-top: -4px; margin-right: 12px; flex-shrink: 0;}
+.testnet-notice__caption {font-weight: 700; text-transform: uppercase; font-size: 14px; line-height: 17px;}
+.testnet-notice__close {
+    width: 26px; height: 26px; position: relative; font-size: 0; transition: 0.1s;
+    &:hover, &:focus {opacity: 0.7;}
+}
+.testnet-notice__close-icon {
+    &::before, &::after {content: ''; position: absolute; height: 2px; width: 22px; left: 50%; top: 50%; margin-left: -11px; margin-top: -1px; background: currentColor;}
+    &::before {transform: rotate(45deg);}
+    &::after {transform: rotate(-45deg);}
+}
 
 .header {box-shadow: 0 0 6px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10;}
 .menu {background: #fff;}
