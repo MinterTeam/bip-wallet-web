@@ -21,6 +21,7 @@
     "precommit"
   ],
   "dependencies": {
+    "@minterteam/bip-wallet-js-coins": "0.0.2",
     "axios": "^0.18.0",
     "clipbrd": "^1.0.2",
     "date-fns": "^2.0.0-alpha.27",

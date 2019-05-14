@@ -94,6 +94,7 @@ module.exports = {
             'clipbrd/src',
             'pretty-num/src',
             'from-exponential/src',
+            '@minterteam/bip-wallet-js-coins',
             'minterjs-util',
             'minterjs-tx',
             'minterjs-wallet',
