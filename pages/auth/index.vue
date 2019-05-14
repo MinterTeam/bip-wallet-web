@@ -23,16 +23,20 @@
 
         <div class="u-section u-container">
             <div class="u-grid u-grid--vertical-margin">
+<!--
                 <div class="u-cell">
-                    <nuxt-link to="/auth/create-wallet" class="bip-button bip-button--white">Create Wallet</nuxt-link>
+                    <nuxt-link to="/auth/create-wallet" class="bip-button bip-button&#45;&#45;white">Create Wallet</nuxt-link>
                 </div>
+-->
                 <div class="u-cell">
                     <nuxt-link to="/auth/sign-in-advanced" class="bip-button bip-button--ghost-white">Advanced Mode</nuxt-link>
                 </div>
-                <div class="u-cell u-cell--1-2">
-                    <nuxt-link to="/auth/sign-in" class="bip-button bip-button--ghost-white">Sign In</nuxt-link>
+<!--
+                <div class="u-cell u-cell&#45;&#45;1-2">
+                    <nuxt-link to="/auth/sign-in" class="bip-button bip-button&#45;&#45;ghost-white">Sign In</nuxt-link>
                 </div>
-                <div class="u-cell u-cell--1-2">
+-->
+                <div class="u-cell">
                     <a href="https://help.minter.network" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
                 </div>
             </div>
