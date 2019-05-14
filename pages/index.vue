@@ -93,7 +93,7 @@
         <div class="balance u-container">
             <div class="balance__caption">My Balance</div>
             <div>
-                <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ baseCoin ? baseCoin.coin : '' }}</span>
+                <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
             </div>
         </div>
 
