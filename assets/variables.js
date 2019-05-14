@@ -1,6 +1,6 @@
 export const MAINNET = 'mainnet';
 export const TESTNET = 'testnet';
-export const NETWORK = process.env.APP_ENV === 'production' ? MAINNET : TESTNET;
+export const NETWORK = process.env.APP_ENV === MAINNET ? MAINNET : TESTNET;
 export const BASE_TITLE = 'Bip Wallet';
 export const BASE_DESCRIPTION = '';
 export const ACCOUNTS_API_URL = process.env.APP_ACCOUNTS_API_URL;
