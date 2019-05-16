@@ -1,9 +1,13 @@
 <script>
     import getTitle from '~/assets/get-title';
+    import TestnetNotice from '~/components/TestnetNotice';
 
     export default {
         PAGE_TITLE: 'Auth',
         layout: 'splash',
+        components: {
+            TestnetNotice,
+        },
         head() {
             return {
                 title: getTitle(this.$options.PAGE_TITLE),
@@ -17,6 +21,8 @@
 
 <template>
     <div class="auth-page">
+        <TestnetNotice/>
+
         <div class="auth__logo-container">
             <img class="auth__logo" src="/img/bip-logo.svg" alt="Bip">
         </div>

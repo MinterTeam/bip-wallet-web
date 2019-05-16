@@ -17,20 +17,10 @@
     .main-content {padding-top: 20px; padding-bottom: 50px; }
 }
 
-.testnet-notice {background: #FFF100; color: @c-black; padding-top: 8px; padding-bottom: 8px; box-shadow: inset 0 -2px 0 #EDE100;}
-.testnet-notice__container {display: flex; align-items: center;}
-.testnet-notice__content {display: flex; align-items: center; flex-grow: 2;}
-.testnet-notice__icon {font-size: 36px; line-height: 1; margin-top: -4px; margin-right: 12px; flex-shrink: 0;}
-.testnet-notice__caption {font-weight: 700; text-transform: uppercase; font-size: 14px; line-height: 17px;}
-.testnet-notice__close {
-    width: 26px; height: 26px; position: relative; font-size: 0; transition: 0.1s;
-    &:hover, &:focus {opacity: 0.7;}
-}
-.testnet-notice__close-icon {
-    &::before, &::after {content: ''; position: absolute; height: 2px; width: 22px; left: 50%; top: 50%; margin-left: -11px; margin-top: -1px; background: currentColor;}
-    &::before {transform: rotate(45deg);}
-    &::after {transform: rotate(-45deg);}
-}
+.testnet-notice {background: #F13C3C; color: #fff; padding-top: 12px; padding-bottom: 8px; border-bottom: 2px solid #BD1A1A; /*box-shadow: inset 0 -2px 0 #BD1A1A;*/}
+.testnet-notice__container {display: flex; align-items: center; justify-content: center;}
+.testnet-notice__icon {font-size: 26px; line-height: 1; flex-shrink: 0;}
+.testnet-notice__caption {font-weight: 700; text-transform: uppercase; font-size: 14px; line-height: 17px; margin: -2px 15px 0;}
 
 .header {box-shadow: 0 0 6px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10;}
 .menu {background: #fff;}
@@ -98,7 +88,7 @@
 
 
 .splash-layout {background: @c-violet;}
-.splash-layout__container {max-width: 377px; margin-left: auto; margin-right: auto; min-height: 100vh; display: flex; align-items: center;}
+.splash-layout__container {margin-left: auto; margin-right: auto; min-height: 100vh; display: flex; align-items: center;}
 
 .default-layout {overflow-y: scroll;}
 .default-layout__container {min-height: 100vh; display: flex; flex-direction: column;}
@@ -116,7 +106,7 @@
 }
 
 // auth
-.auth-page {background: @c-main; display: flex; flex-direction: column; height: 560px;max-height: 100vh;}
+.auth-page {background: @c-main; display: flex; flex-direction: column; height: 560px; max-height: 100vh; width: 100%;}
 .auth__logo-container {display: flex; align-items: center; justify-content: center; flex-grow: 2; margin-top: @section-margin; padding: @section-margin 0;}
 
 
