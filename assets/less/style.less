@@ -92,7 +92,7 @@
 
 
 .splash-layout {background: @c-violet;}
-.splash-layout__container {margin-left: auto; margin-right: auto; min-height: 100vh; display: flex; align-items: center;}
+.splash-layout__container {margin-left: auto; margin-right: auto; min-height: 100vh; display: flex; flex-direction: column;}
 
 .default-layout {overflow-y: scroll;}
 .default-layout__container {min-height: 100vh; display: flex; flex-direction: column;}
@@ -110,8 +110,9 @@
 }
 
 // auth
-.auth-page {background: @c-main; display: flex; flex-direction: column; height: 560px; max-height: 100vh; width: 100%;}
-.auth__logo-container {display: flex; align-items: center; justify-content: center; flex-grow: 2; margin-top: @section-margin; padding: @section-margin 0;}
+.auth-page {background: @c-main; display: flex; flex-grow: 2; flex-direction: column; width: 100%;}
+.auth__content {display: flex; flex-direction: column; max-height: 560px; flex-grow: 2; margin: auto;}
+.auth__logo-container {display: flex; align-items: center; justify-content: center; flex-grow: 2; padding: @section-margin 0;}
 
 
 .v-transition-toast-enter-active, .v-transition-toast-leave-active {
