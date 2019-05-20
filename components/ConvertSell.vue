@@ -8,6 +8,7 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import maxValue from 'vuelidate/lib/validators/maxValue';
     import withParams from 'vuelidate/lib/withParams';
+    import decode from 'entity-decode';
     import SellTxParams from "minter-js-sdk/src/tx-params/convert-sell";
     import SellAllTxParams from "minter-js-sdk/src/tx-params/convert-sell-all";
     import {getFeeValue} from 'minterjs-util/src/fee';
@@ -137,6 +138,10 @@
                     estimationCancel();
                 }
                 this.estimationTimer = null;
+                if (this.form.coinFrom && this.form.coinFrom === this.form.coinTo) {
+                    this.estimationError = decode('Estimation error: you have to select different&nbsp;coins');
+                    return;
+                }
                 this.estimationLoading = true;
                 this.estimationError = false;
                 estimateCoinSell({
@@ -260,8 +265,8 @@
         <div class="u-container">
             <div class="convert__panel" :class="{'is-loading': isEstimationWaiting}" v-if="!$v.$invalid && !isEstimationErrorVisible">
                 <div class="convert__panel-content">
-                    You will pay approximately
-                    <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinFrom }}</p>
+                    You will get approximately
+                    <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinTo }}</p>
                 </div>
                 <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>
