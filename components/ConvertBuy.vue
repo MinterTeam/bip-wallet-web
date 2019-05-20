@@ -6,12 +6,14 @@
     import minLength from 'vuelidate/lib/validators/minLength';
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
+    import decode from 'entity-decode';
     import BuyTxParams from "minter-js-sdk/src/tx-params/convert-buy";
     import {getFeeValue} from 'minterjs-util/src/fee';
     import {TX_TYPE_SELL} from 'minterjs-tx/src/tx-types';
     import {postTx, estimateCoinBuy} from '~/api/gate';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
+
 
     import InputUppercase from '~/components/InputUppercase';
 
@@ -122,6 +124,10 @@
                     estimationCancel();
                 }
                 this.estimationTimer = null;
+                if (this.form.coinFrom && this.form.coinFrom === this.form.coinTo) {
+                    this.estimationError = decode('Estimation error: you have to select different&nbsp;coins');
+                    return;
+                }
                 this.estimationLoading = true;
                 this.estimationError = false;
                 estimateCoinBuy({
