@@ -4,6 +4,7 @@
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import maxValue from 'vuelidate/lib/validators/maxValue';
+    import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
     import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
@@ -65,6 +66,7 @@
                     address: '',
                     // amount or stake
                     amount: '',
+                    message: '',
                 },
                 sve: {
                     address: {invalid: false, isActual: false, message: ''},
@@ -86,7 +88,6 @@
                     mask: /^[0-9]*\.?[0-9]*$/,
                 },
                 amountMasked: '',
-                isSendForFree: false,
                 isModalOpen: false,
                 isWaitModalOpen: false,
                 isSuccessModalOpen: false,
@@ -107,6 +108,9 @@
                         validAmount: isValidAmount,
                         maxValue: maxValue(this.maxAmount || 0),
                     },
+                    message: {
+                        maxLength: maxLength(1024),
+                    },
                 },
             };
         },
@@ -124,9 +128,12 @@
                 });
                 return selectedCoin ? selectedCoin.amount : 0;
             },
+            // base coin fee value
+            feeValue() {
+                return getFeeValue(TX_TYPE_SEND, this.form.message.length);
+            },
             feeCoinSymbol() {
-                const SEND_FEE = getFeeValue(TX_TYPE_SEND, 0);
-                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= SEND_FEE) {
+                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= this.feeValue) {
                     return this.$store.getters.baseCoin.coin;
                 }
                 // otherwise coinSymbol will be used as feeCoinSymbol
@@ -340,6 +347,7 @@
                 this.form.address = '';
                 this.form.amount = null;
                 this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
+                this.form.message = '';
                 this.recipient.name = '';
                 this.recipient.type = '';
                 this.recipient.address = '';
@@ -397,6 +405,14 @@
                     <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.validAmount">Wrong amount</span>
                     <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.maxAmount">Not enough coins</span>
                 </label>
+                <label class="bip-field bip-field--row" :class="{'is-error': $v.form.message.$error}">
+                    <span class="bip-field__label">Payload message</span>
+                    <input class="bip-field__input " type="text"
+                           v-model.trim="form.message"
+                           @blur="$v.form.message.$touch(); recipientBlur()"
+                    >
+                    <span class="form-field__error" v-if="$v.form.message.$dirty && !$v.form.message.maxLength">Max 1024 symbols</span>
+                </label>
             </div>
 
             <div class="list">
@@ -405,22 +421,9 @@
                         <span class="list-item__name">Transaction Fee</span>
                     </div>
                     <div class="list-item__right">
-                        <div class="list-item__label list-item__label--strong">0.0100 {{ $store.getters.COIN_NAME }}</div>
+                        <div class="list-item__label list-item__label--strong">{{ feeValue | pretty }} {{ $store.getters.COIN_NAME }}</div>
                     </div>
                 </a>
-                <!--
-                <div class="list-item">
-                    <div class="list-item__center">Send for Free!</div>
-                    <div class="list-item__right">
-                        <label class="switch">
-                            <input type="checkbox" class="switch__input" v-model="isSendForFree">
-                            <span class="switch__toggle">
-                                <span class="switch__handle"></span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-                -->
             </div>
 
             <div class="u-section u-container">
