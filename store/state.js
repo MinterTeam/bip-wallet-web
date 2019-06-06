@@ -14,6 +14,7 @@ export default function() {
         profileAddressList: [],
         /** @type Array<CoinItem> */
         balance: [],
+        delegation: {},
         // store only first page here
         transactionListInfo: {
             /** @type Array<Transaction> */

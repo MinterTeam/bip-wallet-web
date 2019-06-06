@@ -1,5 +1,5 @@
 import * as TX_TYPES from 'minterjs-tx/src/tx-types';
-import {getBalance, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo} from "~/api";
+import {getBalance, getDelegation, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo} from "~/api";
 
 export default {
     FETCH_PROFILE: ({ commit }) => {
@@ -72,6 +72,18 @@ export default {
             .then((balance) => {
                 commit('SET_BALANCE', balance);
                 return balance;
+            });
+    },
+    FETCH_DELEGATION: ({ commit, dispatch, getters }) => {
+        return dispatch('FETCH_PROFILE_ADDRESS_LIST')
+            .then(() => dispatch('FETCH_DELEGATION_STANDALONE'));
+    },
+    FETCH_DELEGATION_STANDALONE: ({ commit, getters }) => {
+        // use only 1 address
+        return getDelegation(getters.addressList[0].address)
+            .then((delegation) => {
+                commit('SET_DELEGATION', delegation);
+                return delegation;
             });
     },
     FETCH_USERS: ({ state, commit }, addressList) => {
