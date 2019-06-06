@@ -124,10 +124,17 @@
 }
 
 // index
-.balance {background: #4225A4; color: #fff; padding-top: 12px; padding-bottom: 12px;}
+.balance {background: @c-violet; color: #fff; padding-top: 12px; padding-bottom: 12px;}
+.balance--delegated {
+    display: block; background: #4225A4; position: relative;
+    &:hover, &:focus {
+        .balance--delegated__icon {opacity: 0.75;}
+    }
+}
 .balance__caption {font-size: 15px;}
-.balance__whole {font-size: 28px; font-weight: 700; line-height: 1.2;}
-.balance__decimal {font-size: 18px; font-weight: 700;}
+.balance__value {font-size: 20px; font-weight: 700;}
+.balance__whole {font-size: 32px; line-height: 1.2;}
+.balance--delegated__icon {position: absolute; right: 8px; top: 50%; margin-top: -12px; transition: 0.1s;}
 
 .tx-info__name {font-size: 12px; user-select: text;}
 .tx-info__value {font-weight: 700; line-height: 1.25; overflow-wrap: break-word; user-select: text;}

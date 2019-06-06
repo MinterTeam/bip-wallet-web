@@ -34,7 +34,7 @@ module.exports = {
     /*
     ** Customize the progress bar color
     */
-    loading: { color: '#FFA05D' },
+    loading: { color: '#502EC2' },
     router: {
         linkActiveClass: 'is-active-inner',
         linkExactActiveClass: 'is-active',

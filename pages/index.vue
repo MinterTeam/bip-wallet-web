@@ -20,12 +20,14 @@
             return {
                 isTxListLoading: true,
                 isBalanceLoading: true,
+                isDelegationLoading: true,
             };
         },
         computed: {
             ...mapState({
                 txList: (state) => state.transactionListInfo.data.slice(0, 5),
                 balance: 'balance',
+                delegation: 'delegation',
             }),
             ...mapGetters([
                 'username',
@@ -57,10 +59,18 @@
                         .catch(() => {
                             this.isBalanceLoading = false;
                         });
+                    this.$store.dispatch('FETCH_DELEGATION_STANDALONE')
+                        .then(() => {
+                            this.isDelegationLoading = false;
+                        })
+                        .catch(() => {
+                            this.isDelegationLoading = false;
+                        });
                 })
                 .catch(() => {
                     this.isTxListLoading = false;
                     this.isBalanceLoading = false;
+                    this.isDelegationLoading = false;
                 });
         },
         methods: {
@@ -92,10 +102,18 @@
 
         <div class="balance u-container">
             <div class="balance__caption">My Balance</div>
-            <div>
+            <div class="balance__value">
                 <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
             </div>
         </div>
+
+        <nuxt-link class="balance balance--delegated u-container no-link" to="/delegations" v-if="delegation.data && delegation.data.length">
+            <img class="balance--delegated__icon" src="/img/icon-arrow-right.svg" alt="" role="presentation">
+            <div class="balance__caption">Delegated</div>
+            <div class="balance__value">
+                {{ delegation.meta.additional.total_delegated_bip_value | pretty }} {{ $store.getters.COIN_NAME }}
+            </div>
+        </nuxt-link>
 
         <div class="u-section">
             <template v-if="txList && txList.length">
