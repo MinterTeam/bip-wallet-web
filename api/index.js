@@ -1,6 +1,7 @@
 import stripZeros from 'pretty-num/src/strip-zeros';
 import accounts from '~/api/accounts';
 import explorer from '~/api/explorer';
+import {COIN_NAME} from "~/assets/variables";
 
 /**
  * @param data
@@ -69,8 +70,8 @@ export function getAddressTransactionList(address, params = {}) {
 export function getBalance(addressHash) {
     return explorer.get('addresses/' + addressHash)
         .then((response) => response.data.data.balances.sort((coinItem) => {
-            // set MNT first
-            if (coinItem.coin === 'MNT') {
+            // set base coin first
+            if (coinItem.coin === COIN_NAME) {
                 return -1;
             } else {
                 return 0;
@@ -82,6 +83,16 @@ export function getBalance(addressHash) {
                     amount: stripZeros(coinItem.amount),
                 };
             }));
+}
+
+
+/**
+ * @param addressHash
+ * @return {Promise<Object<{data: Array<DelegationItem>, meta: }>>}
+ */
+export function getDelegation(addressHash) {
+    return explorer.get(`addresses/${addressHash}/delegations`)
+        .then((response) => response.data);
 }
 
 
@@ -227,6 +238,22 @@ function markSecured(address) {
  * @typedef {Object} CoinItem
  * @property {string|number} amount
  * @property {string} coin
+ */
+
+
+/**
+ * @typedef {Object} DelegationItem
+ * @property {string} pub_key
+ * @property {string|number} value
+ * @property {string} coin
+ */
+
+/**
+ * @typedef {Object} DelegationListInfo
+ * @property {Array<DelegationItem>} data
+ * @property {Object} meta - pagination
+ * @property {Object} meta.additional
+ * @property {number|string} meta.additional.total_delegated_bip_value
  */
 
 

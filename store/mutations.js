@@ -76,6 +76,9 @@ export default {
     SET_BALANCE: (state, balance) => {
         state.balance = balance;
     },
+    SET_DELEGATION: (state, delegation) => {
+        state.delegation = delegation;
+    },
     ADD_USER,
     PUSH_HISTORY: (state, historyItem) => {
         state.history.push(historyItem);
