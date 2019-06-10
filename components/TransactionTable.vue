@@ -192,9 +192,9 @@
                 </div>
                 <!-- name -->
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isSend(tx)">
-                    <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getName(getOtherAddress(tx)) }}</div>
+                    <div class="list-item__name u-text-nowrap" :class="{'u-text-overflow': getName(getOtherAddress(tx)).substr(0, 2) !== 'Mx'}">{{ getName(getOtherAddress(tx)) }}</div>
                 </div>
-                <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isMultisend(tx)">
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isMultisend(tx)">
                     <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getName(tx.from) }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isExchange(tx)">
