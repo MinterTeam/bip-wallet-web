@@ -1,4 +1,5 @@
 <script>
+    import Big from 'big.js';
     import * as TX_TYPES from 'minterjs-tx/src/tx-types';
     import {EXPLORER_HOST} from "~/assets/variables";
     import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter} from "~/assets/utils";
@@ -78,24 +79,84 @@
             isRedeem(tx) {
                 return tx.type === Number(TX_TYPES.TX_TYPE_REDEEM_CHECK);
             },
-            isIncome(tx) {
+            isMultisend(tx) {
+                return tx.type === Number(TX_TYPES.TX_TYPE_MULTISEND);
+            },
+            isIncomeSend(tx) {
                 const addressList = [this.$store.getters.addressList[0]];
-                const isIncomeSend = addressList.some((address) => {
+                return addressList.some((address) => {
                     if (address.address === tx.data.to) {
                         return true;
                     }
                 });
-                return isIncomeSend || this.isExchange(tx) || this.isCreateCoin(tx) || this.isUnbond(tx);
+            },
+            isIncomeMultisend(tx) {
+                if (!this.isMultisend(tx)) {
+                    return;
+                }
+                const addressList = [this.$store.getters.addressList[0]];
+                const isOutcomeMultisend = addressList.some((address) => {
+                    if (address.address === tx.from) {
+                        return true;
+                    }
+                });
+                return !isOutcomeMultisend;
+            },
+            isIncome(tx) {
+                return this.isIncomeSend(tx) || this.isExchange(tx) || this.isCreateCoin(tx) || this.isUnbond(tx) || this.isIncomeMultisend(tx);
             },
             isDefined(value) {
                 return typeof value !== 'undefined';
             },
+            getAmount(tx) {
+                return tx.data.value
+                    || tx.data.value_to_buy
+                    || tx.data.stake
+                    || tx.data.initial_amount
+                    || (tx.data.check && tx.data.check.value)
+                    || this.getMultisendValue(tx);
+            },
             hasAmount(tx) {
-                return typeof tx.data.value !== 'undefined'
-                    || typeof tx.data.value_to_buy !== 'undefined'
-                    || typeof tx.data.stake !== 'undefined'
-                    || typeof tx.data.initial_amount !== 'undefined'
-                    || (tx.data.check && typeof tx.data.check.value !== 'undefined');
+                return typeof this.getAmount(tx) !== 'undefined';
+            },
+            getMultisendDeliveryList(tx) {
+                const addressList = [this.$store.getters.addressList[0]];
+                const isOutcomeMultisend = !this.isIncomeMultisend(tx);
+                return isOutcomeMultisend ? tx.data.list : tx.data.list.filter((delivery) => {
+                    return addressList.some((address) => {
+                        if (address.address === delivery.to) {
+                            return true;
+                        }
+                    });
+                });
+            },
+            isMultisendMultipleCoin(tx) {
+                if (!this.isMultisend(tx)) {
+                    return;
+                }
+                const currentUserDeliveryList = this.getMultisendDeliveryList(tx);
+                return currentUserDeliveryList.some((delivery) => {
+                    return delivery.coin !== currentUserDeliveryList[0].coin;
+                });
+            },
+            getMultisendCoin(tx) {
+                if (!this.isMultisend(tx)) {
+                    return;
+                }
+                if (!this.isMultisendMultipleCoin(tx)) {
+                    return this.getMultisendDeliveryList(tx)[0].coin;
+                }
+            },
+            getMultisendValue(tx) {
+                if (!this.isMultisend(tx)) {
+                    return;
+                }
+                const currentUserDeliveryList = this.getMultisendDeliveryList(tx);
+                if (this.isMultisendMultipleCoin(tx)) {
+                    return '...';
+                } else {
+                    return currentUserDeliveryList.reduce((accumulator, delivery) => accumulator.plus(new Big(delivery.value)), new Big(0)).toFixed();
+                }
             },
             getConvertCoinSymbol(tx) {
                 if (tx.type === Number(TX_TYPES.TX_TYPE_SELL) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL)) {
@@ -126,11 +187,15 @@
                     <img class="list-item__thumbnail" src="/img/icon-tx-exchange.svg" alt="" role="presentation" v-if="isExchange(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-delegate.svg" alt="" role="presentation" v-else-if="isDelegate(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-unbond.svg" alt="" role="presentation" v-else-if="isUnbond(tx)">
+                    <img class="list-item__thumbnail" src="/img/icon-tx-multisend.svg" alt="" role="presentation" v-else-if="isMultisend(tx)">
                     <img class="list-item__thumbnail" :src="getAvatarUrl(getOtherAddress(tx))" alt="" role="presentation" v-else>
                 </div>
                 <!-- name -->
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isSend(tx)">
                     <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getName(getOtherAddress(tx)) }}</div>
+                </div>
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isMultisend(tx)">
+                    <div class="list-item__name" :class="{'u-text-overflow': true}">{{ getName(tx.from) }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isExchange(tx)">
                     <div class="list-item__sup">Exchange</div>
@@ -152,17 +217,23 @@
 
                 <!-- amount -->
                 <div class="list-item__right" :class="{'list-item__right--exchange': isExchange(tx)}" v-if="hasAmount(tx)">
-                    <div class="list-item__amount" :class="{'list-item__amount--plus': isIncome(tx)}">
-                        {{ isIncome(tx) ? '+' : '-' }}&nbsp;{{ tx.data.value || tx.data.value_to_buy || tx.data.stake || tx.data.initial_amount || (tx.data.check && tx.data.check.value) || 0 | pretty }}
-                    </div>
-                    <div class="list-item__sub">{{ tx.data.coin || tx.data.symbol || tx.data.coin_to_buy || (tx.data.check && tx.data.check.coin) }}</div>
+                    <template v-if="isMultisend(tx) && isMultisendMultipleCoin(tx)">
+                        <div class="list-item__amount" :class="{'list-item__amount--plus': isIncome(tx)}">
+                            ...
+                        </div>
+                        <div class="list-item__sub">Multiple coins</div>
+                    </template>
+                    <template v-else>
+                        <div class="list-item__amount" :class="{'list-item__amount--plus': isIncome(tx)}">
+                            {{ isIncome(tx) ? '+' : '-' }}&nbsp;{{ getAmount(tx) || 0 | pretty }}
+                        </div>
+                        <div class="list-item__sub">{{ tx.data.coin || tx.data.symbol || tx.data.coin_to_buy || (tx.data.check && tx.data.check.coin) || getMultisendCoin(tx) }}</div>
+                    </template>
                 </div>
             </div>
             <!-- expand -->
             <div class="list-item-content u-section u-container" v-show="activeTx === tx.hash">
                 <div class="u-grid u-grid--vertical-margin">
-
-
                     <!-- type SEND -->
                     <div class="u-cell" v-if="isSend(tx)">
                         <div class="tx-info__name">From</div>
