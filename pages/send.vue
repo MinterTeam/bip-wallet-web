@@ -302,9 +302,9 @@
                         if (this.recipient.type === 'publicKey') {
                             txParams = new DelegateTxParams({
                                 privateKey: this.$store.getters.privateKey,
+                                ...this.form,
                                 stake: this.form.amount,
                                 publicKey: this.form.address,
-                                coinSymbol: this.form.coinSymbol,
                                 feeCoinSymbol: this.feeCoinSymbol,
                             });
                         } else {
@@ -353,11 +353,11 @@
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
-            getAvatar(address) {
-                if (this.recipient.type === 'publicKey') {
+            getAvatar(recipient) {
+                if (recipient.type === 'publicKey') {
                     return '/img/icon-tx-delegate.svg';
                 } else {
-                    return getAvatarUrl(address);
+                    return getAvatarUrl(recipient.address);
                 }
             },
             getExplorerTxUrl,
@@ -452,7 +452,7 @@
                     </p>
                     <p>to</p>
                     <p>
-                        <img class="send__modal-image avatar avatar--large" :src="getAvatar(form.address)" alt="" role="presentation">
+                        <img class="send__modal-image avatar avatar--large" :src="getAvatar(recipient)" alt="" role="presentation">
                     </p>
                     <p class="u-text-wrap"><strong>{{ recipient.name }}</strong></p>
                 </div>
@@ -483,7 +483,7 @@
                 <div class="modal__content">
                     <p>Coins are received by</p>
                     <p>
-                        <img class="send__modal-image avatar avatar--large" :src="getAvatar(lastRecipient.address)" alt="" role="presentation">
+                        <img class="send__modal-image avatar avatar--large" :src="getAvatar(lastRecipient)" alt="" role="presentation">
                     </p>
                     <p class="u-text-wrap"><strong>{{ lastRecipient.name }}</strong></p>
                 </div>
