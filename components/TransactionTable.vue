@@ -68,7 +68,7 @@
                 return this.isSell(tx) || this.isBuy(tx);
             },
             isMining(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_DECLARE_CANDIDACY) || tx.type === Number(TX_TYPES.TX_TYPE_DELEGATE) || tx.type === Number(TX_TYPES.TX_TYPE_UNBOND) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_OFF) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_ON);
+                return this.isValidate(tx) || this.isDelegate(tx) || this.isUnbond(tx);
             },
             isUnbond(tx) {
                 return tx.type === Number(TX_TYPES.TX_TYPE_UNBOND);
@@ -78,6 +78,9 @@
             },
             isRedeem(tx) {
                 return tx.type === Number(TX_TYPES.TX_TYPE_REDEEM_CHECK);
+            },
+            isValidate(tx) {
+                return tx.type === Number(TX_TYPES.TX_TYPE_DECLARE_CANDIDACY) || tx.type === Number(TX_TYPES.TX_TYPE_EDIT_CANDIDATE) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_OFF) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_ON);
             },
             isMultisend(tx) {
                 return tx.type === Number(TX_TYPES.TX_TYPE_MULTISEND);
@@ -188,6 +191,8 @@
                     <img class="list-item__thumbnail" src="/img/icon-tx-delegate.svg" alt="" role="presentation" v-else-if="isDelegate(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-unbond.svg" alt="" role="presentation" v-else-if="isUnbond(tx)">
                     <img class="list-item__thumbnail" src="/img/icon-tx-multisend.svg" alt="" role="presentation" v-else-if="isMultisend(tx)">
+                    <img class="list-item__thumbnail" src="/img/icon-tx-edit.svg" alt="" role="presentation" v-else-if="isValidate(tx)">
+                    <img class="list-item__thumbnail" src="/img/icon-tx-coin.svg" alt="" role="presentation" v-else-if="isCreateCoin(tx)">
                     <img class="list-item__thumbnail" :src="getAvatarUrl(getOtherAddress(tx))" alt="" role="presentation" v-else>
                 </div>
                 <!-- name -->
@@ -200,6 +205,10 @@
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isExchange(tx)">
                     <div class="list-item__sup">Exchange</div>
                     <div class="list-item__name">{{ tx.data.coin_to_sell }} → {{ tx.data.coin_to_buy }}</div>
+                </div>
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isCreateCoin(tx)">
+                    <div class="list-item__sup">{{ tx.type | txType }}</div>
+                    <div class="list-item__name">{{ tx.data.symbol }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isMining(tx)">
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
