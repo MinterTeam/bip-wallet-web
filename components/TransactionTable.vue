@@ -2,7 +2,7 @@
     import Big from 'big.js';
     import * as TX_TYPES from 'minterjs-tx/src/tx-types';
     import {EXPLORER_HOST} from "~/assets/variables";
-    import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter} from "~/assets/utils";
+    import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter, fromBase64} from "~/assets/utils";
 
     export default {
         filters: {
@@ -24,6 +24,7 @@
             };
         },
         methods: {
+            fromBase64,
             txClick(hash) {
                 if (this.activeTx !== hash) {
                     // open clicked tx
@@ -36,6 +37,9 @@
             getOtherAddress(tx) {
                 if (this.isSend(tx)) {
                     return this.isIncome(tx) ? tx.from : tx.data.to;
+                }
+                if (this.isRedeem(tx)) {
+                    return this.isIncome(tx) ? tx.data.check.sender : tx.from;
                 }
             },
             getName(address) {
@@ -105,8 +109,19 @@
                 });
                 return !isOutcomeMultisend;
             },
+            isIncomeRedeem(tx) {
+                if (!this.isRedeem(tx)) {
+                    return;
+                }
+                const addressList = [this.$store.getters.addressList[0]];
+                return addressList.some((address) => {
+                    if (address.address === tx.from) {
+                        return true;
+                    }
+                });
+            },
             isIncome(tx) {
-                return this.isIncomeSend(tx) || this.isExchange(tx) || this.isCreateCoin(tx) || this.isUnbond(tx) || this.isIncomeMultisend(tx);
+                return this.isIncomeSend(tx) || this.isExchange(tx) || this.isCreateCoin(tx) || this.isUnbond(tx) || this.isIncomeMultisend(tx) || this.isIncomeRedeem(tx);
             },
             isDefined(value) {
                 return typeof value !== 'undefined';
@@ -196,7 +211,7 @@
                     <img class="list-item__thumbnail" :src="getAvatarUrl(getOtherAddress(tx))" alt="" role="presentation" v-else>
                 </div>
                 <!-- name -->
-                <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isSend(tx)">
+                <div class="list-item__center" :class="{'list-item__overflow': true}" v-if="isSend(tx) ">
                     <div class="list-item__name u-text-nowrap" :class="{'u-text-overflow': getName(getOtherAddress(tx)).substr(0, 2) !== 'Mx'}">{{ getName(getOtherAddress(tx)) }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isMultisend(tx)">
@@ -217,7 +232,7 @@
                 <!--@TODO check amount-->
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isRedeem(tx)">
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
-                    <div class="list-item__name u-text-nowrap">{{ tx.data.raw_check | short }}</div>
+                    <div class="list-item__name u-text-nowrap">{{ getName(getOtherAddress(tx)) }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else>
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
@@ -326,13 +341,17 @@
                     </div>
 
                     <!-- type REDEEM_CHECK -->
-                    <div class="u-cell" v-if="tx.data.raw_check">
-                        <div class="tx-info__name">Check</div>
-                        <div class="tx-info__value">{{ tx.data.raw_check }}</div>
+                    <div class="u-cell" v-if="tx.data.check && tx.data.check.sender">
+                        <div class="tx-info__name">Check Issuer</div>
+                        <div class="tx-info__value">{{ tx.data.check.sender }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.proof">
-                        <div class="tx-info__name">Proof</div>
-                        <div class="tx-info__value">{{ tx.data.proof }}</div>
+                    <div class="u-cell" v-if="tx.data.check && tx.data.check.nonce">
+                        <div class="tx-info__name">Check Nonce</div>
+                        <div class="tx-info__value">{{ fromBase64(tx.data.check.nonce) }}</div>
+                    </div>
+                    <div class="u-cell" v-if="tx.data.check && tx.data.check.due_block">
+                        <div class="tx-info__name">Due Block</div>
+                        <div class="tx-info__value">{{ tx.data.check.due_block }}</div>
                     </div>
 
                     <!-- type MULTISIG -->
