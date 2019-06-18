@@ -1,5 +1,7 @@
 import decode from 'entity-decode';
-import prettyNum from 'pretty-num';
+import prettyNum, {PRECISION_SETTING} from 'pretty-num';
+import stripZeros from 'pretty-num/src/strip-zeros';
+import fromExponential from 'from-exponential';
 import parseISO from "date-fns/esm/parseISO";
 import format from "date-fns/esm/format";
 import {txTypeList} from 'minterjs-tx/src/tx-types';
@@ -42,11 +44,12 @@ export function getExplorerAddressUrl(address) {
  * @return {string}
  */
 export function pretty(value) {
-    if (value > 0.001 || value < -0.001 || Number(value) === 0) {
-        return decode(prettyNum(value, {precision: 4, rounding: 'fixed', thousandsSeparator: '&#x202F;'}));
-    } else {
-        return decode(prettyNum(value, {precision: 2, rounding: 'significant', thousandsSeparator: '&#x202F;'}));
-    }
+    const PRECISION = 2;
+    const parts = stripZeros(fromExponential(value)).split('.');
+    const isReduced = parts[1] && parts[1].length > PRECISION;
+    const isSmall = parts[0] === '0';
+    const formattedValue = decode(prettyNum(value, {precision: PRECISION, precisionSetting: PRECISION_SETTING.FIXED, thousandsSeparator: '&#x202F;'}));
+    return (isReduced && isSmall ? '~' : '') + formattedValue;
 }
 
 /**
@@ -55,7 +58,7 @@ export function pretty(value) {
  * @return {string}
  */
 export function prettyExact(value) {
-    return decode(prettyNum(value, {precision: 4, rounding: 'increase', thousandsSeparator: '&#x202F;'}));
+    return decode(prettyNum(value, {precision: 8, precisionSetting: PRECISION_SETTING.FIXED, thousandsSeparator: '&#x202F;'}));
 }
 
 /**
@@ -111,4 +114,14 @@ export function getTimeStamp(timestamp) {
     const time = format(parseISO(timestamp), 'dd MMMM yyyy HH:mm:ss (O)');
 
     return time && time !== 'Invalid Date' ? time : false;
+}
+
+export function fromBase64(str) {
+    //@TODO utf8 https://github.com/dankogai/js-base64
+    const asci = window.atob(str);
+    try {
+        return decodeURIComponent(escape(asci));
+    } catch (e) {
+        return asci;
+    }
 }
