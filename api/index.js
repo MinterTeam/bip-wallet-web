@@ -69,10 +69,12 @@ export function getAddressTransactionList(address, params = {}) {
  */
 export function getBalance(addressHash) {
     return explorer.get('addresses/' + addressHash)
-        .then((response) => response.data.data.balances.sort((coinItem) => {
+        .then((response) => response.data.data.balances.sort((a, b) => {
             // set base coin first
-            if (coinItem.coin === COIN_NAME) {
+            if (a.coin === COIN_NAME) {
                 return -1;
+            } else if (b.coin === COIN_NAME) {
+                return 1;
             } else {
                 return 0;
             }
