@@ -1,5 +1,6 @@
 <script>
     import axios from 'axios';
+    import Big from 'big.js';
     import {IMaskDirective} from 'vue-imask';
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
@@ -11,9 +12,10 @@
     import {getFeeValue} from 'minterjs-util/src/fee';
     import {TX_TYPE_SEND} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
-    import {postTx} from '~/api/gate';
+    import {postTx, estimateCoinBuy} from '~/api/gate';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
+    import {COIN_NAME} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
@@ -28,6 +30,8 @@
         username: {},
         email: {},
     };
+
+    let coinPricePromiseList = {};
 
     export default {
         PAGE_TITLE: 'Send Coins',
@@ -88,6 +92,8 @@
                     mask: /^[0-9]*\.?[0-9]*$/,
                 },
                 amountMasked: '',
+                coinPriceList: {},
+                isUseMax: false,
                 isModalOpen: false,
                 isWaitModalOpen: false,
                 isSuccessModalOpen: false,
@@ -126,18 +132,42 @@
                         return true;
                     }
                 });
-                return selectedCoin ? selectedCoin.amount : 0;
+                // coin not selected
+                if (!selectedCoin) {
+                    return '0';
+                }
+                // fee not in selected coins
+                if (selectedCoin.coin !== this.feeCoinSymbol) {
+                    return selectedCoin.amount;
+                }
+                // fee in selected coin, subtract fee
+                return new Big(selectedCoin.amount).minus(this.feeValue).toFixed(18);
             },
-            // base coin fee value
-            feeValue() {
+            baseCoinFeeValue() {
                 return getFeeValue(TX_TYPE_SEND, this.form.message.length);
             },
-            feeCoinSymbol() {
-                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= this.feeValue) {
-                    return this.$store.getters.baseCoin.coin;
+            // base coin is selected or it is enough to pay fee
+            isBaseCoinFee() {
+                return this.form.coinSymbol === COIN_NAME || (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= this.baseCoinFeeValue);
+            },
+            feeValue() {
+                if (this.isBaseCoinFee) {
+                    return this.baseCoinFeeValue;
+                } else {
+                    const coinEstimation = this.coinPriceList[this.feeCoinSymbol];
+                    if (coinEstimation) {
+                        return coinEstimation.coinAmount / coinEstimation.baseCoinAmount * this.baseCoinFeeValue;
+                    } else {
+                        return 0;
+                    }
                 }
-                // otherwise coinSymbol will be used as feeCoinSymbol
-                return undefined;
+            },
+            feeCoinSymbol() {
+                if (this.isBaseCoinFee) {
+                    return this.$store.getters.baseCoin.coin;
+                } else {
+                    return this.form.coinSymbol;
+                }
             },
         },
         watch: {
@@ -196,6 +226,26 @@
                     } else {
                         // wrong recipient
                         this.setAddressError('Wrong recipient');
+                    }
+                },
+            },
+            'form.coinSymbol': {
+                handler(newVal) {
+                    // need to load price
+                    if (!this.isBaseCoinFee) {
+                        getEstimation(newVal, this.baseCoinFeeValue)
+                            .then((result) => this.$set(this.coinPriceList, newVal, result));
+                    } else if (this.isUseMax) {
+                        // update form amount to consider updated feeValue
+                        this.useMax();
+                    }
+                },
+            },
+            coinPriceList: {
+                handler(newVal) {
+                    if (this.isUseMax) {
+                        // update form amount to consider updated feeValue
+                        this.useMax();
                     }
                 },
             },
@@ -275,6 +325,7 @@
             onAcceptAmount(e) {
                 this.amountMasked = e.detail._value;
                 this.form.amount = e.detail._unmaskedValue;
+                this.isUseMax = false;
             },
             openTxModal() {
                 if (this.isFormSending) {
@@ -337,11 +388,11 @@
                         this.serverError = getErrorText(error);
                     });
             },
-            //@TODO exclude fee from amount
             useMax() {
                 this.form.amount = this.maxAmount;
                 this.amountMasked = this.maxAmount;
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
+                this.isUseMax = true;
             },
             clearForm() {
                 this.form.address = '';
@@ -365,6 +416,48 @@
             getExplorerTxUrl,
         },
     };
+
+    /**
+     * is older than 1 min?
+     * @param coinPricePromise
+     * @return {boolean}
+     */
+    function isEstimationOutdated(coinPricePromise) {
+        return coinPricePromise.timestamp && (Date.now() - coinPricePromise.timestamp) > 60 * 1000;
+    }
+
+    /**
+     *
+     * @param coinSymbol
+     * @param baseCoinAmount
+     * @return {Promise<{coinSymbol: string, coinAmount: string, baseCoinAmount: string}>}
+     */
+    function getEstimation(coinSymbol, baseCoinAmount) {
+        // if estimation exists and not outdated return it
+        if (coinPricePromiseList[coinSymbol] && !isEstimationOutdated(coinPricePromiseList[coinSymbol])) {
+            return coinPricePromiseList[coinSymbol].promise;
+        }
+
+        coinPricePromiseList[coinSymbol] = {};
+        coinPricePromiseList[coinSymbol].promise = estimateCoinBuy({
+            coinToSell: coinSymbol,
+            valueToBuy: baseCoinAmount,
+            coinToBuy: COIN_NAME,
+        })
+            .then((result) => {
+                coinPricePromiseList[coinSymbol].timestamp = Date.now();
+                return {
+                    coinSymbol,
+                    coinAmount: result.will_pay,
+                    baseCoinAmount,
+                };
+            })
+            .catch(() => {
+                delete coinPricePromiseList[coinSymbol];
+            });
+
+        return coinPricePromiseList[coinSymbol].promise;
+    }
 </script>
 
 <template>
@@ -418,10 +511,13 @@
             <div class="list">
                 <a class="list-item">
                     <div class="list-item__center">
-                        <span class="list-item__name">Transaction Fee</span>
+                        <span class="list-item__name u-text-nowrap">Transaction Fee</span>
                     </div>
-                    <div class="list-item__right">
-                        <div class="list-item__label list-item__label--strong">{{ feeValue | pretty }} {{ $store.getters.COIN_NAME }}</div>
+                    <div class="list-item__right u-text-right">
+                        <div class="list-item__label list-item__label--strong">
+                            {{ feeValue | pretty }} {{ feeCoinSymbol }}
+                            <span class="u-display-ib" v-if="!isBaseCoinFee">({{ baseCoinFeeValue | pretty }} {{ $store.getters.COIN_NAME }})</span>
+                        </div>
                     </div>
                 </a>
             </div>
