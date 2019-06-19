@@ -10,7 +10,7 @@
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
     import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
     import {getFeeValue} from 'minterjs-util/src/fee';
-    import {TX_TYPE_SEND} from 'minterjs-tx/src/tx-types';
+    import {TX_TYPE_SEND, TX_TYPE_DELEGATE} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
     import {postTx, estimateCoinBuy} from '~/api/gate';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
@@ -141,10 +141,12 @@
                     return selectedCoin.amount;
                 }
                 // fee in selected coin, subtract fee
-                return new Big(selectedCoin.amount).minus(this.feeValue).toFixed(18);
+                const amount = new Big(selectedCoin.amount).minus(this.feeValue).toFixed(18);
+                return amount > 0 ? amount : '0';
             },
             baseCoinFeeValue() {
-                return getFeeValue(TX_TYPE_SEND, this.form.message.length);
+                const txType = this.recipient.type === 'publicKey' ? TX_TYPE_DELEGATE : TX_TYPE_SEND;
+                return getFeeValue(txType, this.form.message.length);
             },
             // base coin is selected or it is enough to pay fee
             isBaseCoinFee() {
@@ -227,13 +229,35 @@
                     }
                 },
             },
+            'recipient.type': {
+                handler() {
+                    if (this.isUseMax) {
+                        // update form amount to consider updated feeValue
+                        this.useMax();
+                    }
+                },
+            },
             'form.coinSymbol': {
                 handler(newVal) {
                     // need to load price
                     if (!this.isBaseCoinFee) {
                         getEstimation(newVal, this.baseCoinFeeValue)
-                            .then((result) => this.$set(this.coinPriceList, newVal, result));
+                            .then((result) => this.$set(this.coinPriceList, newVal, result))
+                            .catch(() => {
+                                if (this.isUseMax) {
+                                    // update form amount to consider updated feeValue
+                                    this.useMax();
+                                }
+                            });
                     } else if (this.isUseMax) {
+                        // update form amount to consider updated feeValue
+                        this.useMax();
+                    }
+                },
+            },
+            'form.message': {
+                handler(newVal) {
+                    if (this.isUseMax) {
                         // update form amount to consider updated feeValue
                         this.useMax();
                     }
@@ -246,6 +270,7 @@
                         this.useMax();
                     }
                 },
+                deep: true,
             },
         },
         methods: {
@@ -450,8 +475,9 @@
                     baseCoinAmount,
                 };
             })
-            .catch(() => {
+            .catch((e) => {
                 delete coinPricePromiseList[coinSymbol];
+                throw e;
             });
 
         return coinPricePromiseList[coinSymbol].promise;
