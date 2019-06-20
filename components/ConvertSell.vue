@@ -20,7 +20,7 @@
     import InputUppercase from '~/components/InputUppercase';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
-        return parseFloat(value) > 0;
+        return parseFloat(value) >= 0;
     });
 
     let estimationCancel;
@@ -50,9 +50,16 @@
                     sellAmount: '',
                 },
                 amountImaskOptions: {
-                    mask: /^[0-9]*\.?[0-9]*$/,
+                    mask: Number,
+                    scale: 18, // digits after point, 0 for integers
+                    signed: false,  // disallow negative
+                    thousandsSeparator: '',  // any single char
+                    padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
+                    normalizeZeros: false, // appends or removes zeros at ends
+                    radix: '.',  // fractional delimiter
+                    mapToRadix: [','],  // symbols to process as radix
                 },
-                amountMasked: '',
+                // amountMasked: '',
                 estimation: null,
                 estimationTimer: null,
                 estimationLoading: false,
@@ -159,7 +166,7 @@
                     });
             },
             onAcceptAmount(e) {
-                this.amountMasked = e.detail._value;
+                // this.amountMasked = e.detail._value;
                 this.form.sellAmount = e.detail._unmaskedValue;
                 // use sellTx if value typed by user manually
                 this.isSellAll = false;
@@ -198,7 +205,7 @@
             //@TODO exclude fee from amount
             useMax() {
                 this.form.sellAmount = this.maxAmount;
-                this.amountMasked = this.maxAmount;
+                // this.amountMasked = this.maxAmount;
                 // update maskRef state
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
                 // use sellAllTx if "Use max" button pressed
@@ -207,8 +214,8 @@
             clearForm() {
                 this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.form.coinTo = '';
-                this.form.sellAmount = null;
-                this.amountMasked = '';
+                this.form.sellAmount = '';
+                // this.amountMasked = '';
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
@@ -232,7 +239,7 @@
             <label class="bip-field bip-field--row bip-field--with-max" :class="{'is-error': $v.form.sellAmount.$error}">
                 <span class="bip-field__label">Amount</span>
                 <input class="bip-field__input" type="text" inputmode="numeric" ref="amountInput"
-                       :value="amountMasked"
+                       :value="form.sellAmount"
                        v-imask="amountImaskOptions"
                        @accept="onAcceptAmount"
                        @blur="$v.form.sellAmount.$touch(); inputBlur()"

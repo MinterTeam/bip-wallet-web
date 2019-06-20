@@ -38,7 +38,7 @@
     "qrcode.vue": "^1.6.2",
     "thousands": "^1.0.1",
     "v-file-input": "^0.1.1",
-    "vue-imask": "^5.1.5",
+    "vue-imask": "^5.1.6",
     "vue-onsenui": "^2.6.2",
     "vuelidate": "^0.7.4",
     "vuex-persistedstate": "^2.5.4"

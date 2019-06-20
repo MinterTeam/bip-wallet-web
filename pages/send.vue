@@ -21,7 +21,7 @@
     import Modal from '~/components/Modal';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
-        return parseFloat(value) > 0;
+        return parseFloat(value) >= 0;
     });
 
     let recipientCheckData = null; // storage with latest recipient data to check
@@ -89,9 +89,16 @@
                 recipientCheckTimer: null,
                 recipientLoading: false, // latest recipient value sent to check and still loading
                 amountImaskOptions: {
-                    mask: /^[0-9]*\.?[0-9]*$/,
+                    mask: Number,
+                    scale: 18, // digits after point, 0 for integers
+                    signed: false,  // disallow negative
+                    thousandsSeparator: '',  // any single char
+                    padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
+                    normalizeZeros: false, // appends or removes zeros at ends
+                    radix: '.',  // fractional delimiter
+                    mapToRadix: [','],  // symbols to process as radix
                 },
-                amountMasked: '',
+                // amountMasked: '',
                 coinPriceList: {},
                 isUseMax: false,
                 isModalOpen: false,
@@ -346,7 +353,7 @@
                 this.sve.address = {invalid: true, isActual: true, message, code};
             },
             onAcceptAmount(e) {
-                this.amountMasked = e.detail._value;
+                // this.amountMasked = e.detail._value;
                 this.form.amount = e.detail._unmaskedValue;
                 this.isUseMax = false;
             },
@@ -413,19 +420,19 @@
             },
             useMax() {
                 this.form.amount = this.maxAmount;
-                this.amountMasked = this.maxAmount;
+                // this.amountMasked = this.maxAmount;
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
                 this.isUseMax = true;
             },
             clearForm() {
                 this.form.address = '';
-                this.form.amount = null;
+                this.form.amount = '';
                 this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.form.message = '';
                 this.recipient.name = '';
                 this.recipient.type = '';
                 this.recipient.address = '';
-                this.amountMasked = '';
+                // this.amountMasked = '';
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
@@ -512,7 +519,7 @@
                 <label class="bip-field bip-field--row bip-field--with-max" :class="{'is-error': $v.form.amount.$error}">
                     <span class="bip-field__label">Amount</span>
                     <input class="bip-field__input" type="text" inputmode="numeric" ref="amountInput"
-                           :value="amountMasked"
+                           :value="form.amount"
                            v-imask="amountImaskOptions"
                            @accept="onAcceptAmount"
                            @blur="$v.form.amount.$touch()"
@@ -526,7 +533,7 @@
                     <span class="bip-field__label">Payload message</span>
                     <input class="bip-field__input " type="text"
                            v-model.trim="form.message"
-                           @blur="$v.form.message.$touch(); recipientBlur()"
+                           @blur="$v.form.message.$touch()"
                     >
                     <span class="form-field__error" v-if="$v.form.message.$dirty && !$v.form.message.maxLength">Max 1024 symbols</span>
                 </label>
