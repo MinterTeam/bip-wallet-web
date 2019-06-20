@@ -173,7 +173,7 @@
             },
             feeCoinSymbol() {
                 if (this.isBaseCoinFee) {
-                    return this.$store.getters.baseCoin.coin;
+                    return COIN_NAME;
                 } else {
                     return this.form.coinSymbol;
                 }

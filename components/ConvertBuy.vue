@@ -13,6 +13,7 @@
     import {postTx, estimateCoinBuy} from '~/api/gate';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
+    import {COIN_NAME} from "~/assets/variables";
 
 
     import InputUppercase from '~/components/InputUppercase';
@@ -20,6 +21,8 @@
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
         return parseFloat(value) >= 0;
     });
+
+    let coinPricePromiseList = {};
 
     let estimationCancel;
 
@@ -58,6 +61,7 @@
                     mapToRadix: [','],  // symbols to process as radix
                 },
                 // amountMasked: '',
+                coinPriceList: {},
                 estimation: null,
                 estimationTimer: null,
                 estimationLoading: false,
@@ -94,15 +98,44 @@
                 },
                 deep: true,
             },
+            'form.coinFrom': {
+                handler(newVal) {
+                    // need to load price
+                    if (!this.isBaseCoinFee) {
+                        //@TODO duplicated request for buy estimation
+                        getEstimation(newVal, this.baseCoinFeeValue)
+                            .then((result) => this.$set(this.coinPriceList, newVal, result))
+                            .catch(() => {});
+                    }
+                },
+            },
         },
         computed: {
-            feeCoinSymbol() {
-                const CONVERT_FEE = getFeeValue(TX_TYPE_SELL, 0);
-                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= CONVERT_FEE) {
-                    return this.$store.getters.baseCoin.coin;
+            baseCoinFeeValue() {
+                return getFeeValue(TX_TYPE_SELL, 0);
+            },
+            // base coin is selected or it is enough to pay fee
+            isBaseCoinFee() {
+                return this.form.coinFrom === COIN_NAME || (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= this.baseCoinFeeValue);
+            },
+            feeValue() {
+                if (this.isBaseCoinFee) {
+                    return this.baseCoinFeeValue;
+                } else {
+                    const coinEstimation = this.coinPriceList[this.feeCoinSymbol];
+                    if (coinEstimation) {
+                        return coinEstimation.coinAmount / coinEstimation.baseCoinAmount * this.baseCoinFeeValue;
+                    } else {
+                        return 0;
+                    }
                 }
-                // otherwise coinSymbol will be used as feeCoinSymbol
-                return undefined;
+            },
+            feeCoinSymbol() {
+                if (this.isBaseCoinFee) {
+                    return COIN_NAME;
+                } else {
+                    return this.form.coinFrom;
+                }
             },
             isEstimationWaiting() {
                 return this.estimationTimer || this.estimationLoading;
@@ -188,13 +221,56 @@
             clearForm() {
                 this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.form.coinTo = '';
-                this.form.buyAmount = null;
+                this.form.buyAmount = '';
                 // this.amountMasked = '';
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
         },
     };
+
+    /**
+     * is older than 1 min?
+     * @param coinPricePromise
+     * @return {boolean}
+     */
+    function isEstimationOutdated(coinPricePromise) {
+        return coinPricePromise.timestamp && (Date.now() - coinPricePromise.timestamp) > 60 * 1000;
+    }
+
+    /**
+     *
+     * @param coinSymbol
+     * @param baseCoinAmount
+     * @return {Promise<{coinSymbol: string, coinAmount: string, baseCoinAmount: string}>}
+     */
+    function getEstimation(coinSymbol, baseCoinAmount) {
+        // if estimation exists and not outdated return it
+        if (coinPricePromiseList[coinSymbol] && !isEstimationOutdated(coinPricePromiseList[coinSymbol])) {
+            return coinPricePromiseList[coinSymbol].promise;
+        }
+
+        coinPricePromiseList[coinSymbol] = {};
+        coinPricePromiseList[coinSymbol].promise = estimateCoinBuy({
+            coinToSell: coinSymbol,
+            valueToBuy: baseCoinAmount,
+            coinToBuy: COIN_NAME,
+        })
+            .then((result) => {
+                coinPricePromiseList[coinSymbol].timestamp = Date.now();
+                return {
+                    coinSymbol,
+                    coinAmount: result.will_pay,
+                    baseCoinAmount,
+                };
+            })
+            .catch((e) => {
+                delete coinPricePromiseList[coinSymbol];
+                throw e;
+            });
+
+        return coinPricePromiseList[coinSymbol].promise;
+    }
 </script>
 
 <template>
@@ -241,7 +317,7 @@
             </label>
         </div>
 
-        <div class="u-container">
+        <div class="u-section--bottom u-container">
             <div class="convert__panel" :class="{'is-loading': isEstimationWaiting}" v-if="!$v.$invalid && !isEstimationErrorVisible">
                 <div class="convert__panel-content">
                     You will pay approximately
@@ -253,6 +329,20 @@
             </div>
             <div class="convert__panel" v-if="!$v.$invalid && isEstimationErrorVisible">{{ estimationError }}</div>
             <p class="convert__panel-note">The final amount depends on&nbsp;the&nbsp;exchange rate at&nbsp;the&nbsp;moment of&nbsp;transaction.</p>
+        </div>
+
+        <div class="list">
+            <a class="list-item">
+                <div class="list-item__center">
+                    <span class="list-item__name u-text-nowrap">Transaction Fee</span>
+                </div>
+                <div class="list-item__right u-text-right">
+                    <div class="list-item__label list-item__label--strong">
+                        {{ feeValue | pretty }} {{ feeCoinSymbol }}
+                        <span class="u-display-ib" v-if="!isBaseCoinFee">({{ baseCoinFeeValue | pretty }} {{ $store.getters.COIN_NAME }})</span>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="u-section u-container">
