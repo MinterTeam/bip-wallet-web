@@ -11,17 +11,19 @@
     import decode from 'entity-decode';
     import SellTxParams from "minter-js-sdk/src/tx-params/convert-sell";
     import SellAllTxParams from "minter-js-sdk/src/tx-params/convert-sell-all";
-    import {getFeeValue} from 'minterjs-util/src/fee';
     import {TX_TYPE_SELL} from 'minterjs-tx/src/tx-types';
     import {postTx, estimateCoinSell} from '~/api/gate';
+    import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
 
     import InputUppercase from '~/components/InputUppercase';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
-        return parseFloat(value) > 0;
+        return parseFloat(value) >= 0;
     });
+
+    let feeBus;
 
     let estimationCancel;
 
@@ -50,9 +52,18 @@
                     sellAmount: '',
                 },
                 amountImaskOptions: {
-                    mask: /^[0-9]*\.?[0-9]*$/,
+                    mask: Number,
+                    scale: 18, // digits after point, 0 for integers
+                    signed: false,  // disallow negative
+                    thousandsSeparator: '',  // any single char
+                    padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
+                    normalizeZeros: false, // appends or removes zeros at ends
+                    radix: '.',  // fractional delimiter
+                    mapToRadix: [','],  // symbols to process as radix
                 },
-                amountMasked: '',
+                // amountMasked: '',
+                /** @type FeeData */
+                fee: {},
                 estimation: null,
                 estimationTimer: null,
                 estimationLoading: false,
@@ -91,9 +102,18 @@
                 },
                 deep: true,
             },
+            feeBusParams: {
+                handler(newVal) {
+                    if (feeBus && typeof feeBus.$emit === 'function') {
+                        feeBus.$emit('updateParams', newVal);
+                    }
+                },
+                deep: true,
+            },
         },
         computed: {
             maxAmount() {
+                // fee not subtracted
                 let selectedCoin;
                 this.$store.state.balance.some((coin) => {
                     if (coin.coin === this.form.coinFrom) {
@@ -103,13 +123,15 @@
                 });
                 return selectedCoin ? selectedCoin.amount : 0;
             },
-            feeCoinSymbol() {
-                const CONVERT_FEE = getFeeValue(TX_TYPE_SELL, 0);
-                if (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= CONVERT_FEE) {
-                    return this.$store.getters.baseCoin.coin;
-                }
-                // otherwise coinSymbol will be used as feeCoinSymbol
-                return undefined;
+            feeBusParams() {
+                return {
+                    txType: TX_TYPE_SELL,
+                    // messageLength: this.form.message.length,
+                    selectedCoinSymbol: this.form.coinFrom,
+                    // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
+                    baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
+                    // isOffline: this.$store.getters.isOfflineMode,
+                };
             },
             isEstimationWaiting() {
                 return this.estimationTimer || this.estimationLoading;
@@ -117,6 +139,13 @@
             isEstimationErrorVisible() {
                 return this.estimationError && !this.isEstimationWaiting;
             },
+        },
+        created() {
+            feeBus = new FeeBus(this.feeBusParams);
+            this.fee = feeBus.fee;
+            feeBus.$on('updateFee', (newVal) => {
+                this.fee = newVal;
+            });
         },
         methods: {
             // force estimation after blur if needed
@@ -159,7 +188,7 @@
                     });
             },
             onAcceptAmount(e) {
-                this.amountMasked = e.detail._value;
+                // this.amountMasked = e.detail._value;
                 this.form.sellAmount = e.detail._unmaskedValue;
                 // use sellTx if value typed by user manually
                 this.isSellAll = false;
@@ -179,7 +208,7 @@
                         postTx(new TxParamsConstructor({
                             privateKey: this.$store.getters.privateKey,
                             ...this.form,
-                            feeCoinSymbol: this.feeCoinSymbol,
+                            feeCoinSymbol: this.fee.coinSymbol,
                         })).then((txHash) => {
                             this.$emit('successTx', {hash: txHash});
                             this.isFormSending = false;
@@ -198,7 +227,7 @@
             //@TODO exclude fee from amount
             useMax() {
                 this.form.sellAmount = this.maxAmount;
-                this.amountMasked = this.maxAmount;
+                // this.amountMasked = this.maxAmount;
                 // update maskRef state
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
                 // use sellAllTx if "Use max" button pressed
@@ -207,8 +236,8 @@
             clearForm() {
                 this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.form.coinTo = '';
-                this.form.sellAmount = null;
-                this.amountMasked = '';
+                this.form.sellAmount = '';
+                // this.amountMasked = '';
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
@@ -232,7 +261,7 @@
             <label class="bip-field bip-field--row bip-field--with-max" :class="{'is-error': $v.form.sellAmount.$error}">
                 <span class="bip-field__label">Amount</span>
                 <input class="bip-field__input" type="text" inputmode="numeric" ref="amountInput"
-                       :value="amountMasked"
+                       :value="form.sellAmount"
                        v-imask="amountImaskOptions"
                        @accept="onAcceptAmount"
                        @blur="$v.form.sellAmount.$touch(); inputBlur()"
@@ -262,7 +291,7 @@
             </label>
         </div>
 
-        <div class="u-container">
+        <div class="u-section--bottom u-container">
             <div class="convert__panel" :class="{'is-loading': isEstimationWaiting}" v-if="!$v.$invalid && !isEstimationErrorVisible">
                 <div class="convert__panel-content">
                     You will get approximately
@@ -274,6 +303,20 @@
             </div>
             <div class="convert__panel" v-if="!$v.$invalid && isEstimationErrorVisible">{{ estimationError }}</div>
             <p class="convert__panel-note">The final amount depends on&nbsp;the&nbsp;exchange rate at&nbsp;the&nbsp;moment of&nbsp;transaction.</p>
+        </div>
+
+        <div class="list">
+            <a class="list-item">
+                <div class="list-item__center">
+                    <span class="list-item__name u-text-nowrap">Transaction Fee</span>
+                </div>
+                <div class="list-item__right u-text-right">
+                    <div class="list-item__label list-item__label--strong">
+                        {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                        <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="u-section u-container">

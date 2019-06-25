@@ -9,19 +9,18 @@
     import withParams from 'vuelidate/lib/withParams';
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
     import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
-    import {getFeeValue} from 'minterjs-util/src/fee';
     import {TX_TYPE_SEND, TX_TYPE_DELEGATE} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
-    import {postTx, estimateCoinBuy} from '~/api/gate';
+    import {postTx} from '~/api/gate';
+    import FeeBus from '~/assets/fee';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
-    import {COIN_NAME} from "~/assets/variables";
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
-        return parseFloat(value) > 0;
+        return parseFloat(value) >= 0;
     });
 
     let recipientCheckData = null; // storage with latest recipient data to check
@@ -31,7 +30,7 @@
         email: {},
     };
 
-    let coinPricePromiseList = {};
+    let feeBus;
 
     export default {
         PAGE_TITLE: 'Send Coins',
@@ -89,10 +88,18 @@
                 recipientCheckTimer: null,
                 recipientLoading: false, // latest recipient value sent to check and still loading
                 amountImaskOptions: {
-                    mask: /^[0-9]*\.?[0-9]*$/,
+                    mask: Number,
+                    scale: 18, // digits after point, 0 for integers
+                    signed: false,  // disallow negative
+                    thousandsSeparator: '',  // any single char
+                    padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
+                    normalizeZeros: false, // appends or removes zeros at ends
+                    radix: '.',  // fractional delimiter
+                    mapToRadix: [','],  // symbols to process as radix
                 },
-                amountMasked: '',
-                coinPriceList: {},
+                // amountMasked: '',
+                /** @type FeeData */
+                fee: {},
                 isUseMax: false,
                 isModalOpen: false,
                 isWaitModalOpen: false,
@@ -137,39 +144,22 @@
                     return '0';
                 }
                 // fee not in selected coins
-                if (selectedCoin.coin !== this.feeCoinSymbol) {
+                if (selectedCoin.coin !== this.fee.coinSymbol) {
                     return selectedCoin.amount;
                 }
                 // fee in selected coin, subtract fee
-                const amount = new Big(selectedCoin.amount).minus(this.feeValue).toFixed(18);
+                const amount = new Big(selectedCoin.amount).minus(this.fee.value).toFixed();
                 return amount > 0 ? amount : '0';
             },
-            baseCoinFeeValue() {
-                const txType = this.recipient.type === 'publicKey' ? TX_TYPE_DELEGATE : TX_TYPE_SEND;
-                return getFeeValue(txType, this.form.message.length);
-            },
-            // base coin is selected or it is enough to pay fee
-            isBaseCoinFee() {
-                return this.form.coinSymbol === COIN_NAME || (this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount >= this.baseCoinFeeValue);
-            },
-            feeValue() {
-                if (this.isBaseCoinFee) {
-                    return this.baseCoinFeeValue;
-                } else {
-                    const coinEstimation = this.coinPriceList[this.feeCoinSymbol];
-                    if (coinEstimation) {
-                        return coinEstimation.coinAmount / coinEstimation.baseCoinAmount * this.baseCoinFeeValue;
-                    } else {
-                        return 0;
-                    }
-                }
-            },
-            feeCoinSymbol() {
-                if (this.isBaseCoinFee) {
-                    return this.$store.getters.baseCoin.coin;
-                } else {
-                    return this.form.coinSymbol;
-                }
+            feeBusParams() {
+                return {
+                    txType: this.recipient.type === 'publicKey' ? TX_TYPE_DELEGATE : TX_TYPE_SEND,
+                    messageLength: this.form.message.length,
+                    selectedCoinSymbol: this.form.coinSymbol,
+                    // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
+                    baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
+                    // isOffline: this.$store.getters.isOfflineMode,
+                };
             },
         },
         watch: {
@@ -231,49 +221,25 @@
                     }
                 },
             },
-            'recipient.type': {
-                handler() {
-                    if (this.isUseMax) {
-                        // update form amount to consider updated feeValue
-                        this.useMax();
-                    }
-                },
-            },
-            'form.coinSymbol': {
+            feeBusParams: {
                 handler(newVal) {
-                    // need to load price
-                    if (!this.isBaseCoinFee) {
-                        getEstimation(newVal, this.baseCoinFeeValue)
-                            .then((result) => this.$set(this.coinPriceList, newVal, result))
-                            .catch(() => {
-                                if (this.isUseMax) {
-                                    // update form amount to consider updated feeValue
-                                    this.useMax();
-                                }
-                            });
-                    } else if (this.isUseMax) {
-                        // update form amount to consider updated feeValue
-                        this.useMax();
-                    }
-                },
-            },
-            'form.message': {
-                handler(newVal) {
-                    if (this.isUseMax) {
-                        // update form amount to consider updated feeValue
-                        this.useMax();
-                    }
-                },
-            },
-            coinPriceList: {
-                handler(newVal) {
-                    if (this.isUseMax) {
-                        // update form amount to consider updated feeValue
-                        this.useMax();
+                    if (feeBus && typeof feeBus.$emit === 'function') {
+                        feeBus.$emit('updateParams', newVal);
                     }
                 },
                 deep: true,
             },
+        },
+        created() {
+            feeBus = new FeeBus(this.feeBusParams);
+            this.fee = feeBus.fee;
+            feeBus.$on('updateFee', (newVal) => {
+                this.fee = newVal;
+                if (this.isUseMax) {
+                    // update form amount to consider updated feeValue
+                    this.useMax();
+                }
+            });
         },
         methods: {
             // force check after blur if needed
@@ -348,7 +314,7 @@
                 this.sve.address = {invalid: true, isActual: true, message, code};
             },
             onAcceptAmount(e) {
-                this.amountMasked = e.detail._value;
+                // this.amountMasked = e.detail._value;
                 this.form.amount = e.detail._unmaskedValue;
                 this.isUseMax = false;
             },
@@ -383,13 +349,13 @@
                                 ...this.form,
                                 stake: this.form.amount,
                                 publicKey: this.form.address,
-                                feeCoinSymbol: this.feeCoinSymbol,
+                                feeCoinSymbol: this.fee.coinSymbol,
                             });
                         } else {
                             txParams = new SendTxParams({
                                 privateKey: this.$store.getters.privateKey,
                                 ...this.form,
-                                feeCoinSymbol: this.feeCoinSymbol,
+                                feeCoinSymbol: this.fee.coinSymbol,
                             });
                         }
 
@@ -415,19 +381,19 @@
             },
             useMax() {
                 this.form.amount = this.maxAmount;
-                this.amountMasked = this.maxAmount;
+                // this.amountMasked = this.maxAmount;
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
                 this.isUseMax = true;
             },
             clearForm() {
                 this.form.address = '';
-                this.form.amount = null;
+                this.form.amount = '';
                 this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
                 this.form.message = '';
                 this.recipient.name = '';
                 this.recipient.type = '';
                 this.recipient.address = '';
-                this.amountMasked = '';
+                // this.amountMasked = '';
                 this.$refs.amountInput.maskRef.typedValue = '';
                 this.$v.$reset();
             },
@@ -441,49 +407,6 @@
             getExplorerTxUrl,
         },
     };
-
-    /**
-     * is older than 1 min?
-     * @param coinPricePromise
-     * @return {boolean}
-     */
-    function isEstimationOutdated(coinPricePromise) {
-        return coinPricePromise.timestamp && (Date.now() - coinPricePromise.timestamp) > 60 * 1000;
-    }
-
-    /**
-     *
-     * @param coinSymbol
-     * @param baseCoinAmount
-     * @return {Promise<{coinSymbol: string, coinAmount: string, baseCoinAmount: string}>}
-     */
-    function getEstimation(coinSymbol, baseCoinAmount) {
-        // if estimation exists and not outdated return it
-        if (coinPricePromiseList[coinSymbol] && !isEstimationOutdated(coinPricePromiseList[coinSymbol])) {
-            return coinPricePromiseList[coinSymbol].promise;
-        }
-
-        coinPricePromiseList[coinSymbol] = {};
-        coinPricePromiseList[coinSymbol].promise = estimateCoinBuy({
-            coinToSell: coinSymbol,
-            valueToBuy: baseCoinAmount,
-            coinToBuy: COIN_NAME,
-        })
-            .then((result) => {
-                coinPricePromiseList[coinSymbol].timestamp = Date.now();
-                return {
-                    coinSymbol,
-                    coinAmount: result.will_pay,
-                    baseCoinAmount,
-                };
-            })
-            .catch((e) => {
-                delete coinPricePromiseList[coinSymbol];
-                throw e;
-            });
-
-        return coinPricePromiseList[coinSymbol].promise;
-    }
 </script>
 
 <template>
@@ -514,7 +437,7 @@
                 <label class="bip-field bip-field--row bip-field--with-max" :class="{'is-error': $v.form.amount.$error}">
                     <span class="bip-field__label">Amount</span>
                     <input class="bip-field__input" type="text" inputmode="numeric" ref="amountInput"
-                           :value="amountMasked"
+                           :value="form.amount"
                            v-imask="amountImaskOptions"
                            @accept="onAcceptAmount"
                            @blur="$v.form.amount.$touch()"
@@ -528,7 +451,7 @@
                     <span class="bip-field__label">Payload message</span>
                     <input class="bip-field__input " type="text"
                            v-model.trim="form.message"
-                           @blur="$v.form.message.$touch(); recipientBlur()"
+                           @blur="$v.form.message.$touch()"
                     >
                     <span class="form-field__error" v-if="$v.form.message.$dirty && !$v.form.message.maxLength">Max 1024 symbols</span>
                 </label>
@@ -541,8 +464,8 @@
                     </div>
                     <div class="list-item__right u-text-right">
                         <div class="list-item__label list-item__label--strong">
-                            {{ feeValue | pretty }} {{ feeCoinSymbol }}
-                            <span class="u-display-ib" v-if="!isBaseCoinFee">({{ baseCoinFeeValue | pretty }} {{ $store.getters.COIN_NAME }})</span>
+                            {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                            <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                         </div>
                     </div>
                 </a>
