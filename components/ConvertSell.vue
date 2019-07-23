@@ -68,7 +68,7 @@
                 estimationTimer: null,
                 estimationLoading: false,
                 estimationError: false,
-                isSellAll: false, // should sellAllTx be used
+                isUseMax: false, // should sellAllTx be used
             };
         },
         validations() {
@@ -91,6 +91,11 @@
             };
         },
         watch: {
+            'form.coinFrom': function(newVal, oldVal) {
+                if (this.isUseMax && newVal !== oldVal) {
+                    this.useMax();
+                }
+            },
             // every valid form change will lead to estimationTimer set up
             form: {
                 handler() {
@@ -114,12 +119,8 @@
         computed: {
             maxAmount() {
                 // fee not subtracted
-                let selectedCoin;
-                this.$store.state.balance.some((coin) => {
-                    if (coin.coin === this.form.coinFrom) {
-                        selectedCoin = coin;
-                        return true;
-                    }
+                const selectedCoin = this.$store.state.balance.find((coin) => {
+                    return coin.coin === this.form.coinFrom;
                 });
                 return selectedCoin ? selectedCoin.amount : 0;
             },
@@ -191,7 +192,7 @@
                 // this.amountMasked = e.detail._value;
                 this.form.sellAmount = e.detail._unmaskedValue;
                 // use sellTx if value typed by user manually
-                this.isSellAll = false;
+                this.isUseMax = false;
             },
             submit() {
                 if (this.isFormSending) {
@@ -204,24 +205,57 @@
                     .then(() => {
                         //@TODO minBuyAmount
                         //@TODO use sellAllTx if sellAmount == maxAmount ?
-                        const TxParamsConstructor = this.isSellAll ? SellAllTxParams : SellTxParams;
-                        postTx(new TxParamsConstructor({
-                            privateKey: this.$store.getters.privateKey,
-                            ...this.form,
-                            feeCoinSymbol: this.fee.coinSymbol,
-                        })).then((txHash) => {
-                            this.$emit('successTx', {hash: txHash});
-                            this.isFormSending = false;
-                            this.clearForm();
-                        }).catch((error) => {
-                            console.log(error);
-                            this.isFormSending = false;
-                            this.serverError = getErrorText(error);
+
+                        let shouldUseSellAll = this.isUseMax ? this.getAbleUseSellAll() : Promise.resolve(false);
+                        shouldUseSellAll.then((isSellAll) => {
+                            const TxParamsConstructor = isSellAll ? SellAllTxParams : SellTxParams;
+                            postTx(new TxParamsConstructor({
+                                privateKey: this.$store.getters.privateKey,
+                                ...this.form,
+                                feeCoinSymbol: this.fee.coinSymbol,
+                            })).then((txHash) => {
+                                this.$emit('successTx', {hash: txHash});
+                                this.isFormSending = false;
+                                this.clearForm();
+                            }).catch((error) => {
+                                console.log(error);
+                                this.isFormSending = false;
+                                this.serverError = getErrorText(error);
+                            });
                         });
                     })
                     .catch((error) => {
                         this.isFormSending = false;
                         this.serverError = getErrorText(error);
+                    });
+            },
+            // do we have enough coins to pay fee use sellAll tx
+            getAbleUseSellAll() {
+                // selling base coin (no matter if it is not enough to pay fee)
+                if (this.form.coinFrom === this.$store.getters.COIN_NAME) {
+                    return Promise.resolve(true);
+                }
+                // base coin is not enough (no matter if selected coin is not enough to pay fee)
+                if (!this.fee.isBaseCoinEnough) {
+                    return Promise.resolve(true);
+                }
+                // selling custom coin and base coin is enough to pay fee, here we should decide if we can pay fee with custom coin using sellAllTx, or should we switch to sellTx and pay fee with base coin
+
+                // if getting base coin, we can use `estimation`
+                if (this.form.coinTo === this.$store.getters.COIN_NAME) {
+                    return Promise.resolve(this.estimation >= this.fee.baseCoinValue);
+                }
+
+                return estimateCoinSell({
+                    coinToSell: this.form.coinFrom,
+                    valueToSell: this.maxAmount,
+                    coinToBuy: this.$store.getters.COIN_NAME,
+                })
+                    .then((result) => {
+                        return result.will_get >= this.fee.baseCoinValue;
+                    })
+                    .catch((error) => {
+                        return true;
                     });
             },
             //@TODO exclude fee from amount
@@ -231,7 +265,7 @@
                 // update maskRef state
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
                 // use sellAllTx if "Use max" button pressed
-                this.isSellAll = true;
+                this.isUseMax = true;
             },
             clearForm() {
                 this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
