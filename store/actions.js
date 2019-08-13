@@ -35,7 +35,7 @@ export default {
     },
     FETCH_TRANSACTION_LIST: ({ commit, dispatch, getters }, page = 1) => {
         // use only 1 address
-        return getAddressTransactionList(getters.addressList[0].address, {
+        return getAddressTransactionList(getters.address, {
             page: page || 1,
         })
             .then((txListInfo) => {
@@ -46,7 +46,7 @@ export default {
                 // fetch avatars and usernames for addresses found in txs
                 const addressListToFetch = txListInfo.data.reduce((accum, tx) => {
                     if (tx.type === Number(TX_TYPES.TX_TYPE_SEND)) {
-                        if (tx.data.to === getters.addressList[0].address) {
+                        if (tx.data.to === getters.address) {
                             accum.add(tx.from);
                         } else {
                             accum.add(tx.data.to);
@@ -60,7 +60,7 @@ export default {
     },
     FETCH_BALANCE: ({ commit, getters }) => {
         // use only 1 address
-        return getBalance(getters.addressList[0].address)
+        return getBalance(getters.address)
             .then((balance) => {
                 commit('SET_BALANCE', balance);
                 return balance;
@@ -68,7 +68,7 @@ export default {
     },
     FETCH_DELEGATION: ({ commit, getters }) => {
         // use only 1 address
-        return getDelegation(getters.addressList[0].address)
+        return getDelegation(getters.address)
             .then((delegation) => {
                 commit('SET_DELEGATION', delegation);
                 return delegation;

@@ -90,35 +90,20 @@
                 return tx.type === Number(TX_TYPES.TX_TYPE_MULTISEND);
             },
             isIncomeSend(tx) {
-                const addressList = [this.$store.getters.addressList[0]];
-                return addressList.some((address) => {
-                    if (address.address === tx.data.to) {
-                        return true;
-                    }
-                });
+                return this.$store.getters.address === tx.data.to;
             },
             isIncomeMultisend(tx) {
                 if (!this.isMultisend(tx)) {
                     return;
                 }
-                const addressList = [this.$store.getters.addressList[0]];
-                const isOutcomeMultisend = addressList.some((address) => {
-                    if (address.address === tx.from) {
-                        return true;
-                    }
-                });
+                const isOutcomeMultisend = this.$store.getters.address === tx.from;
                 return !isOutcomeMultisend;
             },
             isIncomeRedeem(tx) {
                 if (!this.isRedeem(tx)) {
                     return;
                 }
-                const addressList = [this.$store.getters.addressList[0]];
-                return addressList.some((address) => {
-                    if (address.address === tx.from) {
-                        return true;
-                    }
-                });
+                return this.$store.getters.address === tx.from;
             },
             isIncome(tx) {
                 return this.isIncomeSend(tx) || this.isExchange(tx) || this.isCreateCoin(tx) || this.isUnbond(tx) || this.isIncomeMultisend(tx) || this.isIncomeRedeem(tx);
@@ -138,14 +123,9 @@
                 return typeof this.getAmount(tx) !== 'undefined';
             },
             getMultisendDeliveryList(tx) {
-                const addressList = [this.$store.getters.addressList[0]];
                 const isOutcomeMultisend = !this.isIncomeMultisend(tx);
                 return isOutcomeMultisend ? tx.data.list : tx.data.list.filter((delivery) => {
-                    return addressList.some((address) => {
-                        if (address.address === delivery.to) {
-                            return true;
-                        }
-                    });
+                    return this.$store.getters.address === delivery.to;
                 });
             },
             isMultisendMultipleCoin(tx) {
