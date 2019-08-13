@@ -41,6 +41,12 @@
                 };
             },
         },
+        watch: {
+            // update tx list on balance updated
+            "$store.state.balance": function() {
+                this.$store.dispatch('FETCH_TRANSACTION_LIST');
+            },
+        },
         beforeMount() {
             this.$store.dispatch('FETCH_TRANSACTION_LIST')
                 .then(() => {
