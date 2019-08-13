@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {setAuthToken} from "~/api/accounts";
+import {setAuthToken, resetAuthToken} from "~/api/accounts";
 
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {
@@ -39,6 +39,7 @@ export default {
             data: [],
             meta: {},
         };
+        resetAuthToken();
     },
     SET_PROFILE_USER,
     UPDATE_PROFILE_PASSWORD: (state, password) => {
