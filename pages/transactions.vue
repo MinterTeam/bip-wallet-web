@@ -81,7 +81,7 @@
                     return;
                 }
                 this.isTxListLoading = true;
-                this.$store.dispatch('FETCH_TRANSACTION_LIST_STANDALONE', this.pagination.current_page + 1)
+                this.$store.dispatch('FETCH_TRANSACTION_LIST', this.pagination.current_page + 1)
                     .then((txListInfo) => {
                         txListInfo.data.forEach((tx) => {
                             const alreadyHasTx = this.txList.find((listItem) => listItem.txn === tx.txn);

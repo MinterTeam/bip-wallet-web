@@ -24,7 +24,6 @@
         },
         data() {
             return {
-                isAddressListLoading: true,
                 selectedAddress: null,
                 isToastVisible: false,
             };
@@ -46,9 +45,6 @@
             // if user with profile, main address can be set only to profileAddress
             // otherwise main address can be set only to advancedAddress
             selectedAddress(newVal) {
-                if (this.isAddressListLoading) {
-                    return;
-                }
                 if (this.isUserWithProfile) {
                     let addressToEdit;
                     this.$store.state.profileAddressList.some((address) => {
@@ -64,27 +60,13 @@
             },
         },
         beforeMount() {
-            this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
-                .then(() => {
-                    // if user with profile, main address can be set only to profile address
-                    const addressListWithMain = this.isUserWithProfile ? this.$store.state.profileAddressList : this.$store.state.auth.advanced;
-                    addressListWithMain.forEach((address) => {
-                        if (address.isMain) {
-                            this.selectedAddress = address.address;
-                        }
-                    });
-                    // wait to skip first watcher
-                    this.$nextTick(() => {
-                        this.isAddressListLoading = false;
-                    });
-                })
-                .catch(() => {
-                    // wait to skip first watcher
-                    this.$nextTick(() => {
-                        this.isAddressListLoading = false;
-                    });
-                });
-
+            // if user with profile, main address can be set only to profile address
+            const addressListWithMain = this.isUserWithProfile ? this.$store.state.profileAddressList : this.$store.state.auth.advanced;
+            addressListWithMain.forEach((address) => {
+                if (address.isMain) {
+                    this.selectedAddress = address.address;
+                }
+            });
         },
         methods: {
             copy(str) {

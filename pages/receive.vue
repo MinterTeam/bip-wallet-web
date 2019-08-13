@@ -22,7 +22,6 @@
         },
         data() {
             return {
-                isAddressListLoading: true,
                 isToastVisible: false,
             };
         },
@@ -33,16 +32,6 @@
             isShareSupported() {
                 return window.navigator.share;
             },
-        },
-        beforeMount() {
-            this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
-                .then(() => {
-                    this.isAddressListLoading = false;
-                })
-                .catch(() => {
-                    this.isAddressListLoading = false;
-                });
-
         },
         methods: {
             copy(str) {

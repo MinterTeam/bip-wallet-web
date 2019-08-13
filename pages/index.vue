@@ -19,7 +19,6 @@
         data() {
             return {
                 isTxListLoading: true,
-                isBalanceLoading: true,
                 isDelegationLoading: true,
             };
         },
@@ -43,33 +42,18 @@
             },
         },
         beforeMount() {
-            this.$store.dispatch('FETCH_PROFILE_ADDRESS_LIST')
+            this.$store.dispatch('FETCH_TRANSACTION_LIST')
                 .then(() => {
-                    this.$store.dispatch('FETCH_TRANSACTION_LIST_STANDALONE')
-                        .then(() => {
-                            this.isTxListLoading = false;
-                        })
-                        .catch(() => {
-                            this.isTxListLoading = false;
-                        });
-                    this.$store.dispatch('FETCH_BALANCE_STANDALONE')
-                        .then(() => {
-                            this.isBalanceLoading = false;
-                        })
-                        .catch(() => {
-                            this.isBalanceLoading = false;
-                        });
-                    this.$store.dispatch('FETCH_DELEGATION_STANDALONE')
-                        .then(() => {
-                            this.isDelegationLoading = false;
-                        })
-                        .catch(() => {
-                            this.isDelegationLoading = false;
-                        });
+                    this.isTxListLoading = false;
                 })
                 .catch(() => {
                     this.isTxListLoading = false;
-                    this.isBalanceLoading = false;
+                });
+            this.$store.dispatch('FETCH_DELEGATION')
+                .then(() => {
+                    this.isDelegationLoading = false;
+                })
+                .catch(() => {
                     this.isDelegationLoading = false;
                 });
         },
