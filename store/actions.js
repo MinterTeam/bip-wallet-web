@@ -33,11 +33,7 @@ export default {
             .then(() => getProfileAddressEncrypted(getters.mainProfileAddress.id))
             .then((address) => commit('SET_PROFILE_ADDRESS_ENCRYPTED', address));
     },
-    FETCH_TRANSACTION_LIST: ({ commit, dispatch }) => {
-        return dispatch('FETCH_PROFILE_ADDRESS_LIST')
-            .then(() => dispatch('FETCH_TRANSACTION_LIST_STANDALONE'));
-    },
-    FETCH_TRANSACTION_LIST_STANDALONE: ({ commit, dispatch, getters }, page = 1) => {
+    FETCH_TRANSACTION_LIST: ({ commit, dispatch, getters }, page = 1) => {
         // use only 1 address
         return getAddressTransactionList(getters.addressList[0].address, {
             page: page || 1,
@@ -62,11 +58,7 @@ export default {
                 return txListInfo;
             });
     },
-    FETCH_BALANCE: ({ commit, dispatch, getters }) => {
-        return dispatch('FETCH_PROFILE_ADDRESS_LIST')
-            .then(() => dispatch('FETCH_BALANCE_STANDALONE'));
-    },
-    FETCH_BALANCE_STANDALONE: ({ commit, getters }) => {
+    FETCH_BALANCE: ({ commit, getters }) => {
         // use only 1 address
         return getBalance(getters.addressList[0].address)
             .then((balance) => {
@@ -74,11 +66,7 @@ export default {
                 return balance;
             });
     },
-    FETCH_DELEGATION: ({ commit, dispatch, getters }) => {
-        return dispatch('FETCH_PROFILE_ADDRESS_LIST')
-            .then(() => dispatch('FETCH_DELEGATION_STANDALONE'));
-    },
-    FETCH_DELEGATION_STANDALONE: ({ commit, getters }) => {
+    FETCH_DELEGATION: ({ commit, getters }) => {
         // use only 1 address
         return getDelegation(getters.addressList[0].address)
             .then((delegation) => {

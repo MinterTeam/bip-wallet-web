@@ -46,9 +46,6 @@
             pretty,
             prettyExact,
         },
-        fetch({ store }) {
-            return store.dispatch('FETCH_BALANCE');
-        },
         head() {
             return {
                 title: getTitle(this.$options.PAGE_TITLE),
@@ -363,7 +360,6 @@
                             this.isSuccessModalOpen = true;
                             this.serverSuccess = txHash;
                             this.clearForm();
-                            this.$store.dispatch('FETCH_BALANCE');
                         }).catch((error) => {
                             console.log(error);
                             this.isFormSending = false;

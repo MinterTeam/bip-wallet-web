@@ -28,9 +28,6 @@
         filters: {
 
         },
-        fetch({ store }) {
-            return store.dispatch('FETCH_BALANCE');
-        },
         head() {
             return {
                 title: getTitle(this.$options.PAGE_TITLE),
@@ -56,7 +53,6 @@
         },
         methods: {
             openSuccessModal({hash}) {
-                this.$store.dispatch('FETCH_BALANCE');
                 this.successHash = hash;
                 this.isSuccessModalOpen = true;
             },

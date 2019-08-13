@@ -26,4 +26,9 @@ export function setAuthToken(tokenData) {
 
 export function resetAuthToken() {
     minterOrg.resetAuthToken();
+    localStorage.removeItem(TOKEN_KEY);
+}
+
+export function hasAuthToken() {
+    return minterOrg.hasAuthToken();
 }
