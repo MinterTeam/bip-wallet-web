@@ -151,7 +151,7 @@
             feeBusParams() {
                 return {
                     txType: this.recipient.type === 'publicKey' ? TX_TYPE_DELEGATE : TX_TYPE_SEND,
-                    messageLength: this.form.message.length,
+                    txFeeOptions: {payload: this.form.message},
                     selectedCoinSymbol: this.form.coinSymbol,
                     // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
