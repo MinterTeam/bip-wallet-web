@@ -39,7 +39,7 @@
                 updateProfileAvatar(files[0].blob)
                     .then((userAvatar) => {
                         this.$store.commit('SET_PROFILE_USER', {
-                            ...this.$store.state.auth.user,
+                            ...this.$store.state.user,
                             avatar: userAvatar,
                         });
                         this.isFormSending = false;
@@ -52,7 +52,7 @@
             // clearFile() {
             //     deleteProfileAvatar();
             //     this.$store.commit('SET_PROFILE_USER', {
-            //         ...this.$store.state.auth.user,
+            //         ...this.$store.state.user,
             //         avatar: null,
             //     });
             //     this.fileError = '';
