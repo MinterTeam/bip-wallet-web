@@ -3,12 +3,13 @@ export default function() {
         auth: {
             /** @type Array<Address> */
             advanced: [],
-            /** @type User */
-            user: {},
-            /** @type TokenData */
-            token: {},
             /** @type string|null - stored password */
             password: null,
+        },
+        /** @type User */
+        user: {
+            /** @type Address */
+            mainAddress: {},
         },
         /** @type Array<Address> - source of truth for encrypted mnemonic data */
         profileAddressList: [],
@@ -55,6 +56,7 @@ export default function() {
  * @property {string} phone
  * @property {string} language
  * @property {UserAvatar} avatar
+ * @property {Address} mainAddress
  */
 
 /**

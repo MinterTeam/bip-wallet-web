@@ -89,20 +89,20 @@
                 <nuxt-link class="list-item list-item--chevron list-item--tappable" to="/settings/profile-username">
                     <div class="list-item__center">Username</div>
                     <div class="list-item__right list-item--chevron__right">
-                        <div class="list-item__label list-item__label--strong">@{{ $store.state.auth.user.username }}</div>
+                        <div class="list-item__label list-item__label--strong">@{{ $store.state.user.username }}</div>
                     </div>
                 </nuxt-link>
                 <!--<nuxt-link class="list-item list-item&#45;&#45;chevron list-item&#45;&#45;tappable" to="/settings/profile-phone">
                     <div class="list-item__center">Mobile</div>
                     <div class="list-item__right list-item&#45;&#45;chevron__right">
-                        <div class="list-item__label list-item__label&#45;&#45;strong" v-if="$store.state.auth.user.phone">{{ $store.state.auth.user.phone }}</div>
+                        <div class="list-item__label list-item__label&#45;&#45;strong" v-if="$store.state.user.phone">{{ $store.state.user.phone }}</div>
                         <div class="list-item__label" v-else>Add</div>
                     </div>
                 </nuxt-link>-->
                 <nuxt-link class="list-item list-item--chevron list-item--tappable" to="/settings/profile-email">
                     <div class="list-item__center">Email</div>
                     <div class="list-item__right list-item__overflow list-item--chevron__right">
-                        <div class="list-item__label list-item__label--strong u-text-overflow" v-if="$store.state.auth.user.email">{{ $store.state.auth.user.email }}</div>
+                        <div class="list-item__label list-item__label--strong u-text-overflow" v-if="$store.state.user.email">{{ $store.state.user.email }}</div>
                         <div class="list-item__label" v-else>Add</div>
                     </div>
                 </nuxt-link>
@@ -118,7 +118,7 @@
                 <nuxt-link class="list-item list-item&#45;&#45;chevron list-item&#45;&#45;tappable" to="/settings/language">
                     <div class="list-item__center">Language</div>
                     <div class="list-item__right list-item&#45;&#45;chevron__right">
-                        <div class="list-item__label list-item__label&#45;&#45;strong">{{ $store.state.auth.user.language }}</div>
+                        <div class="list-item__label list-item__label&#45;&#45;strong">{{ $store.state.user.language }}</div>
                     </div>
                 </nuxt-link>
                 <nuxt-link class="list-item list-item&#45;&#45;chevron list-item&#45;&#45;tappable" to="/settings/addresses">
