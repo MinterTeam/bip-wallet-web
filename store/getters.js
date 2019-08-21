@@ -23,7 +23,7 @@ export default {
      * @return {boolean}
      */
     isUserWithProfile(state) {
-        return !!(state.auth.token && state.auth.token.accessToken);
+        return !!state.auth.password;
     },
     addressList(state) {
         return state.auth.advanced.concat(state.profileAddressList);
@@ -81,17 +81,17 @@ export default {
     },
     username(state, getters) {
         if (getters.isUserWithProfile) {
-            return state.auth.user && '@' + state.auth.user.username;
+            return state.user && '@' + state.user.username;
         } else {
             return shortHashFilter(getters.address, 4);
         }
-        // return getters.isUserWithProfile ? '@' + state.auth.user.username : getters.mainAdvancedAddress;
+        // return getters.isUserWithProfile ? '@' + state.user.username : getters.mainAdvancedAddress;
     },
     // usernameLetter(state, getters) {
     //     return getNameLetter(getters.username);
     // },
     avatar(state, getters) {
-        const avatarStored = state.auth.user && state.auth.user.avatar && state.auth.user.avatar.src;
+        const avatarStored = state.user && state.user.avatar && state.user.avatar.src;
         const avatarByAddress = getters.address ? getAvatarUrl(getters.address) : '';
         // stored avatar first, bc. it can be changed manually after uploading new
         return avatarStored || avatarByAddress;

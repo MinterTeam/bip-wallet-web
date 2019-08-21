@@ -60,7 +60,7 @@
                 updateProfile(this.form)
                     .then(() => {
                         this.$store.commit('SET_PROFILE_USER', {
-                            ...this.$store.state.auth.user,
+                            ...this.$store.state.user,
                             ...this.form,
                         });
                         this.$router.push('/settings');

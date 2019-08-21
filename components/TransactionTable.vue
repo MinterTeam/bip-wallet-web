@@ -348,6 +348,12 @@
                         <div class="tx-info__name">Fee</div>
                         <div class="tx-info__value">{{ tx.fee | pretty }} {{ $store.getters.COIN_NAME }}</div>
                     </div>
+
+                    <!-- message -->
+                    <div class="u-cell" v-if="tx.payload">
+                        <div class="tx-info__name">Message</div>
+                        <div class="tx-info__value">{{ fromBase64(tx.payload) }}</div>
+                    </div>
                 </div>
                 <a class="tx-info__button bip-button bip-button--ghost-main" :href="getTxUrl(tx.hash)" target="_blank">Explorer</a>
             </div>

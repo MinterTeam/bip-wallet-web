@@ -30,7 +30,7 @@
                 isFormSending: false,
                 serverError: '',
                 form: {
-                    username: this.$store.state.auth.user.username,
+                    username: this.$store.state.user.username,
                 },
                 sve: {
                     username: {invalid: false, isActual: false, message: ''},
@@ -62,7 +62,7 @@
                 updateProfile(this.form)
                     .then(() => {
                         this.$store.commit('SET_PROFILE_USER', {
-                            ...this.$store.state.auth.user,
+                            ...this.$store.state.user,
                             ...this.form,
                         });
                         this.$router.push('/settings');

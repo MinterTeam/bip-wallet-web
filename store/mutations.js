@@ -4,7 +4,6 @@ import {setAuthToken, resetAuthToken} from "~/api/accounts";
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {
         SET_PROFILE_USER(state, user);
-        state.auth.token = token;
         state.auth.password = password;
         setAuthToken(token);
     },
@@ -28,8 +27,7 @@ export default {
         });
     },
     LOGOUT: (state) => {
-        state.auth.user = {};
-        state.auth.token = {};
+        state.user = {};
         state.auth.password = null;
         state.auth.advanced = [];
         // clear data
@@ -90,7 +88,7 @@ export default {
 };
 
 function SET_PROFILE_USER(state, profile) {
-    state.auth.user = profile;
+    state.user = profile;
     if (profile.mainAddress && profile.mainAddress.address) {
         ADD_USER(state, {address: profile.mainAddress.address, user: profile});
     }
