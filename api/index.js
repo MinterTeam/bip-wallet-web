@@ -101,6 +101,24 @@ export function getDelegation(addressHash) {
         .then((response) => response.data);
 }
 
+/**
+ * @return {Promise<Array<CoinItem>>}
+ */
+export function getCoinList() {
+    return explorer.get('coins')
+        .then((response) => response.data.data);
+    // don't sort, coins already sorted by reserve
+    // .then((response) => response.data.data.sort((a, b) => {
+    //     if (a.symbol === COIN_NAME) {
+    //         return -1;
+    //     } else if (b.symbol === COIN_NAME) {
+    //         return 1;
+    //     } else {
+    //         return a.symbol.localeCompare(b.symbol);
+    //     }
+    // }));
+}
+
 
 /**
  * Get addresses saved in profile

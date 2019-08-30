@@ -13,9 +13,7 @@
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
-
-
-    import InputUppercase from '~/components/InputUppercase';
+    import FieldCoinList from '~/components/FieldCoinList';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
         return parseFloat(value) >= 0;
@@ -26,9 +24,8 @@
     let estimationCancel;
 
     export default {
-        PAGE_TITLE: 'Send Coins',
         components: {
-            InputUppercase,
+            FieldCoinList,
         },
         mixins: [validationMixin],
         directives: {
@@ -45,7 +42,6 @@
                 serverError: '',
                 form: {
                     coinFrom: coinList && coinList.length ? coinList[0].coin : '',
-                    //@TODO coin autocomplete
                     coinTo: '',
                     buyAmount: '',
                 },
@@ -221,16 +217,7 @@
 <template>
     <form novalidate @submit.prevent="submit">
         <div class="u-section u-container">
-            <label class="bip-field bip-field--row" :class="{'is-error': $v.form.coinTo.$error}">
-                <span class="bip-field__label">Coin you want</span>
-                <InputUppercase class="bip-field__input " type="text"
-                                v-model.trim="form.coinTo"
-                                @blur="$v.form.coinTo.$touch(); inputBlur()"
-                />
-                <span class="bip-field__error" v-if="$v.form.coinTo.$dirty && !$v.form.coinTo.required">Enter coin</span>
-                <span class="bip-field__error" v-if="$v.form.coinTo.$dirty && !$v.form.coinTo.minLength">Min 3 letters</span>
-                <span class="bip-field__error" v-if="$v.form.coinTo.$dirty && !$v.form.coinTo.maxLength">Max 10 letters</span>
-            </label>
+            <FieldCoinList v-model="form.coinTo" :$value="$v.form.coinTo" @blur="inputBlur()"/>
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.buyAmount.$error}">
                 <span class="bip-field__label">Amount</span>
                 <input class="bip-field__input" type="text" inputmode="numeric" ref="amountInput"
