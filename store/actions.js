@@ -1,5 +1,8 @@
 import * as TX_TYPES from 'minterjs-tx/src/tx-types';
-import {getBalance, getDelegation, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo} from "~/api";
+import {getBalance, getDelegation, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo, getCoinList} from "~/api";
+
+let activeCoinListPromise;
+let coinListTime = 0;
 
 export default {
     FETCH_PROFILE: ({ commit }) => {
@@ -86,5 +89,12 @@ export default {
                     commit('ADD_USER', userInfo);
                 });
             });
+    },
+    FETCH_COIN_LIST: () => {
+        if (Date.now() - coinListTime > 60 * 1000) {
+            activeCoinListPromise = getCoinList();
+            coinListTime = Date.now();
+        }
+        return activeCoinListPromise;
     },
 };
