@@ -75,6 +75,10 @@ export default {
     SET_BALANCE: (state, balance) => {
         state.balance = balance;
     },
+    SET_BALANCE_SUM: (state, balanceData) => {
+        state.balanceSum = balanceData.balanceSumInBaseCoin;
+        state.balanceSumUsd = balanceData.balanceSumInUSD;
+    },
     SET_DELEGATION: (state, delegation) => {
         state.delegation = delegation;
     },
