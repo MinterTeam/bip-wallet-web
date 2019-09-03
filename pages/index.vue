@@ -55,7 +55,7 @@
                     balance = Number(this.balanceSum) + Number(this.delegatedTotal);
                 } else if (this.balanceType === BALANCE_TOTAL_USD) {
                     const bipPrice = this.balanceSumUsd / this.balanceSum;
-                    balance = this.delegatedTotal * bipPrice + this.balanceSum;
+                    balance = this.delegatedTotal * bipPrice + Number(this.balanceSumUsd);
                 }
                 const parts = balance ? pretty(balance).split('.') : [];
                 return {
