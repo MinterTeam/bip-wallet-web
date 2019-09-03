@@ -44,15 +44,18 @@
                 'address',
                 'baseCoin',
             ]),
+            delegatedTotal() {
+                return this.delegation.meta ? this.delegation.meta.additional.total_delegated_bip_value : 0;
+            },
             balanceParts() {
                 let balance;
                 if (this.balanceType === BALANCE_AVAILABLE) {
                     balance = this.balanceSum;
                 } else if (this.balanceType === BALANCE_TOTAL) {
-                    balance = Number(this.balanceSum) + Number(this.delegation.meta.additional.total_delegated_bip_value);
+                    balance = Number(this.balanceSum) + Number(this.delegatedTotal);
                 } else if (this.balanceType === BALANCE_TOTAL_USD) {
                     const bipPrice = this.balanceSumUsd / this.balanceSum;
-                    balance = this.delegation.meta.additional.total_delegated_bip_value * bipPrice + this.balanceSum;
+                    balance = this.delegatedTotal * bipPrice + this.balanceSum;
                 }
                 const parts = balance ? pretty(balance).split('.') : [];
                 return {
@@ -141,7 +144,7 @@
             <img class="balance--delegated__icon" src="/img/icon-arrow-right.svg" alt="" role="presentation">
             <div class="balance__caption">Delegated</div>
             <div class="balance__value">
-                {{ delegation.meta.additional.total_delegated_bip_value | pretty }} {{ $store.getters.COIN_NAME }}
+                {{ delegatedTotal | pretty }} {{ $store.getters.COIN_NAME }}
             </div>
         </nuxt-link>
 
