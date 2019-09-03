@@ -4,7 +4,15 @@
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
+    const BALANCE_AVAILABLE = 1;
+    const BALANCE_TOTAL = 2;
+    const BALANCE_TOTAL_USD = 3;
+
     export default {
+        ideFix: null,
+        BALANCE_AVAILABLE,
+        BALANCE_TOTAL,
+        BALANCE_TOTAL_USD,
         components: {
             Layout,
             TransactionTable,
@@ -18,6 +26,7 @@
         },
         data() {
             return {
+                balanceType: BALANCE_AVAILABLE,
                 isTxListLoading: true,
                 isDelegationLoading: true,
             };
@@ -27,6 +36,8 @@
                 txList: (state) => state.transactionListInfo.data.slice(0, 5),
                 balance: 'balance',
                 delegation: 'delegation',
+                balanceSum: 'balanceSum',
+                balanceSumUsd: 'balanceSumUsd',
             }),
             ...mapGetters([
                 'username',
@@ -34,7 +45,16 @@
                 'baseCoin',
             ]),
             balanceParts() {
-                const parts = this.baseCoin ? pretty(this.baseCoin.amount).split('.') : [];
+                let balance;
+                if (this.balanceType === BALANCE_AVAILABLE) {
+                    balance = this.balanceSum;
+                } else if (this.balanceType === BALANCE_TOTAL) {
+                    balance = Number(this.balanceSum) + Number(this.delegation.meta.additional.total_delegated_bip_value);
+                } else if (this.balanceType === BALANCE_TOTAL_USD) {
+                    const bipPrice = this.balanceSumUsd / this.balanceSum;
+                    balance = this.delegation.meta.additional.total_delegated_bip_value * bipPrice + this.balanceSum;
+                }
+                const parts = balance ? pretty(balance).split('.') : [];
                 return {
                     whole:  parts[0] ? parts[0] : 0,
                     decimal: parts[1] ? '.' + parts[1] : '',
@@ -64,6 +84,13 @@
                 });
         },
         methods: {
+            changeBalanceType() {
+                if (this.balanceType === BALANCE_TOTAL_USD) {
+                    this.balanceType = BALANCE_AVAILABLE;
+                } else {
+                    this.balanceType += 1;
+                }
+            },
             getCoinIconUrl,
         },
     };
@@ -83,18 +110,31 @@
                         <div class="user__avatar avatar"
                              :style="{backgroundImage: `url('${$store.getters.avatar}')`}"
                         ></div>
-
                     </nuxt-link>
                 </div>
             </div>
         </template>
 
 
-        <div class="balance u-container">
-            <div class="balance__caption">My Balance</div>
-            <div class="balance__value">
-                <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
-            </div>
+        <div class="balance balance--toggle u-container" role="button" @click="changeBalanceType">
+            <template v-if="balanceType === $options.BALANCE_AVAILABLE">
+                <div class="balance__caption">Available Balance</div>
+                <div class="balance__value">
+                    <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
+                </div>
+            </template>
+            <template v-if="balanceType === $options.BALANCE_TOTAL">
+                <div class="balance__caption">Total Balance</div>
+                <div class="balance__value">
+                    <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
+                </div>
+            </template>
+            <template v-if="balanceType === $options.BALANCE_TOTAL_USD">
+                <div class="balance__caption">Total Balance</div>
+                <div class="balance__value">
+                    <span class="balance__whole">${{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }}</span>
+                </div>
+            </template>
         </div>
 
         <nuxt-link class="balance balance--delegated u-container no-link" to="/delegations" v-if="delegation.data && delegation.data.length">

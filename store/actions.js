@@ -64,9 +64,10 @@ export default {
     FETCH_BALANCE: ({ commit, getters }) => {
         // use only 1 address
         return getBalance(getters.address)
-            .then((balance) => {
-                commit('SET_BALANCE', balance);
-                return balance;
+            .then((balanceData) => {
+                commit('SET_BALANCE', balanceData.balances);
+                commit('SET_BALANCE_SUM', balanceData);
+                return balanceData.balances;
             });
     },
     FETCH_DELEGATION: ({ commit, getters }) => {
