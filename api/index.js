@@ -65,11 +65,15 @@ export function getAddressTransactionList(address, params = {}) {
 
 /**
  * @param addressHash
- * @return {Promise<Array<CoinItem>>}
+ * @return {Promise<BalanceData>}
  */
 export function getBalance(addressHash) {
-    return explorer.get('addresses/' + addressHash)
-        .then((response) => prepareBalance(response.data.data.balances));
+    return explorer.get('addresses/' + addressHash + '?withSum=true')
+        .then((response) => {
+            const data = response.data.data;
+            data.balances = prepareBalance(data.balances);
+            return data;
+        });
 }
 
 export function prepareBalance(balanceList) {
@@ -256,6 +260,13 @@ function markSecured(address) {
  * @property {boolean} isServerSecured
  * @property {string} [encrypted] - Encrypted mnemonic (if isServerSecured)
  * @property {string} [mnemonic] - Stored mnemonic (if not isServerSecured)
+ */
+
+/**
+ * @typedef {Object} BalanceData
+ * @property {string} balanceSumInBaseCoin
+ * @property {string} balanceSumInUSD
+ * @property {Array<CoinItem>} balances
  */
 
 /**

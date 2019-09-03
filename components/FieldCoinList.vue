@@ -99,7 +99,7 @@
         mounted() {
             this.$store.dispatch('FETCH_COIN_LIST')
                 .then((coinList) => {
-                    this.coinList = coinList;
+                    this.coinList = Object.freeze(coinList);
                 })
                 .catch((e) => {
                     console.log(e);
