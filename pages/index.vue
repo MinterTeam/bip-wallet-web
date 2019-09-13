@@ -26,7 +26,7 @@
         },
         data() {
             return {
-                balanceType: BALANCE_AVAILABLE,
+                balanceType: this.$store.state.balanceType || BALANCE_AVAILABLE,
                 isTxListLoading: true,
                 isDelegationLoading: true,
             };
@@ -36,8 +36,6 @@
                 txList: (state) => state.transactionListInfo.data.slice(0, 5),
                 balance: 'balance',
                 delegation: 'delegation',
-                balanceSum: 'balanceSum',
-                balanceSumUsd: 'balanceSumUsd',
             }),
             ...mapGetters([
                 'username',
@@ -50,12 +48,11 @@
             balanceParts() {
                 let balance;
                 if (this.balanceType === BALANCE_AVAILABLE) {
-                    balance = this.balanceSum;
+                    balance = this.$store.state.balanceSum;
                 } else if (this.balanceType === BALANCE_TOTAL) {
-                    balance = Number(this.balanceSum) + Number(this.delegatedTotal);
+                    balance = this.$store.state.totalBalanceSum;
                 } else if (this.balanceType === BALANCE_TOTAL_USD) {
-                    const bipPrice = this.balanceSumUsd / this.balanceSum;
-                    balance = this.delegatedTotal * bipPrice + Number(this.balanceSumUsd);
+                    balance = this.$store.state.totalBalanceSumUsd;
                 }
                 const parts = balance ? pretty(balance).split('.') : [];
                 return {
@@ -93,6 +90,7 @@
                 } else {
                     this.balanceType += 1;
                 }
+                this.$store.commit('SET_BALANCE_TYPE', this.balanceType);
             },
             getCoinIconUrl,
         },
