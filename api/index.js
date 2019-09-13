@@ -264,8 +264,10 @@ function markSecured(address) {
 
 /**
  * @typedef {Object} BalanceData
- * @property {string} balanceSumInBaseCoin
- * @property {string} balanceSumInUSD
+ * @property {string} total_balance_sum
+ * @property {string} total_balance_sum_usd
+ * @property {string} available_balance_sum
+ * @property {string} available_balance_sum_usd
  * @property {Array<CoinItem>} balances
  */
 
