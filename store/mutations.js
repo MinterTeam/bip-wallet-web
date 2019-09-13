@@ -76,8 +76,13 @@ export default {
         state.balance = balance;
     },
     SET_BALANCE_SUM: (state, balanceData) => {
-        state.balanceSum = balanceData.balanceSumInBaseCoin;
-        state.balanceSumUsd = balanceData.balanceSumInUSD;
+        state.balanceSum = balanceData.available_balance_sum;
+        state.balanceSumUsd = balanceData.available_balance_sum_usd;
+        state.totalBalanceSum = balanceData.total_balance_sum;
+        state.totalBalanceSumUsd = balanceData.total_balance_sum_usd;
+    },
+    SET_BALANCE_TYPE: (state, balanceType) => {
+        state.balanceType = balanceType;
     },
     SET_DELEGATION: (state, delegation) => {
         state.delegation = delegation;
