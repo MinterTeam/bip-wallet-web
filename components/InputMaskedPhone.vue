@@ -37,5 +37,5 @@
 </script>
 
 <template>
-    <input type="tel" inputmode="numeric" :value="phoneMasked" v-imask="imaskPhoneOptions" @accept="onAcceptPhone"/>
+    <input type="tel" :value="phoneMasked" v-imask="imaskPhoneOptions" @accept="onAcceptPhone"/>
 </template>
