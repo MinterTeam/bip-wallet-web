@@ -432,7 +432,7 @@
                 </label>
                 <label class="bip-field bip-field--row bip-field--with-max" :class="{'is-error': $v.form.amount.$error}">
                     <span class="bip-field__label">Amount</span>
-                    <input class="bip-field__input" type="text" inputmode="numeric" ref="amountInput"
+                    <input class="bip-field__input" type="text" inputmode="decimal" ref="amountInput"
                            :value="form.amount"
                            v-imask="amountImaskOptions"
                            @accept="onAcceptAmount"
