@@ -261,6 +261,8 @@
                 // this.amountMasked = this.maxAmount;
                 // update maskRef state
                 this.$refs.amountInput.maskRef.typedValue = this.maxAmount;
+                const cursorPos = this.maxAmount.toString().length;
+                this.$refs.amountInput.maskRef._selection = {start: cursorPos, end: cursorPos};
                 // use sellAllTx if "Use max" button pressed
                 this.isUseMax = true;
             },
@@ -292,7 +294,6 @@
             <label class="bip-field bip-field--row bip-field--with-max" :class="{'is-error': $v.form.sellAmount.$error}">
                 <span class="bip-field__label">Amount</span>
                 <input class="bip-field__input" type="text" inputmode="decimal" ref="amountInput"
-                       :value="form.sellAmount"
                        v-imask="amountImaskOptions"
                        @accept="onAcceptAmount"
                        @blur="$v.form.sellAmount.$touch(); inputBlur()"
