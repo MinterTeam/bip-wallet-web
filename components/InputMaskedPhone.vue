@@ -23,13 +23,21 @@
                         }
                     },
                 },
-                phoneMasked: this.initialValue,
+                // phoneMasked: this.initialValue,
             };
         },
+        mounted() {
+            this.updateMaskState(this.initialValue);
+        },
         methods: {
+            updateMaskState(value) {
+                this.$refs.maskInput.maskRef.typedValue = value;
+                const maskedValue = this.$refs.maskInput.maskRef._value;
+                const cursorPos = maskedValue.length;
+                this.$refs.maskInput.maskRef._selection = {start: cursorPos, end: cursorPos};
+            },
             onAcceptPhone(e) {
-                this.phoneMasked = e.detail._value;
-                e.detail._unmaskedValue = '+' + this.phoneMasked.replace(/\D/g, '');
+                e.detail._unmaskedValue = '+' + e.detail._value.replace(/\D/g, '');
                 this.$emit('accept', e);
             },
         },
@@ -37,5 +45,5 @@
 </script>
 
 <template>
-    <input type="tel" :value="phoneMasked" v-imask="imaskPhoneOptions" @accept="onAcceptPhone"/>
+    <input type="tel" ref="maskInput" v-imask="imaskPhoneOptions" @accept="onAcceptPhone"/>
 </template>

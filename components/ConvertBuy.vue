@@ -221,7 +221,6 @@
             <label class="bip-field bip-field--row" :class="{'is-error': $v.form.buyAmount.$error}">
                 <span class="bip-field__label">Amount</span>
                 <input class="bip-field__input" type="text" inputmode="decimal" ref="amountInput"
-                       :value="form.buyAmount"
                        v-imask="amountImaskOptions"
                        @accept="onAcceptAmount"
                        @blur="$v.form.buyAmount.$touch(); inputBlur()"
