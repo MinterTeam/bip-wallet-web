@@ -4,13 +4,13 @@
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
-    const BALANCE_AVAILABLE = 1;
+    const BALANCE_BIP = 1;
     const BALANCE_TOTAL = 2;
     const BALANCE_TOTAL_USD = 3;
 
     export default {
         ideFix: null,
-        BALANCE_AVAILABLE,
+        BALANCE_BIP,
         BALANCE_TOTAL,
         BALANCE_TOTAL_USD,
         components: {
@@ -26,7 +26,7 @@
         },
         data() {
             return {
-                balanceType: this.$store.state.balanceType || BALANCE_AVAILABLE,
+                balanceType: this.$store.state.balanceType || BALANCE_BIP,
                 isTxListLoading: true,
                 isDelegationLoading: true,
             };
@@ -47,8 +47,8 @@
             },
             balanceParts() {
                 let balance;
-                if (this.balanceType === BALANCE_AVAILABLE) {
-                    balance = this.$store.state.balanceSum;
+                if (this.balanceType === BALANCE_BIP) {
+                    balance = this.baseCoin ? this.baseCoin.amount : 0;
                 } else if (this.balanceType === BALANCE_TOTAL) {
                     balance = this.$store.state.totalBalanceSum;
                 } else if (this.balanceType === BALANCE_TOTAL_USD) {
@@ -86,7 +86,7 @@
         methods: {
             changeBalanceType() {
                 if (this.balanceType === BALANCE_TOTAL_USD) {
-                    this.balanceType = BALANCE_AVAILABLE;
+                    this.balanceType = BALANCE_BIP;
                 } else {
                     this.balanceType += 1;
                 }
@@ -118,8 +118,8 @@
 
 
         <div class="balance balance--toggle u-container" role="button" @click="changeBalanceType">
-            <template v-if="balanceType === $options.BALANCE_AVAILABLE">
-                <div class="balance__caption">Available Balance</div>
+            <template v-if="balanceType === $options.BALANCE_BIP">
+                <div class="balance__caption">{{ $store.getters.COIN_NAME }} Balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
                 </div>
