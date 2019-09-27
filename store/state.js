@@ -15,8 +15,6 @@ export default function() {
         profileAddressList: [],
         /** @type Array<CoinItem> */
         balance: [],
-        balanceSum: '0',
-        balanceSumUsd: '0',
         totalBalanceSum: '0',
         totalBalanceSumUsd: '0',
         balanceType: 0,

@@ -45,5 +45,5 @@
 </script>
 
 <template>
-    <input type="text" autocapitalize="off" ref="maskInput" v-imask="imaskNameOptions" @accept="onAcceptUsername"/>
+    <input type="text" autocapitalize="off" spellcheck="false" ref="maskInput" v-imask="imaskNameOptions" @accept="onAcceptUsername"/>
 </template>
