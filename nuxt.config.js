@@ -136,6 +136,7 @@ module.exports = {
             /es6-promise|\.(?!(?:js|json)$).{1,5}$/i,
             '/base-x/',
             'date-fns/esm',
+            'vue-simple-suggest/dist/es7',
             'lodash-es',
             // 'nuxt-i18n/src',
             'v-file-input/src',
