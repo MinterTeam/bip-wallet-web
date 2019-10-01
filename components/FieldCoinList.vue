@@ -2,7 +2,7 @@
     import VueSimpleSuggest from 'vue-simple-suggest/dist/es7';
     import InputUppercase from '~/components/InputUppercase';
 
-    const MAX_ITEM_COUNT = 6;
+    const MAX_ITEM_COUNT = 5;
 
     export default {
         inheritAttrs: false,
