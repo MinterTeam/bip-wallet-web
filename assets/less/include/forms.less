@@ -125,10 +125,10 @@
     .bip-field__input {padding-right: 77px;}
 }
 .bip-field__input {
-    padding: 10px 26px 10px 16px; margin-top: 7px; font-size: 16px; line-height: 22px; color: inherit; background: #fff; border: 2px solid tint(@c-black-light, 60%); transition: 0.2s; display: block; width: 100%; pointer-events: auto; border-radius: 8px; min-height: 46px; background-clip: padding-box; /* remove ios safari box shadow */
+    padding: 10px 26px 10px 16px; margin-top: 7px; font-size: 16px; line-height: 22px; color: @c-black; background: #fff; border: 2px solid @c-border; transition: 0.2s; display: block; width: 100%; pointer-events: auto; border-radius: 8px; min-height: 46px; background-clip: padding-box; /* remove ios safari box shadow */
     &:focus {border-color: @c-main;}
-    .is-success > & {border-color: @c-green;}
-    .is-error > & {border-color: @c-red;}
+    .is-success & {border-color: @c-green;}
+    .is-error & {border-color: @c-red;}
 }
 .field-label-text() {font-size: 12px; /*line-height: 16px;*/ text-transform: uppercase; font-weight: 500;}
 .bip-field__label {

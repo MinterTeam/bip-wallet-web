@@ -3,6 +3,7 @@
 @import "include/utils";
 @import (inline) "../css/onsen.css";
 @import "include/onsen";
+@import "include/suggest";
 @import "include/general";
 @import "include/forms";
 @import "include/modal";
@@ -89,11 +90,11 @@
 .default-layout {overflow-y: scroll;}
 .default-layout__container {min-height: 100vh; display: flex; flex-direction: column;}
 .default-layout__content-wrap {flex-grow: 2; /*overflow-y: auto;*/ /* breaks ios safari modal */ display: flex;}
-.default-layout__content {width: 100%; background: @c-bg;}
+.default-layout__content {width: 100%; background: @c-bg; overflow: hidden;}
 @media (min-width: @breakpoint-medium-up) {
     .default-layout__content-wrap {display: block;}
     .default-layout__content {
-        max-width: 375px; overflow: hidden; margin: @section-margin auto; border-radius: 10px; border: 1px solid @c-border; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        max-width: 375px; margin: @section-margin auto; border-radius: 10px; border: 1px solid @c-border; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         // this breaks chrome and safari send modal @TODO move modal to portal
         // fix safari overflow not working with <ons-tabbar>
         /*position: relative; z-index: 1;*/
