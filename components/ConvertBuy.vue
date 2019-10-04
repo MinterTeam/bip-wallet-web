@@ -178,6 +178,11 @@
                     return;
                 }
 
+                if (this.$v.$invalid) {
+                    this.$v.$touch();
+                    return;
+                }
+
                 this.isFormSending = true;
                 this.serverError = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
