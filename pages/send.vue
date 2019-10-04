@@ -329,6 +329,11 @@
                     return;
                 }
 
+                if (this.$v.$invalid) {
+                    this.$v.$touch();
+                    return;
+                }
+
                 this.lastRecipient = Object.assign({}, this.recipient);
                 this.isFormSending = true;
                 this.isModalOpen = false;
