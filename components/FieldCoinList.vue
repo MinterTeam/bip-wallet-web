@@ -29,6 +29,7 @@
             return {
                 /** @type Array<string> */
                 coinList: [],
+                innerValue: this.value,
             };
         },
         computed: {
@@ -36,6 +37,16 @@
             listeners() {
                 const { input, ...listeners } = this.$listeners;
                 return listeners;
+            },
+        },
+        watch: {
+            value(newVal) {
+                // update suggestion list data on external value change
+                if (newVal !== this.innerValue) {
+                    this.$refs.suggest.clearSuggestions();
+                    // this.$nextTick();
+                    this.innerValue = newVal;
+                }
             },
         },
         mounted() {
@@ -81,7 +92,7 @@
                 :filter-by-query="true"
                 :filter="filter"
                 :destyled="true"
-                @input="$emit('input', $event)"
+                @input="innerValue = $event; $emit('input', $event)"
                 @blur="$value.$touch(); $emit('blur')"
                 @keydown.tab="handleTab"
                 @suggestion-click="handleSuggestionClick"
