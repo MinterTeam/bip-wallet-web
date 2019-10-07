@@ -1,6 +1,7 @@
 // register env before other imports @see https://www.npmjs.com/package/dotenv#how-do-i-use-dotenv-with-import-
 import 'dotenv/config';
 import dotenv from 'dotenv';
+import webpack from 'webpack';
 
 const envConfig = dotenv.config();
 const envConfigParsed = envConfig.error ? {} : envConfig.parsed;
@@ -119,6 +120,7 @@ module.exports = {
         author: 'Minter',
         favicon: false,
     },
+    modern: 'client',
     /*
     ** Build configuration
     */
@@ -127,8 +129,36 @@ module.exports = {
             './api/',
             // `./lang/`, // this watcher dont-work yet
         ],
+        extend(config, { isDev, isClient, isServer }) {
+            /*
+            ** Run ESLint on save
+            */
+            // if (isDev && isClient) {
+            //     config.module.rules.push({
+            //         enforce: 'pre',
+            //         test: /\.(js|vue)$/,
+            //         loader: 'eslint-loader',
+            //         exclude: /(node_modules)/,
+            //     });
+            // }
+            if (!config.resolve) {
+                config.resolve = {};
+            }
+            config.resolve.mainFields =  ['module', 'browser', 'main'];
+        },
+        plugins: [
+            new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+        ],
         babel: {
-            presets: ['@nuxt/babel-preset-app'],
+            presets: [
+                [
+                    '@nuxt/babel-preset-app',
+                    {
+                        // targets: isServer ? { node: '10' } : { ie: '11' },
+                        corejs: { version: 3 },
+                    },
+                ],
+            ],
             // prevent @babel/plugin-transform-runtime from inserting `import` statement into commonjs files (bc. it breaks webpack)
             sourceType: 'unambiguous',
         },
@@ -137,6 +167,10 @@ module.exports = {
             '/base-x/',
             'date-fns/esm',
             'vue-simple-suggest/dist/es7',
+            'vue-simple-suggest/lib',
+            'centrifuge/src',
+            'autonumeric/src',
+            'vue-autonumeric/src',
             'lodash-es',
             // 'nuxt-i18n/src',
             'v-file-input/src',
