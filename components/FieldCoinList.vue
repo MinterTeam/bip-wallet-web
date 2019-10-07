@@ -1,5 +1,5 @@
 <script>
-    import VueSimpleSuggest from 'vue-simple-suggest/dist/es7';
+    import VueSimpleSuggest from 'vue-simple-suggest/lib/vue-simple-suggest';
     import InputUppercase from '~/components/InputUppercase';
 
     const MAX_ITEM_COUNT = 5;
@@ -92,6 +92,7 @@
                 :filter-by-query="true"
                 :filter="filter"
                 :destyled="true"
+                :controls="{showList: [38, 40]}"
                 @input="innerValue = $event; $emit('input', $event)"
                 @blur="$value.$touch(); $emit('blur')"
                 @keydown.tab="handleTab"
