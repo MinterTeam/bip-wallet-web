@@ -44,7 +44,6 @@
                 // update suggestion list data on external value change
                 if (newVal !== this.innerValue) {
                     this.$refs.suggest.clearSuggestions();
-                    // this.$nextTick();
                     this.innerValue = newVal;
                 }
             },
