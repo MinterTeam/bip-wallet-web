@@ -24,12 +24,16 @@
             //     type: String,
             //     required: true,
             // },
+            /** @type Array */
+            coinList: {
+                type: Array,
+                default: () => [],
+            },
         },
         data() {
             return {
                 /** @type Array<string> */
-                coinList: [],
-                innerValue: this.value,
+                coinListAll: [],
             };
         },
         computed: {
@@ -38,20 +42,14 @@
                 const { input, ...listeners } = this.$listeners;
                 return listeners;
             },
-        },
-        watch: {
-            value(newVal) {
-                // update suggestion list data on external value change
-                if (newVal !== this.innerValue) {
-                    this.$refs.suggest.clearSuggestions();
-                    this.innerValue = newVal;
-                }
+            currentCoinList() {
+                return this.coinList && this.coinList.length ? this.coinList : this.coinListAll;
             },
         },
         mounted() {
             this.$store.dispatch('FETCH_COIN_LIST')
-                .then((coinList) => {
-                    this.coinList = Object.freeze(coinList.map((item) => item.symbol));
+                .then((coinListAll) => {
+                    this.coinListAll = Object.freeze(coinListAll.map((item) => item.symbol));
                 })
                 .catch((e) => {
                     console.log(e);
@@ -64,11 +62,6 @@
                 }
                 // keep only values started with query (e.g. remove "WALLET" for "LET" search)
                 return item.indexOf(query) === 0;
-            },
-            handleTab() {
-                if (this.$refs.suggest.hovered) {
-                    this.$refs.suggest.select(this.$refs.suggest.hovered);
-                }
             },
             handleSuggestionClick(item, e) {
                 // prevent reopen suggestion list by parent label click
@@ -85,23 +78,22 @@
         <span class="bip-field__label">Coin you want</span>
         <VueSimpleSuggest
                 :value="value"
-                :list="coinList"
+                :list="currentCoinList"
                 :max-suggestions="$options.MAX_ITEM_COUNT"
                 :min-length="0"
                 :filter-by-query="true"
                 :filter="filter"
                 :destyled="true"
                 :controls="{showList: [38, 40]}"
-                @input="innerValue = $event; $emit('input', $event)"
+                @input="$emit('input', $event)"
                 @blur="$value.$touch(); $emit('blur')"
-                @keydown.tab="handleTab"
                 @suggestion-click="handleSuggestionClick"
                 ref="suggest"
         >
-            <InputUppercase class="bip-field__input" type="text"
-                            v-bind="$attrs"
-                            :value="value"
-                            @keydown.tab="handleTab"
+            <InputUppercase
+                    class="bip-field__input" type="text"
+                    v-bind="$attrs"
+                    :value="value"
             />
         </VueSimpleSuggest>
         <span class="bip-field__error" v-if="$value.$dirty && !$value.required">Enter coin</span>
