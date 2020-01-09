@@ -1,4 +1,4 @@
-import * as TX_TYPES from 'minterjs-tx/src/tx-types';
+import {TX_TYPE} from 'minterjs-tx/src/tx-types';
 import {getBalance, getDelegation, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo, getCoinList} from "~/api";
 
 let activeCoinListPromise;
@@ -48,7 +48,7 @@ export default {
                 }
                 // fetch avatars and usernames for addresses found in txs
                 const addressListToFetch = txListInfo.data.reduce((accum, tx) => {
-                    if (tx.type === Number(TX_TYPES.TX_TYPE_SEND)) {
+                    if (tx.type === Number(TX_TYPE.SEND)) {
                         if (tx.data.to === getters.address) {
                             accum.add(tx.from);
                         } else {

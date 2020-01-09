@@ -138,7 +138,7 @@ gulp.task('default', gulp.series(
                 del(paths.dest.img + path.basename(event.path));
             }
         });
-    }
+    },
 ));
 
 

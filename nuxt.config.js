@@ -21,7 +21,8 @@ function prepareCSP(env, keyFilter) {
     const filtered = filteredKeys.map((key) => env[key]);
 
     const parsed = filtered.map((item) => {
-        const hostname = item.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\?.*$/, '');
+        // remove scheme, remove path, remove query
+        const hostname = item.replace(/^\w+:\/\//, '').replace(/\/.*$/, '').replace(/\?.*$/, '');
         // const domainParts = hostname.split('.');
         // const topLevelDomain = domainParts[domainParts.length - 2] + '.' + domainParts[domainParts.length - 1];
         // if (topLevelDomain !== hostname) {
@@ -158,6 +159,9 @@ module.exports = {
                         corejs: { version: 3 },
                     },
                 ],
+            ],
+            plugins: [
+                '@babel/plugin-proposal-optional-chaining',
             ],
             // prevent @babel/plugin-transform-runtime from inserting `import` statement into commonjs files (bc. it breaks webpack)
             sourceType: 'unambiguous',

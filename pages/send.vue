@@ -9,7 +9,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
     import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
-    import {TX_TYPE_SEND, TX_TYPE_DELEGATE} from 'minterjs-tx/src/tx-types';
+    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
     import {postTx} from '~/api/gate';
     import FeeBus from '~/assets/fee';
@@ -150,7 +150,7 @@
             },
             feeBusParams() {
                 return {
-                    txType: this.recipient.type === 'publicKey' ? TX_TYPE_DELEGATE : TX_TYPE_SEND,
+                    txType: this.recipient.type === 'publicKey' ? TX_TYPE.DELEGATE : TX_TYPE.SEND,
                     txFeeOptions: {payload: this.form.message},
                     selectedCoinSymbol: this.form.coinSymbol,
                     // selectedFeeCoinSymbol: this.form.feeCoinSymbol,

@@ -11,7 +11,7 @@
     import decode from 'entity-decode';
     import SellTxParams from "minter-js-sdk/src/tx-params/convert-sell";
     import SellAllTxParams from "minter-js-sdk/src/tx-params/convert-sell-all";
-    import {TX_TYPE_SELL} from 'minterjs-tx/src/tx-types';
+    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
     import {postTx, estimateCoinSell} from '~/api/gate';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
@@ -123,7 +123,7 @@
             },
             feeBusParams() {
                 return {
-                    txType: TX_TYPE_SELL,
+                    txType: TX_TYPE.SELL,
                     txFeeOptions: {payload: this.form.message},
                     selectedCoinSymbol: this.form.coinFrom,
                     // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
