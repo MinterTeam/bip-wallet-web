@@ -102,7 +102,7 @@ export function shortHashFilter(value, endLength = 6, minLengthToShort) {
  * @return {string}
  */
 export function txTypeFilter(value) {
-    let name = txTypeList[value].name; // get type name
+    let name = txTypeList[Number(value)].name; // get type name
     name = name.charAt(0).toUpperCase() + name.slice(1); // capitalize the first letter
     return name;
 }

@@ -1,6 +1,6 @@
 <script>
     import Big from 'big.js';
-    import * as TX_TYPES from 'minterjs-tx/src/tx-types';
+    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
     import {EXPLORER_HOST} from "~/assets/variables";
     import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter, fromBase64} from "~/assets/utils";
 
@@ -57,16 +57,16 @@
                 return EXPLORER_HOST + '/transactions/' + hash;
             },
             isSend(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_SEND);
+                return tx.type === Number(TX_TYPE.SEND);
             },
             isCreateCoin(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_CREATE_COIN);
+                return tx.type === Number(TX_TYPE.CREATE_COIN);
             },
             isSell(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_SELL) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL);
+                return tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL);
             },
             isBuy(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_BUY);
+                return tx.type === Number(TX_TYPE.BUY);
             },
             isExchange(tx) {
                 return this.isSell(tx) || this.isBuy(tx);
@@ -75,19 +75,19 @@
                 return this.isValidate(tx) || this.isDelegate(tx) || this.isUnbond(tx);
             },
             isUnbond(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_UNBOND);
+                return tx.type === Number(TX_TYPE.UNBOND);
             },
             isDelegate(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_DELEGATE);
+                return tx.type === Number(TX_TYPE.DELEGATE);
             },
             isRedeem(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_REDEEM_CHECK);
+                return tx.type === Number(TX_TYPE.REDEEM_CHECK);
             },
             isValidate(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_DECLARE_CANDIDACY) || tx.type === Number(TX_TYPES.TX_TYPE_EDIT_CANDIDATE) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_OFF) || tx.type === Number(TX_TYPES.TX_TYPE_SET_CANDIDATE_ON);
+                return tx.type === Number(TX_TYPE.DECLARE_CANDIDACY) || tx.type === Number(TX_TYPE.EDIT_CANDIDATE) || tx.type === Number(TX_TYPE.SET_CANDIDATE_OFF) || tx.type === Number(TX_TYPE.SET_CANDIDATE_ON);
             },
             isMultisend(tx) {
-                return tx.type === Number(TX_TYPES.TX_TYPE_MULTISEND);
+                return tx.type === Number(TX_TYPE.MULTISEND);
             },
             isIncomeSend(tx) {
                 return this.$store.getters.address === tx.data.to;
@@ -157,18 +157,18 @@
                 }
             },
             getConvertCoinSymbol(tx) {
-                if (tx.type === Number(TX_TYPES.TX_TYPE_SELL) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL)) {
+                if (tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL)) {
                     return tx.data.coin_to_sell;
                 }
-                if (tx.type === Number(TX_TYPES.TX_TYPE_BUY)) {
+                if (tx.type === Number(TX_TYPE.BUY)) {
                     return tx.data.coin_to_buy;
                 }
             },
             getConvertValue(tx) {
-                if (tx.type === Number(TX_TYPES.TX_TYPE_SELL) || tx.type === Number(TX_TYPES.TX_TYPE_SELL_ALL)) {
+                if (tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL)) {
                     return tx.data.value_to_sell;
                 }
-                if (tx.type === Number(TX_TYPES.TX_TYPE_BUY)) {
+                if (tx.type === Number(TX_TYPE.BUY)) {
                     return tx.data.value_to_buy;
                 }
             },

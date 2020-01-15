@@ -8,7 +8,15 @@ const envConfigParsed = envConfig.error ? {} : envConfig.parsed;
 
 import {BASE_TITLE, BASE_DESCRIPTION} from "./assets/variables";
 
-const NUXT_LOADING_INLINE_SCRIPT_SHA = process.env === 'production' ? 'tempUn1btibnrWwQxEk37lMGV1Nf8FO/GXxNhLEsPdg=' : 'boxyvYX4ButGhwNqfdpXtx/7RJdIvBO4KMxG+v2zKFo=';
+const NUXT_LOADING_INLINE_SCRIPT_SHA = process.env.NODE_ENV === 'production'
+    ? [
+        'tempUn1btibnrWwQxEk37lMGV1Nf8FO/GXxNhLEsPdg=',
+        'G5gTuBIY0B0A928ho6zDtB8xjEJUVQzb8RILYuCebLE=',
+    ]
+    : [
+        '9VDmhXS8/iybLLyD3tql7v7NU5hn5+qvu9RRG41mugM=',
+        'G5gTuBIY0B0A928ho6zDtB8xjEJUVQzb8RILYuCebLE=',
+    ];
 
 /**
  * prepare CSP string from env config
@@ -21,7 +29,8 @@ function prepareCSP(env, keyFilter) {
     const filtered = filteredKeys.map((key) => env[key]);
 
     const parsed = filtered.map((item) => {
-        const hostname = item.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\?.*$/, '');
+        // remove path, remove query
+        const hostname = item.replace(/(\w)\/.*$/, '$1').replace(/\?.*$/, '');
         // const domainParts = hostname.split('.');
         // const topLevelDomain = domainParts[domainParts.length - 2] + '.' + domainParts[domainParts.length - 1];
         // if (topLevelDomain !== hostname) {
@@ -45,6 +54,9 @@ const connectCSP = prepareCSP(envConfigParsed, (item) => {
 const imageCSP = prepareCSP(envConfigParsed, (item) => {
     return item === 'APP_ACCOUNTS_API_URL';
 });
+const scriptCSP = NUXT_LOADING_INLINE_SCRIPT_SHA.map((item) => {
+    return `'sha256-${item}'`;
+}).join(' ');
 
 
 module.exports = {
@@ -58,7 +70,7 @@ module.exports = {
             { name: 'viewport', content: 'width=device-width, initial-scale=1' },
             { 'http-equiv': 'Content-Security-Policy', content: `
                     default-src 'self' ${connectCSP};
-                    script-src 'self' 'sha256-${NUXT_LOADING_INLINE_SCRIPT_SHA}' 'unsafe-eval';
+                    script-src 'self' ${scriptCSP} 'unsafe-eval';
                     style-src 'self' 'unsafe-inline';
                     img-src 'self' ${imageCSP} data:;
                     font-src 'self' data:;
@@ -158,6 +170,9 @@ module.exports = {
                         corejs: { version: 3 },
                     },
                 ],
+            ],
+            plugins: [
+                '@babel/plugin-proposal-optional-chaining',
             ],
             // prevent @babel/plugin-transform-runtime from inserting `import` statement into commonjs files (bc. it breaks webpack)
             sourceType: 'unambiguous',
