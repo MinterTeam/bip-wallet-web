@@ -99,7 +99,6 @@
                 fee: {},
                 isUseMax: false,
                 isModalOpen: false,
-                isWaitModalOpen: false,
                 isSuccessModalOpen: false,
             };
         },
@@ -337,7 +336,6 @@
                 this.lastRecipient = Object.assign({}, this.recipient);
                 this.isFormSending = true;
                 this.isModalOpen = false;
-                this.isWaitModalOpen = true;
                 this.serverError = '';
                 this.serverSuccess = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
@@ -361,20 +359,17 @@
 
                         postTx(txParams).then((txHash) => {
                             this.isFormSending = false;
-                            this.isWaitModalOpen = false;
                             this.isSuccessModalOpen = true;
                             this.serverSuccess = txHash;
                             this.clearForm();
                         }).catch((error) => {
                             console.log(error);
                             this.isFormSending = false;
-                            this.isWaitModalOpen = false;
                             this.serverError = getErrorText(error);
                         });
                     })
                     .catch((error) => {
                         this.isFormSending = false;
-                        this.isWaitModalOpen = false;
                         this.serverError = getErrorText(error);
                     });
             },
@@ -512,7 +507,7 @@
         </Modal>
 
         <!-- wait modal -->
-        <Modal :isOpen.sync="isWaitModalOpen" :hideCloseButton="true">
+        <Modal :isOpen.sync="isFormSending" :hideCloseButton="true">
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">Please wait</h3>
                 <div class="modal__content">
