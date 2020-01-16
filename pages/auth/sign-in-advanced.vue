@@ -19,7 +19,10 @@
         },
         methods: {
             authorize() {
-                this.$router.push('/');
+                // redirect
+                const authRedirectPath = this.$store.state.authRedirectPath || '/';
+                this.$store.commit('SET_AUTH_REDIRECT_PATH', '');
+                this.$router.push(authRedirectPath);
             },
         },
     };

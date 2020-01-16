@@ -86,6 +86,9 @@ export default {
         state.delegation = delegation;
     },
     ADD_USER,
+    SET_AUTH_REDIRECT_PATH: (state, authRedirectPath) => {
+        state.authRedirectPath = authRedirectPath;
+    },
     PUSH_HISTORY: (state, historyItem) => {
         state.history.push(historyItem);
     },

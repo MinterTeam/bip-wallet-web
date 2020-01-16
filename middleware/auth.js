@@ -8,6 +8,7 @@ export default function({store, route, redirect, error}) {
 
     const urlRequiresAuth = [
         /^\/$/,
+        /^\/tx(\/|$)/,
         /^\/transactions(\/|$)/,
         /^\/send(\/|$)/,
         /^\/receive(\/|$)/,
@@ -26,6 +27,7 @@ export default function({store, route, redirect, error}) {
 
     if (!store.getters.isAuthorized && urlRequiresAuth) {
         console.log('-- restricted: redirect to auth');
+        store.commit('SET_AUTH_REDIRECT_PATH', route.fullPath);
         return redirect('/auth');
     }
     if (store.getters.isAuthorized && urlRequiresNonAuth) {
