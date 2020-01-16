@@ -26,16 +26,26 @@
             prettyExact,
             txType: txTypeFilter,
         },
-        asyncData({error, store}) {
-            try {
-                //@TODO ensure privateKey
-                var tx = decodeLink(window.location.href, store.getters.privateKey);
-            } catch (e) {
-                console.log(e);
-                error({statusCode: 404, message: 'Invalid transaction specified'});
-            }
-
-            return {tx};
+        asyncData({error, store, route}) {
+            return new Promise((resolve, reject) => {
+                var tx = decodeLink(route.fullPath);
+                resolve({tx});
+            })
+                .catch((e) => {
+                    if (e.message === 'privateKey param required if link has password') {
+                        return store.dispatch('FETCH_ADDRESS_ENCRYPTED');
+                    } else {
+                        throw e;
+                    }
+                })
+                .then(() => {
+                    var tx = decodeLink(route.fullPath, store.getters.privateKey);
+                    return {tx};
+                })
+                .catch((e) => {
+                    console.log(e);
+                    error({statusCode: 404, message: 'Invalid transaction specified'});
+                });
         },
         head() {
             return {
