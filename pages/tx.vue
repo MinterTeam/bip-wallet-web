@@ -100,10 +100,12 @@
                         value: data.coinToBuy,
                     });
                     fields.push({
-                        label: 'Minimum value to get',
-                        value: data.minimumValueToBuy,
+                        label: 'Limit min value to get',
+                        value: data.minimumValueToBuy + ' ' + data.coinToBuy,
                     });
                 }
+                console.log(isBuy(tx));
+                console.log(TX_TYPE);
                 // BUY
                 if (isBuy(tx)) {
                     fields.push({
@@ -115,8 +117,8 @@
                         value: data.coinToSell,
                     });
                     fields.push({
-                        label: 'Maximum value to spend',
-                        value: data.maximumValueToSell,
+                        label: 'Limit max value to spend',
+                        value: data.maximumValueToSell + ' ' + data.coinToSell,
                     });
                 }
                 // CREATE_COIN
@@ -286,13 +288,13 @@
         return typeof value !== 'undefined';
     }
     function isSell(tx) {
-        return tx.type === TX_TYPE.TX_TYPE_SELL || tx.type === TX_TYPE.TX_TYPE_SELL_ALL;
+        return tx.type === TX_TYPE.SELL || tx.type === TX_TYPE.SELL_ALL;
     }
     function isBuy(tx) {
-        return tx.type === TX_TYPE.TX_TYPE_BUY;
+        return tx.type === TX_TYPE.BUY;
     }
     function isStake(tx) {
-        return tx.type === TX_TYPE.TX_TYPE_UNBOND || tx.type === TX_TYPE.TX_TYPE_DELEGATE || tx.type === TX_TYPE.TX_TYPE_DECLARE_CANDIDACY;
+        return tx.type === TX_TYPE.UNBOND || tx.type === TX_TYPE.DELEGATE || tx.type === TX_TYPE.DECLARE_CANDIDACY;
     }
 
 </script>
@@ -329,6 +331,8 @@
                     >
                 </div>
             </div>
+
+            <!--@TODO convert result approximation-->
 
             <div class="list">
                 <a class="list-item">
