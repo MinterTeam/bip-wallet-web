@@ -9,7 +9,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import SendTxParams from "minter-js-sdk/src/tx-params/send";
     import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
-    import {TX_TYPE_SEND, TX_TYPE_DELEGATE} from 'minterjs-tx/src/tx-types';
+    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
     import {getAddressInfoByContact} from "~/api";
     import {postTx} from '~/api/gate';
     import FeeBus from '~/assets/fee';
@@ -99,7 +99,6 @@
                 fee: {},
                 isUseMax: false,
                 isModalOpen: false,
-                isWaitModalOpen: false,
                 isSuccessModalOpen: false,
             };
         },
@@ -150,7 +149,7 @@
             },
             feeBusParams() {
                 return {
-                    txType: this.recipient.type === 'publicKey' ? TX_TYPE_DELEGATE : TX_TYPE_SEND,
+                    txType: this.recipient.type === 'publicKey' ? TX_TYPE.DELEGATE : TX_TYPE.SEND,
                     txFeeOptions: {payload: this.form.message},
                     selectedCoinSymbol: this.form.coinSymbol,
                     // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
@@ -339,7 +338,6 @@
                 this.lastRecipient = Object.assign({}, this.recipient);
                 this.isFormSending = true;
                 this.isModalOpen = false;
-                this.isWaitModalOpen = true;
                 this.serverError = '';
                 this.serverSuccess = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
@@ -363,20 +361,17 @@
 
                         postTx(txParams).then((txHash) => {
                             this.isFormSending = false;
-                            this.isWaitModalOpen = false;
                             this.isSuccessModalOpen = true;
                             this.serverSuccess = txHash;
                             this.clearForm();
                         }).catch((error) => {
                             console.log(error);
                             this.isFormSending = false;
-                            this.isWaitModalOpen = false;
                             this.serverError = getErrorText(error);
                         });
                     })
                     .catch((error) => {
                         this.isFormSending = false;
-                        this.isWaitModalOpen = false;
                         this.serverError = getErrorText(error);
                     });
             },
@@ -514,7 +509,7 @@
         </Modal>
 
         <!-- wait modal -->
-        <Modal :isOpen.sync="isWaitModalOpen" :hideCloseButton="true">
+        <Modal :isOpen.sync="isFormSending" :hideCloseButton="true">
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">Please wait</h3>
                 <div class="modal__content">

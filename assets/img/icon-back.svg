@@ -1,14 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="14px" height="24px" viewBox="0 0 14 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
-    <title>Shape</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="UI/Top-Bar/Top-Bar/Overrides/Left/Back" transform="translate(-8.000000, -10.000000)" fill="#FFFFFF" fill-rule="nonzero">
-            <g id="Group" transform="translate(8.000000, 10.000000)">
-                <polygon id="Shape" points="11.6875 0.28125 0.6875 11.28125 0 12 0.6875 12.71875 11.6875 23.71875 13.125 22.28125 2.84375 12 13.125 1.71875"></polygon>
-            </g>
-        </g>
-    </g>
+<svg width="14" height="24" viewBox="0 0 14 24" xmlns="http://www.w3.org/2000/svg" fill="#FFF">
+    <path d="M11.6875.2813l-11 11L0 12l.6875.7188 11 11 1.4375-1.4376L2.8437 12 13.125 1.7187z"/>
 </svg>

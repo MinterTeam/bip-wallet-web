@@ -77,7 +77,10 @@
                         // clear old format stored data
                         this.$store.commit('LOGOUT');
                         this.$store.commit('SET_AUTH_PROFILE', authData);
-                        this.$router.push('/');
+                        // redirect
+                        const authRedirectPath = this.$store.state.authRedirectPath || '/';
+                        this.$store.commit('SET_AUTH_REDIRECT_PATH', '');
+                        this.$router.push(authRedirectPath);
                         this.isFormSending = false;
                     })
                     .catch((error) => {

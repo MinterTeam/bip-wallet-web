@@ -27,6 +27,7 @@ export default function() {
         },
         userList: {},
         history: [],
+        authRedirectPath: '',
     };
     // vuex-persistedstate enabled in nuxt.config.js
 }
