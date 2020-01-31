@@ -1,4 +1,5 @@
 <script>
+    import autosize from 'v-autosize';
     import {decodeLink} from 'minter-js-sdk/src/link';
     import {decodeCheck} from 'minter-js-sdk/src/check';
     import {TX_TYPE} from 'minterjs-tx/src/tx-types';
@@ -13,13 +14,13 @@
     let feeBus;
 
     export default {
-        PAGE_TITLE: 'Send Transaction',
+        PAGE_TITLE: 'Confirm Transaction',
         components: {
             Layout,
             Modal,
         },
         directives: {
-
+            autosize,
         },
         filters: {
             pretty,
@@ -44,7 +45,7 @@
                 })
                 .catch((e) => {
                     console.log(e);
-                    error({statusCode: 404, message: 'Invalid transaction specified'});
+                    error({status: 404, message: 'Invalid transaction specified'});
                 });
         },
         head() {
@@ -81,6 +82,7 @@
                     fields.push({
                         label: 'To',
                         value: data.to,
+                        type: 'textarea',
                     });
                 }
                 if (isDefined(data.value) && !isStake(tx)) {
@@ -104,8 +106,6 @@
                         value: data.minimumValueToBuy + ' ' + data.coinToBuy,
                     });
                 }
-                console.log(isBuy(tx));
-                console.log(TX_TYPE);
                 // BUY
                 if (isBuy(tx)) {
                     fields.push({
@@ -143,7 +143,7 @@
                 if (data.initialReserve) {
                     fields.push({
                         label: 'Initial Reserve',
-                        value: data.initialReserve + ' ' + this.$store.state.COIN_NAME,
+                        value: data.initialReserve + ' ' + this.$store.getters.COIN_NAME,
                     });
                 }
                 if (data.constantReserveRatio) {
@@ -163,6 +163,8 @@
                     fields.push({
                         label: 'Public Key',
                         value: data.publicKey,
+                        type: 'textarea',
+                        rows: 2,
                     });
                 }
                 if (isStake(tx) && isDefined(data.stake || data.value)) {
@@ -181,12 +183,14 @@
                     fields.push({
                         label: 'Reward Address',
                         value: data.rewardAddress,
+                        type: 'textarea',
                     });
                 }
                 if (data.ownerAddress) {
                     fields.push({
                         label: 'Owner Address',
                         value: data.ownerAddress,
+                        type: 'textarea',
                     });
                 }
                 // REDEEM_CHECK
@@ -194,6 +198,7 @@
                     fields.push({
                         label: 'Check',
                         value: data.check,
+                        type: 'textarea',
                     });
                     const checkFields = decodeCheck(data.check);
                     fields.push({
@@ -205,7 +210,7 @@
                 if (data.list) {
                     fields.push({
                         label: 'Recipients',
-                        value: data.list.map((item) => prettyExact(item.value) + '\u00A0' + item.coin + '\u00A0->\u00A0' + item.to).join(', \n'),
+                        value: data.list.map((item, index) => index + '.\u00A0' + item.to + '\u00A0←\u00A0' + prettyExact(item.value) + '\u00A0' + item.coin).join(', \n'),
                         type: 'textarea',
                         rows: data.list.length,
                     });
@@ -225,6 +230,9 @@
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
                     // isOffline: this.$store.getters.isOfflineMode,
                 };
+            },
+            isRedeemCheck() {
+                return isRedeemCheck(this.tx);
             },
         },
         watch: {
@@ -296,11 +304,14 @@
     function isStake(tx) {
         return tx.type === TX_TYPE.UNBOND || tx.type === TX_TYPE.DELEGATE || tx.type === TX_TYPE.DECLARE_CANDIDACY;
     }
+    function isRedeemCheck(tx) {
+        return tx.type === TX_TYPE.REDEEM_CHECK;
+    }
 
 </script>
 
 <template>
-    <Layout :title="$options.PAGE_TITLE" :is-bg-white="true">
+    <Layout :title="$options.PAGE_TITLE" :is-bg-white="true" back-url="/">
 
         <form novalidate @submit.prevent="openTxModal">
             <div class="u-section u-container">
@@ -313,8 +324,8 @@
 
                 <div class="bip-field bip-field--row" v-for="field in dataFields" :key="field.label">
                     <span class="bip-field__label">{{ field.label }}</span>
-                    <textarea class="bip-field__input" type="text" readonly
-                           :rows="field.rows"
+                    <textarea class="bip-field__input" type="text" readonly v-autosize
+                           :rows="field.rows || 1"
                            :value="field.value"
                            v-if="field.type === 'textarea'"
                     ></textarea>
@@ -335,7 +346,12 @@
             <!--@TODO convert result approximation-->
 
             <div class="list">
-                <a class="list-item">
+                <div class="list-item" v-if="isRedeemCheck">
+                    <div class="list-item__center">
+                        <span class="list-item__name u-text-center">You don't pay transaction fee</span>
+                    </div>
+                </div>
+                <div class="list-item" v-else>
                     <div class="list-item__center">
                         <span class="list-item__name u-text-nowrap">Transaction Fee</span>
                     </div>
@@ -345,10 +361,10 @@
                             <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ fee.baseCoinValue | pretty }} {{ $store.getters.COIN_NAME }})</span>
                         </div>
                     </div>
-                </a>
+                </div>
             </div>
 
-            <div class="u-section u-container" v-if="!serverSuccess">
+            <div class="u-section u-container">
                 <button class="bip-button bip-button--main" :class="{'is-loading': isFormSending}">
                     <span class="bip-button__content">Proceed</span>
                     <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
@@ -358,13 +374,6 @@
                 <nuxt-link class="bip-button bip-button--ghost-main" to="/">Cancel</nuxt-link>
                 <span class="bip-form__error" v-if="serverError">{{ serverError }}</span>
             </div>
-            <div class="u-section u-container" v-if="serverSuccess">
-                <p class="u-text-center u-text-decent u-fw-700">Transaction successfully sent!</p>
-                <p>
-                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View Transaction</a>
-                </p>
-            </div>
-
         </form>
 
         <!-- confirm send modal -->
@@ -375,14 +384,14 @@
                     <p>Please confirm transaction sending</p>
                 </div>
                 <div class="modal__footer">
-                    <button class="bip-button bip-button--main" @click="sendTx">Send Transaction</button>
+                    <button class="bip-button bip-button--main" @click="sendTx">Confirm and send</button>
                     <button class="bip-button bip-button--ghost-main" @click="isModalOpen = false">Cancel</button>
                 </div>
             </div>
         </Modal>
 
         <!-- wait modal -->
-        <Modal :isOpen.sync="isFormSending" :hideCloseButton="true">
+        <Modal :isOpen="isFormSending" :hideCloseButton="true">
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">Please wait</h3>
                 <div class="modal__content">
@@ -390,6 +399,20 @@
                         <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                     </svg>
                     <span class="u-text-middle">Sending transaction...</span>
+                </div>
+            </div>
+        </Modal>
+
+        <!-- success modal -->
+        <Modal :isOpen="!!serverSuccess" :hideCloseButton="true">
+            <div class="modal__panel">
+                <h3 class="modal__title u-h2">Success</h3>
+                <div class="modal__content">
+                    <p>Transaction successfully sent!</p>
+                </div>
+                <div class="modal__footer">
+                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View Transaction</a>
+                    <nuxt-link class="bip-button bip-button--ghost-main" to="/">Close</nuxt-link>
                 </div>
             </div>
         </Modal>
