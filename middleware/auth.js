@@ -37,7 +37,7 @@ export default function({store, route, redirect, error}) {
 
     if (!store.getters.isUserWithProfile && urlRequiresUserWithProfile) {
         console.log('-- restricted: 404 settings not available');
-        return error({statusCode: 404, message: 'Page not found'});
+        return error({status: 404, message: 'Page not found'});
     }
 
     console.log('-- not restricted');

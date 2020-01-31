@@ -92,7 +92,7 @@
 
 
 
-.bip-form__error {.field-label-text(); color: @c-red; display: block; margin-top: 10px; text-align: center;}
+.bip-form__error {color: @c-red; display: block; margin-top: 10px; text-align: center; overflow-wrap: break-word; font-weight: 500;}
 
 
 
@@ -127,7 +127,7 @@
 .bip-field__input {
     padding: 10px 26px 10px 16px; margin-top: 7px; font-size: 16px; line-height: 22px; color: @c-black; background: #fff; border: 2px solid @c-border; transition: 0.2s; display: block; width: 100%; pointer-events: auto; border-radius: 8px; min-height: 46px; background-clip: padding-box; /* remove ios safari box shadow */
     &:focus {border-color: @c-main;}
-    &:read-only {border-color:@c-border; cursor: default;}
+    &:read-only {border-color:@c-border; border-style: dotted; cursor: default;}
     .is-success & {border-color: @c-green;}
     .is-error & {border-color: @c-red;}
 }

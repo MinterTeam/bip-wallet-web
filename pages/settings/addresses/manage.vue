@@ -18,7 +18,7 @@
                     isDataLoading: false,
                 }))
                 .catch((e) => {
-                    // error({ statusCode: 404, message: 'Address not found' });
+                    // error({ status: 404, message: 'Address not found' });
                 });
         },
         head() {
