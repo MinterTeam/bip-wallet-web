@@ -93,16 +93,23 @@
                 }
                 // SELL
                 if (isSell(tx)) {
+                    let sellAmount;
+                    if (tx.type === TX_TYPE.SELL) {
+                        sellAmount = data.valueToSell;
+                    } else if (tx.type === TX_TYPE.SELL_ALL) {
+                        const coin = this.$store.state.balance.find((item) => item.coin === data.coinToSell);
+                        sellAmount = coin?.amount || 0;
+                    }
                     fields.push({
                         label: 'Sell coins',
-                        value: prettyExact(data.valueToSell) + ' ' + data.coinToSell,
+                        value: prettyExact(sellAmount) + ' ' + data.coinToSell,
                     });
                     fields.push({
                         label: 'Get coins',
                         value: data.coinToBuy,
                     });
                     fields.push({
-                        label: 'Limit min value to get',
+                        label: 'Minimum amount to get',
                         value: data.minimumValueToBuy + ' ' + data.coinToBuy,
                     });
                 }
@@ -117,7 +124,7 @@
                         value: data.coinToSell,
                     });
                     fields.push({
-                        label: 'Limit max value to spend',
+                        label: 'Maximum amount to spend',
                         value: data.maximumValueToSell + ' ' + data.coinToSell,
                     });
                 }

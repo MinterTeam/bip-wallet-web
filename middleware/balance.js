@@ -14,7 +14,7 @@ export default function({app, store, redirect}) {
         if (centrifuge) {
             return Promise.resolve();
         }
-        // wait for profile, bc its data need for all pages
+        // wait for balance, bc its data need for all pages
         return store.dispatch('FETCH_BALANCE')
             .then(() => {
                 centrifuge = new Centrifuge(EXPLORER_RTM_URL, {
