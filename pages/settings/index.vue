@@ -38,7 +38,7 @@
 <template>
     <Layout :title="$options.PAGE_TITLE">
         <template slot="toolbar">
-            <Navbar :title="$options.PAGE_TITLE" back-url="/">
+            <Navbar :title="$options.PAGE_TITLE">
                 <template slot="toolbar-right">
                     <button class="toolbar-button u-fw-700 u-semantic-button" @click="logout">Log Out</button>
                 </template>

@@ -1,13 +1,14 @@
-export default function({from, to, store}) {
-    if (process.server || !from) {
+export default function({from, store, route}) {
+    // check `from` !== `route` because on initial page load it uses `route` as `from`
+    console.log(from.fullPath, route.fullPath);
+    if (process.server || !from || from.fullPath === route.fullPath) {
         return;
     }
-    //console.log(from.fullPath, window.history.state);
 
     let storeHistory = store.state.history;
 
     if (storeHistory.length && storeHistory[storeHistory.length - 1].key === window.history.state.key) {
-         // произведен history.back(), откатываем состояние
+        // произведен history.back(), откатываем состояние
         store.commit('POP_HISTORY');
     } else {
         store.commit('PUSH_HISTORY', {
@@ -19,7 +20,4 @@ export default function({from, to, store}) {
             key: window.history.state.key,
         });
     }
-
-
-
 }

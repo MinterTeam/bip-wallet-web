@@ -10,17 +10,18 @@
             backUrl: String,
         },
         computed: {
-            route() {
-                return this.$f7Router;
+            url() {
+                // if no history use '/' as backUrl
+                if (this.backUrl || !this.$store.state.history.length) {
+                    return this.backUrl || '/';
+                } else {
+                    return undefined;
+                }
             },
         },
         methods: {
             goBack() {
-                if (this.$store.state.history.length) {
-                    this.$router.go(-1);
-                } else {
-                    this.$router.push('/');
-                }
+                this.$router.go(-1);
             },
         },
     };
@@ -29,12 +30,12 @@
 <template>
     <div class="toolbar u-container">
         <div class="toolbar__left">
-            <nuxt-link class="back-button" :to="backUrl" v-if="backUrl">
+            <nuxt-link class="back-button" :to="url" v-if="url">
                 <img class="back-button__icon" src="/img/icon-back.svg" width="14" height="24" alt="" role="presentation"/>
                 <span class="back-button__label">Back</span>
             </nuxt-link>
             <button class="back-button u-semantic-button" @click="goBack" v-else>
-                <img class="back-button__icon" src="/img/icon-back.svg" alt="" role="presentation"/>
+                <img class="back-button__icon" src="/img/icon-back.svg" width="14" height="24" alt="" role="presentation"/>
                 <span class="back-button__label">Back</span>
             </button>
         </div>
