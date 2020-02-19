@@ -64,10 +64,7 @@ export function getValidationError(error, startErrorText = 'Error: ') {
  * @returns {String}
  */
 export function getErrorText(error, startErrorText = 'Error: ') {
-    console.log(error);
-    console.log(error.response);
     const resData = error.response && error.response.data;
-    console.log(resData);
     if (resData && (resData.message || resData.error)) {
         // server error
         return startErrorText + ((resData.error && resData.error.message) || resData.message);
