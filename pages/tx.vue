@@ -1,7 +1,6 @@
 <script>
     import autosize from 'v-autosize';
     import {decodeLink} from 'minter-js-sdk/src/link';
-    import {decodeCheck} from 'minter-js-sdk/src/check';
     import {TX_TYPE} from 'minterjs-tx/src/tx-types';
     import {postTx} from '~/api/gate';
     import FeeBus from '~/assets/fee';
@@ -40,12 +39,12 @@
                     }
                 })
                 .then(() => {
-                    var tx = decodeLink(route.fullPath, store.getters.privateKey);
+                    var tx = decodeLink(route.fullPath, {privateKey: store.getters.privateKey, decodeCheck: true});
                     return {tx};
                 })
                 .catch((e) => {
                     console.log(e);
-                    error({status: 404, message: 'Invalid transaction specified'});
+                    error({status: 404, message: `Invalid transaction specified: ${e.message}`});
                 });
         },
         head() {
@@ -207,10 +206,9 @@
                         value: data.check,
                         type: 'textarea',
                     });
-                    const checkFields = decodeCheck(data.check);
                     fields.push({
                         label: 'Amount',
-                        value: prettyExact(checkFields.value) + ' ' + checkFields.coin,
+                        value: prettyExact(data.checkData.value) + ' ' + data.checkData.coin,
                     });
                 }
                 // MULTISEND

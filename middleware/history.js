@@ -1,6 +1,5 @@
 export default function({from, store, route}) {
     // check `from` !== `route` because on initial page load it uses `route` as `from`
-    console.log(from.fullPath, route.fullPath);
     if (process.server || !from || from.fullPath === route.fullPath) {
         return;
     }
