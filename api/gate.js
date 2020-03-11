@@ -6,11 +6,11 @@ import {GATE_API_URL, CHAIN_ID} from '~/assets/variables';
 
 const minterApi = new MinterApi({apiType: 'gate', baseURL: GATE_API_URL, chainId: CHAIN_ID});
 
-export const postTx = new PostTx(minterApi);
+export const postTx = PostTx(minterApi);
 
-export const estimateCoinSell = new EstimateCoinSell(minterApi);
+export const estimateCoinSell = EstimateCoinSell(minterApi);
 
-export const estimateCoinBuy = new EstimateCoinBuy(minterApi);
+export const estimateCoinBuy = EstimateCoinBuy(minterApi);
 
 
 

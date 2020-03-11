@@ -2,13 +2,13 @@
     import autosize from 'v-autosize';
     import {decodeLink} from 'minter-js-sdk/src/link';
     import {TX_TYPE} from 'minterjs-tx/src/tx-types';
-    import {postTx} from '~/api/gate';
-    import FeeBus from '~/assets/fee';
-    import {getErrorText} from "~/assets/server-error";
-    import {pretty, prettyExact, getExplorerTxUrl, txTypeFilter} from '~/assets/utils';
-    import getTitle from '~/assets/get-title';
-    import Layout from '~/components/LayoutDefault';
-    import Modal from '~/components/Modal';
+    import {postTx} from '~/api/gate.js';
+    import FeeBus from '~/assets/fee.js';
+    import {getErrorText} from "~/assets/server-error.js";
+    import {pretty, prettyExact, getExplorerTxUrl, txTypeFilter} from '~/assets/utils.js';
+    import getTitle from '~/assets/get-title.js';
+    import Layout from '~/components/LayoutDefault.vue';
+    import Modal from '~/components/Modal.vue';
 
     let feeBus;
 
@@ -279,7 +279,7 @@
                         postTx({
                             privateKey: this.$store.getters.privateKey,
                             ...this.tx,
-                        }).then((txHash) => {
+                        }, {privateKey: this.$store.getters.privateKey}).then((txHash) => {
                             this.isFormSending = false;
                             this.serverSuccess = txHash;
                         }).catch((error) => {

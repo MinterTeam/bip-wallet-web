@@ -343,7 +343,6 @@
                         let txParams;
                         if (this.recipient.type === 'publicKey') {
                             txParams = new DelegateTxParams({
-                                privateKey: this.$store.getters.privateKey,
                                 ...this.form,
                                 stake: this.form.amount,
                                 publicKey: this.form.address,
@@ -351,13 +350,12 @@
                             });
                         } else {
                             txParams = new SendTxParams({
-                                privateKey: this.$store.getters.privateKey,
                                 ...this.form,
                                 feeCoinSymbol: this.fee.coinSymbol,
                             });
                         }
 
-                        postTx(txParams).then((txHash) => {
+                        postTx(txParams, {privateKey: this.$store.getters.privateKey}).then((txHash) => {
                             this.isFormSending = false;
                             this.isSuccessModalOpen = true;
                             this.serverSuccess = txHash;
