@@ -55,18 +55,21 @@
                     });
                     setMainProfileAddress(addressToEdit.id);
                 } else {
-                    this.$store.commit('SET_MAIN_ADVANCED_ADDRESS', newVal);
+                    // this.$store.commit('SET_MAIN_ADVANCED_ADDRESS', newVal);
                 }
             },
         },
         beforeMount() {
             // if user with profile, main address can be set only to profile address
-            const addressListWithMain = this.isUserWithProfile ? this.$store.state.profileAddressList : this.$store.state.auth.advanced;
-            addressListWithMain.forEach((address) => {
-                if (address.isMain) {
-                    this.selectedAddress = address.address;
-                }
-            });
+            if (this.isUserWithProfile) {
+                this.$store.state.profileAddressList.forEach((address) => {
+                    if (address.isMain) {
+                        this.selectedAddress = address.address;
+                    }
+                });
+            } else {
+                this.selectedAddress = this.$store.state.auth.advanced.address;
+            }
         },
         methods: {
             copy(str) {

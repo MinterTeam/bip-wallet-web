@@ -63,16 +63,9 @@
     };
 
     function getAddress(state, {hash, id}) {
-        let advancedAddress;
         if (hash) {
-            state.auth.advanced.some((address) => {
-                if (address.address === hash) {
-                    advancedAddress = address;
-                    return true;
-                }
-            });
-            if (advancedAddress) {
-                return Promise.resolve(advancedAddress);
+            if (state.auth.advanced.address === hash) {
+                return Promise.resolve(state.auth.advanced);
             } else {
                 return Promise.reject('Address not found');
             }

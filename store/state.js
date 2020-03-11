@@ -1,8 +1,8 @@
 export default function() {
     return {
         auth: {
-            /** @type Array<Address> */
-            advanced: [],
+            /** @type Address|null */
+            advanced: null,
             /** @type string|null - stored password */
             password: null,
         },
