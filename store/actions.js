@@ -67,6 +67,7 @@ export default {
             .then((balanceData) => {
                 commit('SET_BALANCE', balanceData.balances);
                 commit('SET_BALANCE_SUM', balanceData);
+                //@TODO update lastUpdateTime
                 return balanceData.balances;
             });
     },

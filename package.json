@@ -24,6 +24,7 @@
     "@minterteam/bip-wallet-js-coins": "0.0.2",
     "axios": "^0.19.2",
     "big.js": "^5.2.2",
+    "camelcase-keys": "^6.2.1",
     "centrifuge": "^2.4.0",
     "clipbrd": "^1.0.2",
     "core-js": "^3.6.4",
