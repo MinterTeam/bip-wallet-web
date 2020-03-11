@@ -377,6 +377,7 @@
                     </svg>
                 </button>
                 <nuxt-link class="bip-button bip-button--ghost-main" to="/">Cancel</nuxt-link>
+                <!--@TODO show error modal-->
                 <span class="bip-form__error" v-if="serverError">{{ serverError }}</span>
             </div>
         </form>

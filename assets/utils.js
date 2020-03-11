@@ -4,6 +4,7 @@ import stripZeros from 'pretty-num/src/strip-zeros';
 import fromExponential from 'from-exponential';
 import parseISO from "date-fns/esm/parseISO";
 import format from "date-fns/esm/format";
+import formatDistanceStrict from "date-fns/esm/formatDistanceStrict";
 import {txTypeList} from 'minterjs-tx/src/tx-types';
 import {EXPLORER_HOST, ACCOUNTS_API_URL} from "~/assets/variables";
 
@@ -135,6 +136,20 @@ export function getTimeStamp(timestamp) {
     const time = format(parseISO(timestamp), 'dd MMMM yyyy HH:mm:ss (O)');
 
     return time && time !== 'Invalid Date' ? time : false;
+}
+
+export function getTimeDistance(timestamp, allowFuture) {
+    if (typeof timestamp === 'string') {
+        timestamp = parseISO(timestamp);
+    }
+    const now = new Date();
+    // if timestamp from future
+    if (timestamp > now && !allowFuture) {
+        timestamp = now;
+    }
+    const distance = formatDistanceStrict(timestamp, now, {roundingMethod: 'floor'});
+
+    return distance && distance !== 'Invalid Date' ? distance : false;
 }
 
 export function fromBase64(str) {

@@ -16,7 +16,7 @@ export default {
      * @return {boolean}
      */
     isUserAdvanced(state) {
-        return state.auth.advanced && state.auth.advanced.length && isValidMnemonic(state.auth.advanced[0].mnemonic);
+        return state.auth.advanced && isValidMnemonic(state.auth.advanced.mnemonic);
     },
     /**
      * Checks if user is authorized by server
@@ -26,25 +26,8 @@ export default {
         return !!state.auth.password;
     },
     addressList(state) {
-        return state.auth.advanced.concat(state.profileAddressList);
+        return [].concat(state.auth.advanced).concat(state.profileAddressList);
     },
-    /**
-     * User address hash
-     * @return {string}
-     */
-    // mainAdvancedAddress(state, getters) {
-    //     if (!getters.isAuthorized) {
-    //         return '';
-    //     }
-    //     let mainAddress = '';
-    //     state.auth.advanced.some((address) => {
-    //         if (address.isMain) {
-    //             mainAddress = walletFromMnemonic(address.mnemonic).getAddressString();
-    //             return true;
-    //         }
-    //     });
-    //     return mainAddress;
-    // },
     mainProfileAddress(state) {
         return state.profileAddressList.find((addressItem) => addressItem.isMain);
     },
@@ -56,7 +39,7 @@ export default {
     // },
     wallet(state, getters) {
         if (getters.isUserAdvanced) {
-            return walletFromMnemonic(state.auth.advanced.find((addressItem) => addressItem.isMain).mnemonic);
+            return walletFromMnemonic(state.auth.advanced.mnemonic);
         } else if (getters.isUserWithProfile && getters.mainProfileAddress && getters.mainProfileAddress.encrypted) {
             const profileMnemonic = decryptMnemonic(getters.mainProfileAddress.encrypted, state.auth.password);
             return walletFromMnemonic(profileMnemonic);
@@ -85,7 +68,6 @@ export default {
         } else {
             return shortHashFilter(getters.address, 4);
         }
-        // return getters.isUserWithProfile ? '@' + state.user.username : getters.mainAdvancedAddress;
     },
     // usernameLetter(state, getters) {
     //     return getNameLetter(getters.username);

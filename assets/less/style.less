@@ -83,6 +83,10 @@
 
 .error__title {.list-title(); .list-title--bold(); margin-bottom: 10px;}
 
+.is-connection-notice-open {padding-bottom: 46px;}
+.connection-notice {position: fixed; background: @c-black; color: #fff; left: 0; bottom: 0; right: 0; font-weight: 500; font-size: 16px; line-height: 22px; text-align: center; padding: 12px 0;}
+.connection-notice__icon {margin-right: 4px;}
+
 
 
 
@@ -126,9 +130,13 @@
         .balance--delegated__icon {opacity: 0.75;}
     }
 }
-.balance__caption {font-size: 15px;}
-.balance__value {font-size: 20px; font-weight: 700;}
-.balance__whole {font-size: 32px; line-height: 1.2;}
+.balance__caption {font-size: 15px; margin-bottom: 2px;}
+.balance__value {font-weight: 700;}
+.balance__whole {font-size: 32px; line-height: 1.125;}
+.balance__decimal {font-size: 20px;}
+.balance__time {margin-top: 4px; line-height: 0;}
+.balance__time-icon {vertical-align: middle; margin-right: 6px;}
+.balance__time-text {vertical-align: middle; font-size: 12px;}
 .balance--delegated__icon {position: absolute; right: 8px; top: 50%; margin-top: -12px; transition: 0.1s;}
 
 .tx-info__name {font-size: 12px; user-select: text;}

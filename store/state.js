@@ -1,8 +1,8 @@
 export default function() {
     return {
         auth: {
-            /** @type Array<Address> */
-            advanced: [],
+            /** @type Address|null */
+            advanced: null,
             /** @type string|null - stored password */
             password: null,
         },
@@ -17,7 +17,8 @@ export default function() {
         balance: [],
         totalBalanceSum: '0',
         totalBalanceSumUsd: '0',
-        balanceType: 0,
+        balanceDisplayType: 0,
+        lastUpdateTime: '',
         delegation: {},
         // store only first page here
         transactionListInfo: {
