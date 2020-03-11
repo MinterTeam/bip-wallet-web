@@ -212,10 +212,9 @@
                         shouldUseSellAll.then((isSellAll) => {
                             const TxParamsConstructor = isSellAll ? SellAllTxParams : SellTxParams;
                             postTx(new TxParamsConstructor({
-                                privateKey: this.$store.getters.privateKey,
                                 ...this.form,
                                 feeCoinSymbol: this.fee.coinSymbol,
-                            })).then((txHash) => {
+                            }), {privateKey: this.$store.getters.privateKey}).then((txHash) => {
                                 this.$emit('successTx', {hash: txHash});
                                 this.isFormSending = false;
                                 this.clearForm();
