@@ -1,18 +1,20 @@
 <script>
     import {mapGetters, mapState} from 'vuex';
-    import {getCoinIconUrl, pretty} from "~/assets/utils";
+    import {getCoinIconUrl, pretty, getTimeDistance} from "~/assets/utils";
     import Layout from '~/components/LayoutDefault';
     import TransactionTable from "~/components/TransactionTable";
 
-    const BALANCE_BIP = 1;
-    const BALANCE_TOTAL = 2;
-    const BALANCE_TOTAL_USD = 3;
+    const BALANCE_DISPLAY_BIP = 1;
+    const BALANCE_DISPLAY_TOTAL = 2;
+    const BALANCE_DISPLAY_TOTAL_USD = 3;
+
+    let timeInterval = null;
 
     export default {
         ideFix: null,
-        BALANCE_BIP,
-        BALANCE_TOTAL,
-        BALANCE_TOTAL_USD,
+        BALANCE_DISPLAY_BIP,
+        BALANCE_DISPLAY_TOTAL,
+        BALANCE_DISPLAY_TOTAL_USD,
         components: {
             Layout,
             TransactionTable,
@@ -26,9 +28,10 @@
         },
         data() {
             return {
-                balanceType: this.$store.state.balanceType || BALANCE_BIP,
+                balanceDisplayType: this.$store.state.balanceDisplayType || BALANCE_DISPLAY_BIP,
                 isTxListLoading: true,
                 isDelegationLoading: true,
+                lastUpdateTimeDistance: this.getLastUpdateTimeDistance(),
             };
         },
         computed: {
@@ -47,11 +50,11 @@
             },
             balanceParts() {
                 let balance;
-                if (this.balanceType === BALANCE_BIP) {
+                if (this.balanceDisplayType === BALANCE_DISPLAY_BIP) {
                     balance = this.baseCoin ? this.baseCoin.amount : 0;
-                } else if (this.balanceType === BALANCE_TOTAL) {
+                } else if (this.balanceDisplayType === BALANCE_DISPLAY_TOTAL) {
                     balance = this.$store.state.totalBalanceSum;
-                } else if (this.balanceType === BALANCE_TOTAL_USD) {
+                } else if (this.balanceDisplayType === BALANCE_DISPLAY_TOTAL_USD) {
                     balance = this.$store.state.totalBalanceSumUsd;
                 }
                 const parts = balance ? pretty(balance).split('.') : [];
@@ -82,15 +85,28 @@
                 .catch(() => {
                     this.isDelegationLoading = false;
                 });
+
+            // update timestamps if no new data from server
+            timeInterval = setInterval(() => {
+                this.lastUpdateTimeDistance = this.getLastUpdateTimeDistance();
+            }, 1000);
+
+        },
+        destroyed() {
+            clearInterval(timeInterval);
         },
         methods: {
-            changeBalanceType() {
-                if (this.balanceType === BALANCE_TOTAL_USD) {
-                    this.balanceType = BALANCE_BIP;
+            getLastUpdateTimeDistance() {
+                // pass this.now to update computed property
+                return getTimeDistance(this.$store.state.lastUpdateTime);
+            },
+            changeBalanceDisplayType() {
+                if (this.balanceDisplayType === BALANCE_DISPLAY_TOTAL_USD) {
+                    this.balanceDisplayType = BALANCE_DISPLAY_BIP;
                 } else {
-                    this.balanceType += 1;
+                    this.balanceDisplayType += 1;
                 }
-                this.$store.commit('SET_BALANCE_TYPE', this.balanceType);
+                this.$store.commit('SET_BALANCE_DISPLAY_TYPE', this.balanceDisplayType);
             },
             getCoinIconUrl,
         },
@@ -117,25 +133,29 @@
         </template>
 
 
-        <div class="balance balance--toggle u-container" role="button" @click="changeBalanceType">
-            <template v-if="balanceType === $options.BALANCE_BIP">
+        <div class="balance balance--toggle u-container" role="button" @click="changeBalanceDisplayType">
+            <template v-if="balanceDisplayType === $options.BALANCE_DISPLAY_BIP">
                 <div class="balance__caption">{{ $store.getters.COIN_NAME }} Balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
                 </div>
             </template>
-            <template v-if="balanceType === $options.BALANCE_TOTAL">
+            <template v-if="balanceDisplayType === $options.BALANCE_DISPLAY_TOTAL">
                 <div class="balance__caption">Total Balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
                 </div>
             </template>
-            <template v-if="balanceType === $options.BALANCE_TOTAL_USD">
+            <template v-if="balanceDisplayType === $options.BALANCE_TOTAL_USD">
                 <div class="balance__caption">Total Balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">${{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }}</span>
                 </div>
             </template>
+            <div class="balance__time" v-if="lastUpdateTimeDistance">
+                <img class="balance__time-icon" src="/img/icon-time.svg" width="14" height="14" alt="" role="presentation">
+                <span class="balance__time-text">Last updated <strong>{{ lastUpdateTimeDistance }}</strong> ago</span>
+            </div>
         </div>
 
         <nuxt-link class="balance balance--delegated u-container no-link" to="/delegations" v-if="delegation.data && delegation.data.length">

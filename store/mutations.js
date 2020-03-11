@@ -74,8 +74,11 @@ export default {
         state.totalBalanceSum = balanceData.total_balance_sum;
         state.totalBalanceSumUsd = balanceData.total_balance_sum_usd;
     },
-    SET_BALANCE_TYPE: (state, balanceType) => {
-        state.balanceType = balanceType;
+    SET_BALANCE_DISPLAY_TYPE: (state, balanceDisplayType) => {
+        state.balanceDisplayType = balanceDisplayType;
+    },
+    SET_LAST_UPDATE_TIME: (state, timestamp) => {
+        state.lastUpdateTime = timestamp;
     },
     SET_DELEGATION: (state, delegation) => {
         state.delegation = delegation;
@@ -105,7 +108,7 @@ function CHECK_MAIN_ADDRESS(state, newProfileAddressList) {
             return true;
         }
     });
-    if (isProfileAddressMain) {
+    if (isProfileAddressMain && state.auth.advanced) {
         state.auth.advanced.isMain = false;
     }
 }
