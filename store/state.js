@@ -18,7 +18,7 @@ export default function() {
         totalBalanceSum: '0',
         totalBalanceSumUsd: '0',
         balanceDisplayType: 0,
-        lastUpdateTime: '',
+        lastUpdateTime: 0,
         delegation: {},
         // store only first page here
         transactionListInfo: {
