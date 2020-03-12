@@ -146,7 +146,7 @@
                     <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
                 </div>
             </template>
-            <template v-if="balanceDisplayType === $options.BALANCE_TOTAL_USD">
+            <template v-if="balanceDisplayType === $options.BALANCE_DISPLAY_TOTAL_USD">
                 <div class="balance__caption">Total Balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">${{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }}</span>
