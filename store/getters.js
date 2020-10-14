@@ -80,7 +80,7 @@ export default {
     },
     baseCoin(state) {
         return state.balance.find((coinItem) => {
-            return coinItem.coin === COIN_NAME;
+            return coinItem.coin.symbol === COIN_NAME;
         });
     },
     /**

@@ -7,11 +7,9 @@
     import maxValue from 'vuelidate/lib/validators/maxValue';
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
-    import SendTxParams from "minter-js-sdk/src/tx-params/send";
-    import DelegateTxParams from "minter-js-sdk/src/tx-params/stake-delegate";
-    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
+    import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
     import {getAddressInfoByContact} from "~/api";
-    import {postTx} from '~/api/gate';
+    import {postTx, replaceCoinSymbol} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
@@ -61,7 +59,7 @@
                 serverSuccess: '',
                 serverError: '',
                 form: {
-                    coinSymbol: coinList && coinList.length ? coinList[0].coin : '',
+                    coinSymbol: coinList && coinList.length ? coinList[0].coin.symbol : '',
                     // address or public key
                     address: '',
                     // amount or stake
@@ -130,7 +128,7 @@
             maxAmount() {
                 let selectedCoin;
                 this.$store.state.balance.some((coin) => {
-                    if (coin.coin === this.form.coinSymbol) {
+                    if (coin.coin.symbol === this.form.coinSymbol) {
                         selectedCoin = coin;
                         return true;
                     }
@@ -140,7 +138,7 @@
                     return '0';
                 }
                 // fee not in selected coins
-                if (selectedCoin.coin !== this.fee.coinSymbol) {
+                if (selectedCoin.coin.symbol !== this.fee.coinSymbol) {
                     return selectedCoin.amount;
                 }
                 // fee in selected coin, subtract fee
@@ -151,8 +149,8 @@
                 return {
                     txType: this.recipient.type === 'publicKey' ? TX_TYPE.DELEGATE : TX_TYPE.SEND,
                     txFeeOptions: {payload: this.form.message},
-                    selectedCoinSymbol: this.form.coinSymbol,
-                    // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
+                    selectedCoin: this.form.coinSymbol,
+                    // selectedFeeCoin: this.form.feeCoinSymbol,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
                     // isOffline: this.$store.getters.isOfflineMode,
                 };
@@ -218,7 +216,7 @@
             feeBusParams: {
                 handler(newVal) {
                     if (feeBus && typeof feeBus.$emit === 'function') {
-                        feeBus.$emit('updateParams', newVal);
+                        feeBus.$emit('update-params', newVal);
                     }
                 },
                 deep: true,
@@ -227,7 +225,7 @@
         created() {
             feeBus = new FeeBus(this.feeBusParams);
             this.fee = feeBus.fee;
-            feeBus.$on('updateFee', (newVal) => {
+            feeBus.$on('update-fee', (newVal) => {
                 this.fee = newVal;
                 if (this.isUseMax) {
                     // update form amount to consider updated feeValue
@@ -340,31 +338,41 @@
                 this.serverSuccess = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
                     .then(() => {
-                        let txParams;
+                        let txParams = {
+                            gasCoin: this.fee.coinSymbol,
+                            payload: this.form.message,
+                        };
                         if (this.recipient.type === 'publicKey') {
-                            txParams = new DelegateTxParams({
-                                ...this.form,
+                            txParams.type = TX_TYPE.DELEGATE;
+                            txParams.data = {
+                                coin: this.form.coinSymbol,
                                 stake: this.form.amount,
                                 publicKey: this.form.address,
-                                feeCoinSymbol: this.fee.coinSymbol,
-                            });
+                            };
                         } else {
-                            txParams = new SendTxParams({
-                                ...this.form,
-                                feeCoinSymbol: this.fee.coinSymbol,
-                            });
+                            txParams.type = TX_TYPE.SEND;
+                            txParams.data = {
+                                coin: this.form.coinSymbol,
+                                value: this.form.amount,
+                                to: this.form.address,
+                            };
                         }
 
-                        postTx(txParams, {privateKey: this.$store.getters.privateKey}).then((txHash) => {
-                            this.isFormSending = false;
-                            this.isSuccessModalOpen = true;
-                            this.serverSuccess = txHash;
-                            this.clearForm();
-                        }).catch((error) => {
-                            console.log(error);
-                            this.isFormSending = false;
-                            this.serverError = getErrorText(error);
-                        });
+                        replaceCoinSymbol(txParams)
+                            .then(() => {
+                                return postTx(txParams, {privateKey: this.$store.getters.privateKey});
+                            })
+                            .then((tx) => {
+                                this.isFormSending = false;
+                                this.isSuccessModalOpen = true;
+                                this.serverSuccess = tx.hash;
+                                this.clearForm();
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                                this.isFormSending = false;
+                                this.serverError = getErrorText(error);
+                            });
                     })
                     .catch((error) => {
                         this.isFormSending = false;
@@ -382,7 +390,7 @@
             clearForm() {
                 this.form.address = '';
                 this.form.amount = '';
-                this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
+                this.form.coinSymbol = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin.symbol : '';
                 this.form.message = '';
                 this.recipient.name = '';
                 this.recipient.type = '';
@@ -414,7 +422,7 @@
                             v-model="form.coinSymbol"
                             @blur="$v.form.coinSymbol.$touch()"
                     >
-                        <option v-for="coin in $store.state.balance" :key="coin.coin" :value="coin.coin">{{ coin.coin }} ({{ coin.amount | pretty }})</option>
+                        <option v-for="coin in $store.state.balance" :key="coin.coin.id" :value="coin.coin.symbol">{{ coin.coin.symbol }} ({{ coin.amount | pretty }})</option>
                     </select>
                     <span class="bip-field__error" v-if="$v.form.coinSymbol.$dirty && !$v.form.coinSymbol.required">Enter coin</span>
                 </label>

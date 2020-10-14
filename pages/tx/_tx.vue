@@ -27,24 +27,25 @@
             txType: txTypeFilter,
         },
         asyncData({error, store, route}) {
-            return new Promise((resolve, reject) => {
-                var tx = decodeLink(route.fullPath);
-                resolve({tx});
-            })
-                .catch((e) => {
-                    if (e.message === 'privateKey param required if link has password') {
-                        return store.dispatch('FETCH_ADDRESS_ENCRYPTED');
-                    } else {
-                        throw e;
-                    }
-                })
-                .then(() => {
-                    var tx = decodeLink(route.fullPath, {privateKey: store.getters.privateKey, decodeCheck: true});
-                    return {tx};
+            try {
+                var tx = decodeLink(route.fullPath, {address: store.getters.address, decodeCheck: true});
+                return {tx};
+            } catch (e) {
+                console.log(e);
+                error({status: 404, message: `Invalid transaction specified: ${e.message}`});
+            }
+        },
+        fetch() {
+            this.$store.dispatch('FETCH_COIN_LIST')
+                .then((coinList) => {
+                    let result = {};
+                    coinList.forEach((coinInfo) => {
+                        result[coinInfo.id] = coinInfo.symbol;
+                    });
+                    this.coinList = Object.freeze(result);
                 })
                 .catch((e) => {
                     console.log(e);
-                    error({status: 404, message: `Invalid transaction specified: ${e.message}`});
                 });
         },
         head() {
@@ -69,6 +70,7 @@
                 /** @type FeeData */
                 fee: {},
                 isModalOpen: false,
+                coinList: {},
             };
         },
         computed: {
@@ -87,7 +89,7 @@
                 if (isDefined(data.value) && !isStake(tx)) {
                     fields.push({
                         label: 'Amount',
-                        value: prettyExact(data.value) + ' ' + data.coin,
+                        value: prettyExact(data.value) + ' ' + this.getCoinSymbol(data.coin),
                     });
                 }
                 // SELL
@@ -96,38 +98,38 @@
                     if (tx.type === TX_TYPE.SELL) {
                         sellAmount = data.valueToSell;
                     } else if (tx.type === TX_TYPE.SELL_ALL) {
-                        const coin = this.$store.state.balance.find((item) => item.coin === data.coinToSell);
+                        const coin = this.$store.state.balance.find((item) => item.coin.id === parseInt(data.coinToSell, 10));
                         sellAmount = coin?.amount || 0;
                     }
                     fields.push({
                         label: 'Sell coins',
-                        value: prettyExact(sellAmount) + ' ' + data.coinToSell,
+                        value: prettyExact(sellAmount) + ' ' + this.getCoinSymbol(data.coinToSell),
                     });
                     fields.push({
                         label: 'Get coins',
-                        value: data.coinToBuy,
+                        value: this.getCoinSymbol(data.coinToBuy),
                     });
                     fields.push({
                         label: 'Minimum amount to get',
-                        value: data.minimumValueToBuy + ' ' + data.coinToBuy,
+                        value: data.minimumValueToBuy + ' ' + this.getCoinSymbol(data.coinToBuy),
                     });
                 }
                 // BUY
                 if (isBuy(tx)) {
                     fields.push({
                         label: 'Buy coins',
-                        value: prettyExact(data.valueToBuy) + ' ' + data.coinToBuy,
+                        value: prettyExact(data.valueToBuy) + ' ' + this.getCoinSymbol(data.coinToBuy),
                     });
                     fields.push({
                         label: 'Spend coins',
-                        value: data.coinToSell,
+                        value: this.getCoinSymbol(data.coinToSell),
                     });
                     fields.push({
                         label: 'Maximum amount to spend',
-                        value: data.maximumValueToSell + ' ' + data.coinToSell,
+                        value: data.maximumValueToSell + ' ' + this.getCoinSymbol(data.coinToSell),
                     });
                 }
-                // CREATE_COIN
+                // CREATE_COIN, RECREATE_COIN, EDIT_COIN_OWNER
                 if (data.name) {
                     fields.push({
                         label: 'Name',
@@ -142,14 +144,14 @@
                 }
                 if (data.initialAmount) {
                     fields.push({
-                        label: 'Initial Amount',
+                        label: 'Initial amount',
                         value: prettyExact(data.initialAmount) + ' ' + data.symbol,
                     });
                 }
                 if (data.initialReserve) {
                     fields.push({
-                        label: 'Initial Reserve',
-                        value: data.initialReserve + ' ' + this.$store.getters.COIN_NAME,
+                        label: 'Initial reserve',
+                        value: prettyExact(data.initialReserve) + ' ' + this.$store.getters.COIN_NAME,
                     });
                 }
                 if (data.constantReserveRatio) {
@@ -164,10 +166,17 @@
                         value: prettyExact(data.maxSupply),
                     });
                 }
-                // DELEGATE, UNBOND, DECLARE_CANDIDACY, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE
+                if (data.newOwner) {
+                    fields.push({
+                        label: 'New owner',
+                        value: data.newOwner,
+                        type: 'textarea',
+                    });
+                }
+                // DELEGATE, UNBOND, DECLARE_CANDIDACY, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE, SET_HALT_BLOCK
                 if (data.publicKey) {
                     fields.push({
-                        label: 'Public Key',
+                        label: 'Public key',
                         value: data.publicKey,
                         type: 'textarea',
                         rows: 2,
@@ -176,7 +185,7 @@
                 if (isStake(tx) && isDefined(data.stake || data.value)) {
                     fields.push({
                         label: 'Stake',
-                        value: prettyExact(tx.data.stake || tx.data.value) + ' ' + data.coin,
+                        value: prettyExact(tx.data.stake || tx.data.value) + ' ' + this.getCoinSymbol(data.coin),
                     });
                 }
                 if (isDefined(data.commission)) {
@@ -187,16 +196,29 @@
                 }
                 if (data.rewardAddress) {
                     fields.push({
-                        label: 'Reward Address',
+                        label: 'Reward address',
                         value: data.rewardAddress,
                         type: 'textarea',
                     });
                 }
                 if (data.ownerAddress) {
                     fields.push({
-                        label: 'Owner Address',
+                        label: 'Owner address',
                         value: data.ownerAddress,
                         type: 'textarea',
+                    });
+                }
+                if (data.controlAddress) {
+                    fields.push({
+                        label: 'Control address',
+                        value: data.controlAddress,
+                        type: 'textarea',
+                    });
+                }
+                if (data.height) {
+                    fields.push({
+                        label: 'Height',
+                        value: data.height,
                     });
                 }
                 // REDEEM_CHECK
@@ -208,30 +230,43 @@
                     });
                     fields.push({
                         label: 'Amount',
-                        value: prettyExact(data.checkData.value) + ' ' + data.checkData.coin,
+                        value: prettyExact(data.checkData.value) + ' ' + this.getCoinSymbol(data.checkData.coin),
                     });
                 }
                 // MULTISEND
                 if (data.list) {
                     fields.push({
                         label: 'Recipients',
-                        value: data.list.map((item, index) => index + '.\u00A0' + item.to + '\u00A0←\u00A0' + prettyExact(item.value) + '\u00A0' + item.coin).join(', \n'),
+                        value: data.list.map((item, index) => index + '.\u00A0' + item.to + '\u00A0←\u00A0' + prettyExact(item.value) + '\u00A0' + this.getCoinSymbol(item.coin)).join(', \n'),
                         type: 'textarea',
                         rows: data.list.length,
                     });
                 }
+                //@TODO CREATE_MULTISIG, EDIT_MULTISIG
+                //@TODO PRICE_VOTE
 
                 return fields;
             },
             feeBusParams() {
+                const txType = this.tx.type;
+                const txData = this.tx.data;
+                let selectedCoin;
+                if (txType === TX_TYPE.SEND || txType === TX_TYPE.DECLARE_CANDIDACY || txType === TX_TYPE.DELEGATE) {
+                    selectedCoin = Number(txData.coin);
+                }
+                if (txType === TX_TYPE.BUY || txType === TX_TYPE.SELL || txType === TX_TYPE.SELL_ALL) {
+                    selectedCoin = Number(txData.coinToSell);
+                }
+
                 return {
-                    txType: this.tx.type,
+                    txType,
                     txFeeOptions: {
                         payload: this.tx.payload,
-                        multisendCount: this.tx.type === TX_TYPE.MULTISEND ? this.tx.data.list.length : undefined,
+                        multisendCount: txType === TX_TYPE.MULTISEND ? txData.list.length : undefined,
+                        coinSymbol: txType === TX_TYPE.CREATE_COIN ? txData.symbol : undefined,
                     },
-                    selectedCoinSymbol: this.tx.data.coin,
-                    selectedFeeCoinSymbol: this.tx.gasCoin,
+                    selectedCoin,
+                    selectedFeeCoin: Number(this.tx.gasCoin),
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
                     // isOffline: this.$store.getters.isOfflineMode,
                 };
@@ -244,7 +279,7 @@
             feeBusParams: {
                 handler(newVal) {
                     if (feeBus && typeof feeBus.$emit === 'function') {
-                        feeBus.$emit('updateParams', newVal);
+                        feeBus.$emit('update-params', newVal);
                     }
                 },
                 deep: true,
@@ -253,11 +288,14 @@
         created() {
             feeBus = new FeeBus(this.feeBusParams);
             this.fee = feeBus.fee;
-            feeBus.$on('updateFee', (newVal) => {
+            feeBus.$on('update-fee', (newVal) => {
                 this.fee = newVal;
             });
         },
         methods: {
+            getCoinSymbol(coinId) {
+                return this.coinList[parseInt(coinId, 10)] || '';
+            },
             openTxModal() {
                 if (this.isFormSending) {
                     return;

@@ -1,7 +1,7 @@
 import Centrifuge from 'centrifuge/src';
-import {prepareBalance} from '~/api';
+import {prepareBalance} from '~/api/explorer.js';
 import {EXPLORER_RTM_URL} from "~/assets/variables";
-import toCamel from '~/assets/to-camel.js';
+import {toCamel} from '~/assets/to-camel.js';
 
 let centrifuge;
 
@@ -15,7 +15,7 @@ export default function({app, store, redirect}) {
         if (centrifuge) {
             return Promise.resolve();
         }
-        store.commit('SET_LAST_UPDATE_TIME', Date.now());
+        // store.commit('SET_LAST_UPDATE_TIME', Date.now());
         // wait for balance, bc its data need for all pages
         return store.dispatch('FETCH_BALANCE')
             .then(() => {
