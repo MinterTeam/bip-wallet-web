@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ chilinet ]
+    branches: [ mainnet, chilinet ]
 env:
   INGRESS_DOMAIN_mainnet: "wallet.bip.to"
   INGRESS_DOMAIN_chilinet: "wallet.testnet.bip.to"
+  KUBE_NAMESPACE_mainnet: "mainnet"
+  KUBE_NAMESPACE_chilinet: "default"
 jobs:
   ci:
     name: build
@@ -25,6 +27,11 @@ jobs:
         env:
           INGRESS_DOMAIN_KEY: INGRESS_DOMAIN_${{ env.BUILD_BRANCH }}
         run: echo "INGRESS_DOMAIN=$(echo ${!INGRESS_DOMAIN_KEY})" >> $GITHUB_ENV
+        
+      - name: set env KUBE_NAMESPACE
+        env:
+          KUBE_NAMESPACE_KEY: KUBE_NAMESPACE_${{ env.BUILD_BRANCH }}
+        run: echo "KUBE_NAMESPACE=$(echo ${!KUBE_NAMESPACE_KEY})" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
       - name: build and push docker image
@@ -32,7 +39,7 @@ jobs:
         env:
           USERNAME: ${{ secrets.DOCKER_HUB_USER }}
           PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          IMAGE_NAME: "minterteam/bip-wallet-web"
+          IMAGE_NAME: "minterteam/${{ env.PROJECT_NAME }}"
           LATEST: "true"
           TAG_NAME: ${{ github.sha }}
           DOCKERFILE: ".docker/Dockerfile"
@@ -44,7 +51,7 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
           TAG_NAME: ${{ github.sha }}
         with:
-          args: helm upgrade -i $PROJECT_NAME chart/ --atomic --timeout 100s --set image.tag=$TAG_NAME --set ingress.domain=$INGRESS_DOMAIN --set ingress.tlsname=$INGRESS_DOMAIN
+          args: helm upgrade -n $KUBE_NAMESPACE -i $PROJECT_NAME chart/ --atomic --timeout 100s --set image.tag=$TAG_NAME --set ingress.domain=$INGRESS_DOMAIN --set ingress.tlsname=$INGRESS_DOMAIN
 
       - name: notification
         if: cancelled() == false
