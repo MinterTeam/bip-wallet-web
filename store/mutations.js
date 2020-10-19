@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import {setAuthToken, resetAuthToken} from "~/api/accounts";
+import {getTimeOffset} from '~/assets/time-offset.js';
 
 export default {
     SET_AUTH_PROFILE: (state, {user, token, password}) => {
@@ -67,18 +68,18 @@ export default {
     SET_TRANSACTION_LIST: (state, txListInfo) => {
         state.transactionListInfo = txListInfo;
     },
-    SET_BALANCE: (state, balance) => {
-        state.balance = balance;
+    SET_BALANCE: (state, balanceList) => {
+        state.balance = balanceList;
     },
     SET_BALANCE_SUM: (state, balanceData) => {
-        state.totalBalanceSum = balanceData.total_balance_sum;
-        state.totalBalanceSumUsd = balanceData.total_balance_sum_usd;
+        state.totalBalanceSum = balanceData.totalBalanceSum;
+        state.totalBalanceSumUsd = balanceData.totalBalanceSumUsd;
     },
     SET_BALANCE_DISPLAY_TYPE: (state, balanceDisplayType) => {
         state.balanceDisplayType = balanceDisplayType;
     },
     SET_LAST_UPDATE_TIME: (state, timestamp) => {
-        state.lastUpdateTime = timestamp;
+        state.lastUpdateTime = timestamp - getTimeOffset();
     },
     SET_DELEGATION: (state, delegation) => {
         state.delegation = delegation;

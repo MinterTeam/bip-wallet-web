@@ -49,7 +49,7 @@
             <div class="u-section-divider-text__inner">or</div>
         </div>
 
-        <FormAddAdvancedAddress @addressAdded="addressAdded"/>
+        <FormAddAdvancedAddress @address-added="addressAdded"/>
 
     </Layout>
 </template>

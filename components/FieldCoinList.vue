@@ -98,6 +98,6 @@
         </VueSimpleSuggest>
         <span class="bip-field__error" v-if="$value.$dirty && !$value.required">Enter coin</span>
         <span class="bip-field__error" v-if="$value.$dirty && !$value.minLength">Min 3 letters</span>
-        <span class="bip-field__error" v-if="$value.$dirty && !$value.maxLength">Max 10 letters</span>
+        <!--<span class="bip-field__error" v-if="$value.$dirty && !$value.maxLength">Max 10 letters</span>-->
     </label>
 </template>

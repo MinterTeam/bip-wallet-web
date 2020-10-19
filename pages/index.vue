@@ -178,16 +178,16 @@
             <template v-if="balance && balance.length">
                 <div class="list-title list-title--bold">My coins</div>
                 <ul class="list">
-                    <li class="list-item" v-for="coin in balance" :key="coin.coin">
+                    <li class="list-item" v-for="coin in balance" :key="coin.coin.id">
                         <div class="list-item__left">
-                            <img class="list-item__thumbnail" :src="getCoinIconUrl(coin.coin)" alt="" role="presentation">
+                            <img class="list-item__thumbnail" :src="getCoinIconUrl(coin.coin.symbol)" alt="" role="presentation">
                         </div>
                         <div class="list-item__center">
-                            <div class="list-item__name">{{ coin.name || coin.coin }}</div>
+                            <div class="list-item__name">{{ coin.coin.symbol }}</div>
                         </div>
                         <div class="list-item__right">
                             <div class="list-item__amount">{{ coin.amount | pretty }}</div>
-                            <div class="list-item__sub">{{ coin.coin | uppercase }}</div>
+                            <div class="list-item__sub">{{ coin.coin.symbol | uppercase }}</div>
                         </div>
                     </li>
                 </ul>

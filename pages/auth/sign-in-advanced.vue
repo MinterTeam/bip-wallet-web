@@ -39,7 +39,7 @@
             <div class="u-section-divider-text__inner">or</div>
         </div>
 
-        <FormAddAdvancedAddress :isAuthAddress="true" @addressAdded="authorize"/>
+        <FormAddAdvancedAddress :isAuthAddress="true" @address-added="authorize"/>
 
     </Layout>
 </template>
