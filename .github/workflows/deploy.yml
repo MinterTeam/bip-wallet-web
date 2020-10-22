@@ -7,7 +7,9 @@ env:
   INGRESS_DOMAIN_mainnet: "wallet.bip.to"
   INGRESS_DOMAIN_chilinet: "wallet.testnet.bip.to"
   KUBE_NAMESPACE_mainnet: "mainnet"
+  KUBE_NAMESPACE_mainnet_reserved: "mainnet-reserved"
   KUBE_NAMESPACE_chilinet: "default"
+
 jobs:
   ci:
     name: build
@@ -44,6 +46,20 @@ jobs:
           TAG_NAME: ${{ github.sha }}
           DOCKERFILE: ".docker/Dockerfile"
           DOCKER_BUILD_ARGS: --build-arg BUILD_BRANCH_ENV_PREFIX
+
+      - name: DigitalOcean Kubernetes
+        uses: matootie/dokube@v1.3.2
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: k8s-prod-do
+
+      - name: Install helm
+        run: wget https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz &> /dev/null && tar xvzf helm-v3.3.4-linux-amd64.tar.gz && chmod 777 linux-amd64/helm && ./linux-amd64/helm ls -n mainnet-reserved
+
+      - name: Deploy to DO
+        env:
+          TAG_NAME: ${{ github.sha }}
+        run: ./linux-amd64/helm upgrade -n $KUBE_NAMESPACE_mainnet_reserved -i $PROJECT_NAME chart/ --atomic --timeout 100s --set image.tag=$TAG_NAME --set ingress.domain=$INGRESS_DOMAIN --set ingress.tlsname=$INGRESS_DOMAIN
 
       - name: deploy to production cluster
         uses: wahyd4/kubectl-helm-action@master
