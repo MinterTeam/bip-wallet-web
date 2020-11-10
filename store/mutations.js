@@ -71,7 +71,7 @@ export default {
     SET_BALANCE: (state, balanceList) => {
         state.balance = balanceList;
     },
-    SET_BALANCE_SUM: (state, balanceData) => {
+    SET_BALANCE_TOTAL: (state, balanceData) => {
         state.totalBalanceSum = balanceData.totalBalanceSum;
         state.totalBalanceSumUsd = balanceData.totalBalanceSumUsd;
     },

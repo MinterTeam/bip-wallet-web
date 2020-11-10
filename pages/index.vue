@@ -46,7 +46,7 @@
                 'baseCoin',
             ]),
             delegatedTotal() {
-                return this.delegation.meta ? this.delegation.meta.additional.total_delegated_bip_value : 0;
+                return this.delegation.meta ? this.delegation.meta.additional.totalDelegatedBipValue : 0;
             },
             balanceParts() {
                 let balance;

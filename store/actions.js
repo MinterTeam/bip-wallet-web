@@ -65,7 +65,7 @@ export default {
         return getBalance(getters.address)
             .then((balanceResponse) => {
                 commit('SET_BALANCE', balanceResponse.data.balances);
-                commit('SET_BALANCE_SUM', balanceResponse.data);
+                commit('SET_BALANCE_TOTAL', balanceResponse.data);
                 commit('SET_LAST_UPDATE_TIME', new Date(balanceResponse.latestBlockTime).getTime());
                 return balanceResponse.data.balances;
             });
