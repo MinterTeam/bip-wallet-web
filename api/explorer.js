@@ -8,7 +8,6 @@ import {addTimeInterceptor} from '~/assets/time-offset.js';
 const explorer = axios.create({
     baseURL: EXPLORER_API_URL,
     adapter: cacheAdapterEnhancer(axios.defaults.adapter, { enabledByDefault: false}),
-
 });
 addToCamelInterceptor(explorer);
 addTimeInterceptor(explorer);
@@ -235,9 +234,11 @@ export function getAddressStakeList(address) {
 
 /**
  * @typedef {Object} DelegationItem
- * @property {string} pub_key
+ * @property {Validator} validator
  * @property {string|number} value
- * @property {string} coin
+ * @property {string|number} bipValue
+ * @property {CoinItem} coin
+ * @property {boolean} isWaitlisted
  */
 
 /**
@@ -245,5 +246,5 @@ export function getAddressStakeList(address) {
  * @property {Array<DelegationItem>} data
  * @property {Object} meta - pagination
  * @property {Object} meta.additional
- * @property {number|string} meta.additional.total_delegated_bip_value
+ * @property {number|string} meta.additional.totalDelegatedBipValue
  */

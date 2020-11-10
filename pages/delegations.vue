@@ -45,7 +45,7 @@
                     return null;
                 }
                 return this.delegationList.reduce((accumulator, delegation) => {
-                    const publicKey = delegation.pub_key;
+                    const publicKey = delegation.validator.publicKey;
                     if (!accumulator[publicKey]) {
                         accumulator[publicKey] = [];
                     }
