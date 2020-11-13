@@ -31,7 +31,7 @@
     "date-fns": "^2.16.1",
     "entity-decode": "^2.0.2",
     "minter-js-org": "0.3.3",
-    "minter-js-sdk": "^0.35.5",
+    "minter-js-sdk": "^0.35.6",
     "minterjs-tx": "^9.0.1",
     "minterjs-util": "^0.18.2",
     "minterjs-wallet": "^6.0.0",
