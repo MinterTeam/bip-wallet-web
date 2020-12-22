@@ -2,7 +2,18 @@
 
 [wallet.bip.to](https://wallet.bip.to)
 
-## Deployment
+## Install
+
+- clone the repo
+- ensure latest stable Node.js and NPM are installed
+- install node_modules `npm ci`
+- copy .env.mainnet `cp .env.mainnet .env`
+- set correct .env variables
+- build `npm run production`
+- now you have static assets in the `./dist/` folder, you have to distribute them with some web server like Nginx (or run `npm run start`, but it's not recommended for production)
+
+
+## Deployment script
 
 Build in Nuxt SPA mode
 ```
