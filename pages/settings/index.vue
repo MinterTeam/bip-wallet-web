@@ -34,14 +34,14 @@
             };
         },
         mounted() {
-            import('@minterteam/bip-wallet-js-coins')
-                .then((module) => {
-                    getCoinsDecrypt = module.getCoinsDecrypt;
-                    this.isCoinsAvailable = true;
-                })
-                .catch(() => {
-                    console.log('coins not available');
-                });
+            // import('@minterteam/bip-wallet-js-coins')
+            //     .then((module) => {
+            //         getCoinsDecrypt = module.getCoinsDecrypt;
+            //         this.isCoinsAvailable = true;
+            //     })
+            //     .catch(() => {
+            //         console.log('coins not available');
+            //     });
         },
         methods: {
             logout() {
