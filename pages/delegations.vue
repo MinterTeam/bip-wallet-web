@@ -45,7 +45,7 @@
                     return null;
                 }
                 return this.delegationList.reduce((accumulator, delegation) => {
-                    const publicKey = delegation.pub_key;
+                    const publicKey = delegation.validator.publicKey;
                     if (!accumulator[publicKey]) {
                         accumulator[publicKey] = [];
                     }
@@ -101,8 +101,8 @@
                             <button class="bip-link u-text-decent u-semantic-button" @click="copy(publicKey)">Copy</button>
                         </div>
                     </div>
-                    <div class="list-item" v-for="delegation in delegationGroup" :key="publicKey + delegation.coin">
-                        <div class="list-item__center">{{ delegation.coin }}</div>
+                    <div class="list-item" v-for="delegation in delegationGroup" :key="publicKey + delegation.coin.id">
+                        <div class="list-item__center">{{ delegation.coin.symbol }}</div>
                         <div class="list-item__right u-text-decent">{{ delegation.value | pretty}}</div>
                     </div>
                 </div>

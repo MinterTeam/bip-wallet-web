@@ -7,9 +7,8 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
     import decode from 'entity-decode';
-    import BuyTxParams from "minter-js-sdk/src/tx-params/convert-buy";
-    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
-    import {postTx, estimateCoinBuy} from '~/api/gate';
+    import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
+    import {postTx, estimateCoinBuy, replaceCoinSymbol} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
@@ -41,7 +40,7 @@
                 isFormSending: false,
                 serverError: '',
                 form: {
-                    coinFrom: coinList && coinList.length ? coinList[0].coin : '',
+                    coinFrom: coinList && coinList.length ? coinList[0].coin.symbol : '',
                     coinTo: '',
                     buyAmount: '',
                 },
@@ -73,7 +72,7 @@
                     coinTo: {
                         required,
                         minLength: minLength(3),
-                        maxLength: maxLength(10),
+                        // maxLength: maxLength(10),
                     },
                     buyAmount: {
                         required,
@@ -97,7 +96,7 @@
             feeBusParams: {
                 handler(newVal) {
                     if (feeBus && typeof feeBus.$emit === 'function') {
-                        feeBus.$emit('updateParams', newVal);
+                        feeBus.$emit('update-params', newVal);
                     }
                 },
                 deep: true,
@@ -108,8 +107,8 @@
                 return {
                     txType: TX_TYPE.BUY,
                     txFeeOptions: {payload: this.form.message},
-                    selectedCoinSymbol: this.form.coinFrom,
-                    // selectedFeeCoinSymbol: this.form.feeCoinSymbol,
+                    selectedCoin: this.form.coinFrom,
+                    // selectedFeeCoin: this.form.feeCoinSymbol,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
                     // isOffline: this.$store.getters.isOfflineMode,
                 };
@@ -124,7 +123,7 @@
         created() {
             feeBus = new FeeBus(this.feeBusParams);
             this.fee = feeBus.fee;
-            feeBus.$on('updateFee', (newVal) => {
+            feeBus.$on('update-fee', (newVal) => {
                 this.fee = newVal;
             });
         },
@@ -142,10 +141,8 @@
                 this.estimationTimer = null;
             },
             getEstimation() {
-                //@TODO cancel
                 if (this.estimationLoading && typeof estimationCancel === 'function') {
-                    // cancel previous request
-                    estimationCancel();
+                    estimationCancel('Cancel previous request');
                 }
                 this.estimationTimer = null;
                 if (this.form.coinFrom && this.form.coinFrom === this.form.coinTo) {
@@ -164,6 +161,7 @@
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
+                        console.log(error);
                         this.estimationLoading = false;
                         this.estimationError = getErrorText(error, 'Estimation error: ');
                     });
@@ -185,29 +183,35 @@
 
                 this.isFormSending = true;
                 this.serverError = '';
-                this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
-                    .then(() => {
+                Promise.all([
+                    replaceCoinSymbol({
+                        type: TX_TYPE.BUY,
+                        data: {
+                            coinToSell: this.form.coinFrom,
+                            coinToBuy: this.form.coinTo,
+                            valueToBuy: this.form.buyAmount,
+                        },
+                        gasCoin: this.fee.coinSymbol,
+                    }),
+                    this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED'),
+                ])
+                    .then(([txParams]) => {
                         //@TODO maxSellAmount
-                        postTx(new BuyTxParams({
-                            ...this.form,
-                            feeCoinSymbol: this.fee.coinSymbol,
-                        }), {privateKey: this.$store.getters.privateKey}).then((txHash) => {
-                            this.$emit('successTx', {hash: txHash});
-                            this.isFormSending = false;
-                            this.clearForm();
-                        }).catch((error) => {
-                            console.log(error);
-                            this.isFormSending = false;
-                            this.serverError = getErrorText(error);
-                        });
+                        return postTx(txParams, {privateKey: this.$store.getters.privateKey});
+                    })
+                    .then((tx) => {
+                        this.$emit('success-tx', tx);
+                        this.isFormSending = false;
+                        this.clearForm();
                     })
                     .catch((error) => {
+                        console.log(error);
                         this.isFormSending = false;
                         this.serverError = getErrorText(error);
                     });
             },
             clearForm() {
-                this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin : '';
+                this.form.coinFrom = this.$store.state.balance && this.$store.state.balance.length ? this.$store.state.balance[0].coin.symbol : '';
                 this.form.coinTo = '';
                 this.form.buyAmount = '';
                 // this.amountMasked = '';
@@ -246,7 +250,7 @@
                         v-model="form.coinFrom"
                         @blur="$v.form.coinFrom.$touch(); inputBlur()"
                 >
-                    <option v-for="coin in $store.state.balance" :key="coin.coin" :value="coin.coin">{{ coin.coin }} ({{ coin.amount | pretty }})</option>
+                    <option v-for="coin in $store.state.balance" :key="coin.coin.id" :value="coin.coin.symbol">{{ coin.coin.symbol }} ({{ coin.amount | pretty }})</option>
                 </select>
                 <span class="bip-field__error" v-if="$v.form.coinFrom.$dirty && !$v.form.coinFrom.required">Enter coin</span>
             </label>

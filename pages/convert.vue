@@ -71,10 +71,10 @@
 
             <template slot="pages">
                 <v-ons-page>
-                    <ConvertSell @successTx="openSuccessModal"/>
+                    <ConvertSell @success-tx="openSuccessModal"/>
                 </v-ons-page>
                 <v-ons-page>
-                    <ConvertBuy @successTx="openSuccessModal"/>
+                    <ConvertBuy @success-tx="openSuccessModal"/>
                 </v-ons-page>
             </template>
         </v-ons-tabbar>

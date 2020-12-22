@@ -1,8 +1,7 @@
 import {TX_TYPE} from 'minterjs-tx/src/tx-types';
-import {getBalance, getDelegation, getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressTransactionList, getAddressListInfo, getCoinList} from "~/api";
+import {getProfile, getProfileAddressList, getProfileAddressEncrypted, getAddressListInfo} from "~/api";
+import {getBalance, getAddressStakeList, getAddressTransactionList, getCoinList} from "~/api/explorer.js";
 
-let activeCoinListPromise;
-let coinListTime = 0;
 
 export default {
     FETCH_PROFILE: ({ commit }) => {
@@ -64,16 +63,16 @@ export default {
     FETCH_BALANCE: ({ commit, getters }) => {
         // use only 1 address
         return getBalance(getters.address)
-            .then((balanceData) => {
-                commit('SET_BALANCE', balanceData.balances);
-                commit('SET_BALANCE_SUM', balanceData);
-                //@TODO update lastUpdateTime
-                return balanceData.balances;
+            .then((balanceResponse) => {
+                commit('SET_BALANCE', balanceResponse.data.balances);
+                commit('SET_BALANCE_TOTAL', balanceResponse.data);
+                commit('SET_LAST_UPDATE_TIME', new Date(balanceResponse.latestBlockTime).getTime());
+                return balanceResponse.data.balances;
             });
     },
     FETCH_DELEGATION: ({ commit, getters }) => {
         // use only 1 address
-        return getDelegation(getters.address)
+        return getAddressStakeList(getters.address)
             .then((delegation) => {
                 commit('SET_DELEGATION', delegation);
                 return delegation;
@@ -93,10 +92,6 @@ export default {
             });
     },
     FETCH_COIN_LIST: () => {
-        if (Date.now() - coinListTime > 60 * 1000) {
-            activeCoinListPromise = getCoinList();
-            coinListTime = Date.now();
-        }
-        return activeCoinListPromise;
+        return getCoinList();
     },
 };

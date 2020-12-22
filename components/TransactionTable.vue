@@ -113,9 +113,9 @@
             },
             getAmount(tx) {
                 return tx.data.value
-                    || tx.data.value_to_buy
+                    || tx.data.valueToBuy
                     || tx.data.stake
-                    || tx.data.initial_amount
+                    || tx.data.initialAmount
                     || (tx.data.check && tx.data.check.value)
                     || this.getMultisendValue(tx);
             },
@@ -134,7 +134,7 @@
                 }
                 const currentUserDeliveryList = this.getMultisendDeliveryList(tx);
                 return currentUserDeliveryList.some((delivery) => {
-                    return delivery.coin !== currentUserDeliveryList[0].coin;
+                    return delivery.coin.symbol !== currentUserDeliveryList[0].coin.symbol;
                 });
             },
             getMultisendCoin(tx) {
@@ -142,7 +142,7 @@
                     return;
                 }
                 if (!this.isMultisendMultipleCoin(tx)) {
-                    return this.getMultisendDeliveryList(tx)[0].coin;
+                    return this.getMultisendDeliveryList(tx)[0].coin.symbol;
                 }
             },
             getMultisendValue(tx) {
@@ -158,18 +158,18 @@
             },
             getConvertCoinSymbol(tx) {
                 if (tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL)) {
-                    return tx.data.coin_to_sell;
+                    return tx.data.coinToSell.symbol;
                 }
                 if (tx.type === Number(TX_TYPE.BUY)) {
-                    return tx.data.coin_to_buy;
+                    return tx.data.coinToBuy.symbol;
                 }
             },
             getConvertValue(tx) {
                 if (tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL)) {
-                    return tx.data.value_to_sell;
+                    return tx.data.valueToSell;
                 }
                 if (tx.type === Number(TX_TYPE.BUY)) {
-                    return tx.data.value_to_buy;
+                    return tx.data.valueToBuy;
                 }
             },
         },
@@ -199,7 +199,7 @@
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isExchange(tx)">
                     <div class="list-item__sup">Exchange</div>
-                    <div class="list-item__name">{{ tx.data.coin_to_sell }} → {{ tx.data.coin_to_buy }}</div>
+                    <div class="list-item__name">{{ tx.data.coinToSell.symbol }} → {{ tx.data.coinToBuy.symbol }}</div>
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isCreateCoin(tx)">
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
@@ -207,7 +207,7 @@
                 </div>
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isMining(tx)">
                     <div class="list-item__sup">{{ tx.type | txType }}</div>
-                    <div class="list-item__name u-text-nowrap">{{ tx.data.pub_key | short }}</div>
+                    <div class="list-item__name u-text-nowrap">{{ tx.data.pubKey | short }}</div>
                 </div>
                 <!--@TODO check amount-->
                 <div class="list-item__center" :class="{'list-item__overflow': true}" v-else-if="isRedeem(tx)">
@@ -231,7 +231,7 @@
                         <div class="list-item__amount" :class="{'list-item__amount--plus': isIncome(tx)}">
                             {{ isIncome(tx) ? '+' : '-' }}&nbsp;{{ getAmount(tx) || 0 | pretty }}
                         </div>
-                        <div class="list-item__sub">{{ tx.data.coin || tx.data.symbol || tx.data.coin_to_buy || (tx.data.check && tx.data.check.coin) || getMultisendCoin(tx) }}</div>
+                        <div class="list-item__sub">{{ tx.data.coin.symbol || tx.data.symbol || tx.data.coinToBuy.symbol || (tx.data.check && tx.data.check.coin.symbol) || getMultisendCoin(tx) }}</div>
                     </template>
                 </div>
             </div>
@@ -249,27 +249,27 @@
                     </div>
                     <div class="u-cell" v-if="isDefined(tx.data.amount)">
                         <div class="tx-info__name">Amount</div>
-                        <div class="tx-info__value">{{ tx.data.amount | pretty }} {{ tx.data.coin }}</div>
+                        <div class="tx-info__value">{{ tx.data.amount | pretty }} {{ tx.data.coin.symbol }}</div>
                     </div>
 
                     <!-- type SELL -->
                     <div class="u-cell" v-if="isSell(tx)">
                         <div class="tx-info__name">Sell coins</div>
-                        <div class="tx-info__value">{{ tx.data.value_to_sell | pretty }} {{ tx.data.coin_to_sell }}</div>
+                        <div class="tx-info__value">{{ tx.data.valueToSell | pretty }} {{ tx.data.coinToSell.symbol }}</div>
                     </div>
                     <div class="u-cell" v-if="isSell(tx)">
                         <div class="tx-info__name">Get coins</div>
-                        <div class="tx-info__value">{{ tx.data.value_to_buy | pretty  }} {{ tx.data.coin_to_buy }}</div>
+                        <div class="tx-info__value">{{ tx.data.valueToBuy | pretty  }} {{ tx.data.coinToBuy.symbol }}</div>
                     </div>
 
                     <!-- type BUY -->
                     <div class="u-cell" v-if="isBuy(tx)">
                         <div class="tx-info__name">Buy coins</div>
-                        <div class="tx-info__value">{{ tx.data.value_to_buy | pretty }} {{ tx.data.coin_to_buy }}</div>
+                        <div class="tx-info__value">{{ tx.data.valueToBuy | pretty }} {{ tx.data.coinToBuy.symbol }}</div>
                     </div>
                     <div class="u-cell" v-if="isBuy(tx)">
                         <div class="tx-info__name">Spend coins</div>
-                        <div class="tx-info__value">{{ tx.data.value_to_sell | pretty }} {{ tx.data.coin_to_sell }}</div>
+                        <div class="tx-info__value">{{ tx.data.valueToSell | pretty }} {{ tx.data.coinToSell.symbol }}</div>
                     </div>
 
                     <!-- type CREATE_COIN -->
@@ -281,27 +281,27 @@
                         <div class="tx-info__name">Symbol</div>
                         <div class="tx-info__value">{{ tx.data.symbol }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.initial_amount">
+                    <div class="u-cell" v-if="tx.data.initialAmount">
                         <div class="tx-info__name">Initial Amount</div>
-                        <div class="tx-info__value">{{ tx.data.initial_amount | pretty }}</div>
+                        <div class="tx-info__value">{{ tx.data.initialAmount | pretty }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.initial_reserve">
+                    <div class="u-cell" v-if="tx.data.initialReserve">
                         <div class="tx-info__name">Initial Reserve</div>
-                        <div class="tx-info__value">{{ tx.data.initial_reserve | pretty }}</div>
+                        <div class="tx-info__value">{{ tx.data.initialReserve | pretty }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.constant_reserve_ratio">
+                    <div class="u-cell" v-if="tx.data.constantReserveRatio">
                         <div class="tx-info__name">CRR</div>
-                        <div class="tx-info__value">{{ tx.data.constant_reserve_ratio }}&thinsp;%</div>
+                        <div class="tx-info__value">{{ tx.data.constantReserveRatio }}&thinsp;%</div>
                     </div>
 
                     <!-- type DECLARE_CANDIDACY, EDIT_CANDIDATE, DELEGATE, UNBOND, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE -->
-                    <div class="u-cell" v-if="tx.data.pub_key">
+                    <div class="u-cell" v-if="tx.data.pubKey">
                         <div class="tx-info__name">Public Key</div>
-                        <div class="tx-info__value">{{ tx.data.pub_key }}</div>
+                        <div class="tx-info__value">{{ tx.data.pubKey }}</div>
                     </div>
                     <div class="u-cell" v-if="isDefined(tx.data.stake)">
                         <div class="tx-info__name">Stake</div>
-                        <div class="tx-info__value">{{ tx.data.stake | pretty }} {{ tx.data.coin }}</div>
+                        <div class="tx-info__value">{{ tx.data.stake | pretty }} {{ tx.data.coin.symbol }}</div>
                     </div>
                     <div class="u-cell" v-if="isDefined(tx.data.commission)">
                         <div class="tx-info__name">Commission</div>
@@ -311,13 +311,13 @@
                         <div class="tx-info__name">Unbond Block</div>
                         <div class="tx-info__value">{{ tx.block + $options.UNBOND_PERIOD }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.reward_address">
+                    <div class="u-cell" v-if="tx.data.rewardAddress">
                         <div class="tx-info__name">Reward Address</div>
-                        <div class="tx-info__value">{{ tx.data.reward_address }}</div>
+                        <div class="tx-info__value">{{ tx.data.rewardAddress }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.owner_address">
+                    <div class="u-cell" v-if="tx.data.ownerAddress">
                         <div class="tx-info__name">Owner Address</div>
-                        <div class="tx-info__value">{{ tx.data.owner_address }}</div>
+                        <div class="tx-info__value">{{ tx.data.ownerAddress }}</div>
                     </div>
 
                     <!-- type REDEEM_CHECK -->
@@ -329,9 +329,9 @@
                         <div class="tx-info__name">Check Nonce</div>
                         <div class="tx-info__value">{{ fromBase64(tx.data.check.nonce) }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.check && tx.data.check.due_block">
+                    <div class="u-cell" v-if="tx.data.check && tx.data.check.dueBlock">
                         <div class="tx-info__name">Due Block</div>
-                        <div class="tx-info__value">{{ tx.data.check.due_block }}</div>
+                        <div class="tx-info__value">{{ tx.data.check.dueBlock }}</div>
                     </div>
 
                     <!-- type MULTISIG -->

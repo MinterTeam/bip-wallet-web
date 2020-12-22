@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  repository: minterteam/bip-wallet-web
+  pullPolicy: Always
+  tag: latest
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  port: 80
+
+ingress:
+  domain: wallet.bip.to
+  tlsname: wallet.bip.to
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
