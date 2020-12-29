@@ -314,10 +314,10 @@
                 this.serverSuccess = '';
                 this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
                     .then(() => {
-                        postTx({
+                        postTx(this.tx, {
                             privateKey: this.$store.getters.privateKey,
-                            ...this.tx,
-                        }, {privateKey: this.$store.getters.privateKey}).then((txHash) => {
+                            nonceRetryLimit: 1,
+                        }).then((txHash) => {
                             this.isFormSending = false;
                             this.serverSuccess = txHash;
                         }).catch((error) => {
