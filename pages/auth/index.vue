@@ -29,7 +29,7 @@
                 </div>
 -->
                 <div class="u-cell">
-                    <nuxt-link to="/auth/sign-in-advanced" class="bip-button bip-button--ghost-white">Advanced Mode</nuxt-link>
+                    <nuxt-link to="/auth/sign-in-advanced" class="bip-button bip-button--white">Sign in</nuxt-link>
                 </div>
 <!--
                 <div class="u-cell u-cell&#45;&#45;1-2">

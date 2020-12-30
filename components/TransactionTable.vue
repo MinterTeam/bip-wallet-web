@@ -231,7 +231,7 @@
                         <div class="list-item__amount" :class="{'list-item__amount--plus': isIncome(tx)}">
                             {{ isIncome(tx) ? '+' : '-' }}&nbsp;{{ getAmount(tx) || 0 | pretty }}
                         </div>
-                        <div class="list-item__sub">{{ tx.data.coin.symbol || tx.data.symbol || tx.data.coinToBuy.symbol || (tx.data.check && tx.data.check.coin.symbol) || getMultisendCoin(tx) }}</div>
+                        <div class="list-item__sub">{{ (tx.data.coin && tx.data.coin.symbol) || tx.data.symbol || (tx.data.coinToBuy && tx.data.coinToBuy.symbol) || (tx.data.check && tx.data.check.coin.symbol) || getMultisendCoin(tx) }}</div>
                     </template>
                 </div>
             </div>

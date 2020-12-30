@@ -2,7 +2,7 @@
     import autosize from 'v-autosize';
     import {decodeLink} from 'minter-js-sdk/src/link';
     import {TX_TYPE} from 'minterjs-tx/src/tx-types';
-    import {postTx} from '~/api/gate.js';
+    import {postTx, replaceCoinSymbolByPath} from '~/api/gate.js';
     import FeeBus from '~/assets/fee.js';
     import {getErrorText} from "~/assets/server-error.js";
     import {pretty, prettyExact, getExplorerTxUrl, txTypeFilter} from '~/assets/utils.js';
@@ -312,14 +312,22 @@
                 this.isModalOpen = false;
                 this.serverError = '';
                 this.serverSuccess = '';
-                this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
-                    .then(() => {
-                        postTx(this.tx, {
+
+                Promise.all([
+                    replaceCoinSymbolByPath({gasCoin: this.fee.coinSymbol}, ['gasCoin']),
+                    this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED'),
+                ])
+                    .then(([txParams]) => {
+                        postTx({
+                            ...this.tx,
+                            gasCoin: txParams.gasCoin,
+                            gasPrice: 1,
+                        }, {
                             privateKey: this.$store.getters.privateKey,
                             nonceRetryLimit: 1,
-                        }).then((txHash) => {
+                        }).then((tx) => {
                             this.isFormSending = false;
-                            this.serverSuccess = txHash;
+                            this.serverSuccess = tx.hash;
                         }).catch((error) => {
                             console.log(error);
                             this.isFormSending = false;
