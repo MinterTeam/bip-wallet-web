@@ -23,25 +23,23 @@
     <div class="auth-page">
         <TestnetNotice/>
 
-        <div class="auth__content">
-            <div class="auth__logo-container">
-                <img class="auth__logo" src="/img/bip-logo.svg" alt="Bip">
-            </div>
-
-            <div class="u-section u-container">
-                <div class="u-grid u-grid--vertical-margin">
-                    <div class="u-cell">
-                        <nuxt-link to="/auth/create-wallet" class="bip-button bip-button--white">Create Wallet</nuxt-link>
-                    </div>
-                    <div class="u-cell">
-                        <nuxt-link to="/auth/sign-in-advanced" class="bip-button bip-button--ghost-white">Advanced Mode</nuxt-link>
-                    </div>
-                    <div class="u-cell u-cell--1-2">
-                        <nuxt-link to="/auth/sign-in" class="bip-button bip-button--ghost-white">Sign In</nuxt-link>
-                    </div>
-                    <div class="u-cell u-cell--1-2">
-                        <a href="https://help.minter.network" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
-                    </div>
+        <div class="u-section u-container">
+            <div class="u-grid u-grid--vertical-margin">
+<!--
+                <div class="u-cell">
+                    <nuxt-link to="/auth/create-wallet" class="bip-button bip-button&#45;&#45;white">Create Wallet</nuxt-link>
+                </div>
+-->
+                <div class="u-cell">
+                    <nuxt-link to="/auth/sign-in-advanced" class="bip-button bip-button--white">Sign in</nuxt-link>
+                </div>
+<!--
+                <div class="u-cell u-cell&#45;&#45;1-2">
+                    <nuxt-link to="/auth/sign-in" class="bip-button bip-button&#45;&#45;ghost-white">Sign In</nuxt-link>
+                </div>
+-->
+                <div class="u-cell">
+                    <a href="https://help.minter.network" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
                 </div>
             </div>
         </div>

@@ -193,6 +193,7 @@
                         }
                         this.form.address = newVal;
                         this.recipient.address = newVal;
+/*
                     } else if (newVal.substr(0, 1) === '@') {
                         // username
                         if (!/^@\w*$/.test(newVal)) {
@@ -207,6 +208,7 @@
                         recipientCheckData = {email: newVal};
                         this.recipient.type = 'email';
                         this.recipientCheckTimer = setTimeout(this.checkRecipient, 1000);
+*/
                     } else {
                         // wrong recipient
                         this.setAddressError('Wrong recipient');
@@ -427,7 +429,7 @@
                     <span class="bip-field__error" v-if="$v.form.coinSymbol.$dirty && !$v.form.coinSymbol.required">Enter coin</span>
                 </label>
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.address.$error}">
-                    <span class="bip-field__label">To (@username, email, address or public key)</span>
+                    <span class="bip-field__label">To (<!--@username, email, -->Address or public key)</span>
                     <input class="bip-field__input " type="text"
                            v-model.trim="recipient.name"
                            @blur="$v.form.address.$touch(); recipientBlur()"

@@ -20,6 +20,9 @@
             InputMaskedName,
         },
         mixins: [validationMixin],
+        fetch({redirect}) {
+            return redirect('/auth');
+        },
         head() {
             return {
                 title: getTitle(this.$options.PAGE_TITLE),
