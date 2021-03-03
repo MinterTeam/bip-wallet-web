@@ -142,7 +142,7 @@
                     return selectedCoin.amount;
                 }
                 // fee in selected coin, subtract fee
-                const amount = new Big(selectedCoin.amount).minus(this.fee.value).toFixed();
+                const amount = new Big(selectedCoin.amount || 0).minus(this.fee.value || 0).toFixed();
                 return amount > 0 ? amount : '0';
             },
             feeBusParams() {
