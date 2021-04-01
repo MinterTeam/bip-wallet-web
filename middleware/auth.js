@@ -35,7 +35,7 @@ export default function({store, route, redirect, error}) {
         return redirect('/');
     }
 
-    if (!store.getters.isUserWithProfile && urlRequiresUserWithProfile) {
+    if (/*!store.getters.isUserWithProfile && */urlRequiresUserWithProfile) {
         console.log('-- restricted: 404 settings not available');
         return error({status: 404, message: 'Page not found'});
     }

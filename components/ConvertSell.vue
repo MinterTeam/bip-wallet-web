@@ -216,7 +216,6 @@
                     //@TODO minBuyAmount
                     //@TODO use sellAllTx if sellAmount == maxAmount ?
                     this.isUseMax ? this.getAbleUseSellAll() : Promise.resolve(false),
-                    this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED'),
                 ])
                     .then(([txParams, isSellAll]) => {
                         return postTx({

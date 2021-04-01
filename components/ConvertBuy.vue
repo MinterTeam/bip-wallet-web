@@ -193,7 +193,6 @@
                         },
                         gasCoin: this.fee.coinSymbol,
                     }),
-                    this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED'),
                 ])
                     .then(([txParams]) => {
                         //@TODO maxSellAmount

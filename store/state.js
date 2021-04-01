@@ -1,18 +1,6 @@
 export default function() {
     return {
-        auth: {
-            /** @type Address|null */
-            advanced: null,
-            /** @type string|null - stored password */
-            password: null,
-        },
-        /** @type User */
-        user: {
-            /** @type Address */
-            mainAddress: {},
-        },
-        /** @type Array<Address> - source of truth for encrypted mnemonic data */
-        profileAddressList: [],
+        auth: '',
         /** @type Array<CoinItem> */
         balance: [],
         totalBalanceSum: '0',
@@ -26,7 +14,6 @@ export default function() {
             data: [],
             meta: {},
         },
-        userList: {},
         history: [],
         authRedirectPath: '',
     };
@@ -45,27 +32,3 @@ export default function() {
  * @property {string} timestamp
  */
 
-/**
- * @typedef {Object} TokenData
- * @property {string} tokenType
- * @property {number} expiresIn
- * @property {string} accessToken
- * @property {string} refreshToken
- */
-
-/**
- * @typedef {Object} User
- * @property {string} username
- * @property {string} name
- * @property {string} email
- * @property {string} phone
- * @property {string} language
- * @property {UserAvatar} avatar
- * @property {Address} mainAddress
- */
-
-/**
- * @typedef {Object} UserAvatar
- * @property {string} src
- * @property {string} description
- */

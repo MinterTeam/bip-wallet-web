@@ -315,7 +315,6 @@
 
                 Promise.all([
                     replaceCoinSymbolByPath({gasCoin: this.fee.coinSymbol}, ['gasCoin']),
-                    this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED'),
                 ])
                     .then(([txParams]) => {
                         postTx({

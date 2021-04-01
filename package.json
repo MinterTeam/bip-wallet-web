@@ -30,7 +30,6 @@
     "core-js": "^3.10.0",
     "date-fns": "^2.19.0",
     "entity-decode": "^2.0.2",
-    "minter-js-org": "0.3.3",
     "minter-js-sdk": "^0.37.0",
     "minterjs-tx": "^9.0.1",
     "minterjs-util": "^0.20.0",

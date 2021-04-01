@@ -8,7 +8,6 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
-    import {getAddressInfoByContact} from "~/api";
     import {postTx, replaceCoinSymbol} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
@@ -80,8 +79,8 @@
                     address: '',
                     type: '',
                 },
-                recipientCheckTimer: null,
-                recipientLoading: false, // latest recipient value sent to check and still loading
+                // recipientCheckTimer: null,
+                // recipientLoading: false, // latest recipient value sent to check and still loading
                 amountImaskOptions: {
                     mask: Number,
                     scale: 18, // digits after point, 0 for integers
@@ -123,7 +122,8 @@
         },
         computed: {
             isRecipientCheckWait() {
-                return this.recipientLoading || this.recipientCheckTimer;
+                return false;
+                // return this.recipientLoading || this.recipientCheckTimer;
             },
             maxAmount() {
                 let selectedCoin;
@@ -162,8 +162,8 @@
                 handler(newVal) {
                     this.form.address = '';
                     this.recipient.type = '';
-                    recipientCheckData = null;
-                    this.clearRecipientTimer();
+                    // recipientCheckData = null;
+                    // this.clearRecipientTimer();
                     if (!newVal) {
                         return;
                     }
@@ -238,6 +238,7 @@
         methods: {
             // force check after blur if needed
             recipientBlur() {
+                /*
                 if (
                     this.recipientCheckTimer // check was postponed
                     ||
@@ -246,11 +247,14 @@
                     this.clearRecipientTimer();
                     this.checkRecipient();
                 }
+                */
             },
+            /*
             clearRecipientTimer() {
                 clearTimeout(this.recipientCheckTimer);
                 this.recipientCheckTimer = null;
             },
+
             checkRecipient() {
                 // cancel previous request
                 this.clearRecipientTimer();
@@ -304,6 +308,7 @@
                         this.recipientLoading = false;
                     });
             },
+            */
             setAddressError(message, code) {
                 this.sve.address = {invalid: true, isActual: true, message, code};
             },
@@ -338,45 +343,38 @@
                 this.isModalOpen = false;
                 this.serverError = '';
                 this.serverSuccess = '';
-                this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
-                    .then(() => {
-                        let txParams = {
-                            gasCoin: this.fee.coinSymbol,
-                            payload: this.form.message,
-                        };
-                        if (this.recipient.type === 'publicKey') {
-                            txParams.type = TX_TYPE.DELEGATE;
-                            txParams.data = {
-                                coin: this.form.coinSymbol,
-                                stake: this.form.amount,
-                                publicKey: this.form.address,
-                            };
-                        } else {
-                            txParams.type = TX_TYPE.SEND;
-                            txParams.data = {
-                                coin: this.form.coinSymbol,
-                                value: this.form.amount,
-                                to: this.form.address,
-                            };
-                        }
+                let txParams = {
+                    gasCoin: this.fee.coinSymbol,
+                    payload: this.form.message,
+                };
+                if (this.recipient.type === 'publicKey') {
+                    txParams.type = TX_TYPE.DELEGATE;
+                    txParams.data = {
+                        coin: this.form.coinSymbol,
+                        stake: this.form.amount,
+                        publicKey: this.form.address,
+                    };
+                } else {
+                    txParams.type = TX_TYPE.SEND;
+                    txParams.data = {
+                        coin: this.form.coinSymbol,
+                        value: this.form.amount,
+                        to: this.form.address,
+                    };
+                }
 
-                        replaceCoinSymbol(txParams)
-                            .then(() => {
-                                return postTx(txParams, {privateKey: this.$store.getters.privateKey});
-                            })
-                            .then((tx) => {
-                                this.isFormSending = false;
-                                this.isSuccessModalOpen = true;
-                                this.serverSuccess = tx.hash;
-                                this.clearForm();
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                                this.isFormSending = false;
-                                this.serverError = getErrorText(error);
-                            });
+                replaceCoinSymbol(txParams)
+                    .then(() => {
+                        return postTx(txParams, {privateKey: this.$store.getters.privateKey});
+                    })
+                    .then((tx) => {
+                        this.isFormSending = false;
+                        this.isSuccessModalOpen = true;
+                        this.serverSuccess = tx.hash;
+                        this.clearForm();
                     })
                     .catch((error) => {
+                        console.log(error);
                         this.isFormSending = false;
                         this.serverError = getErrorText(error);
                     });
