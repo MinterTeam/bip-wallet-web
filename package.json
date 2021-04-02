@@ -30,9 +30,9 @@
     "core-js": "^3.10.0",
     "date-fns": "^2.19.0",
     "entity-decode": "^2.0.2",
-    "minter-js-sdk": "^0.37.0",
-    "minterjs-tx": "^9.0.1",
-    "minterjs-util": "^0.20.0",
+    "minter-js-sdk": "^0.38.0-alpha.30",
+    "minterjs-tx": "^10.0.0-alpha.9",
+    "minterjs-util": "^0.21.0-aplha.13",
     "minterjs-wallet": "^6.1.0",
     "nuxt": "^2.15.4",
     "onsenui": "^2.11.2",
@@ -48,6 +48,7 @@
     "vuex-persistedstate": "^3.2.0"
   },
   "devDependencies": {
+    "@nuxt/types": "^2.15.4",
     "autoprefixer": "^9.7.4",
     "babel-eslint": "^10.1.0",
     "beeper": "^2.1.0",

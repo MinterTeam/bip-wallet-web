@@ -8,7 +8,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import decode from 'entity-decode';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
-    import {postTx, estimateCoinBuy, replaceCoinSymbol} from '~/api/gate.js';
+    import {postTx, estimateCoinBuy} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
@@ -104,13 +104,17 @@
         },
         computed: {
             feeBusParams() {
+                //@TODO coin to spend as fallback gasCoin
                 return {
-                    txType: TX_TYPE.BUY,
-                    txFeeOptions: {payload: this.form.message},
-                    selectedCoin: this.form.coinFrom,
-                    // selectedFeeCoin: this.form.feeCoinSymbol,
+                    txParams: {
+                        type: TX_TYPE.BUY,
+                        data: {
+                            coinToSell: this.form.coinFrom,
+                            // coinToBuy: this.form.coinTo,
+                            // valueToBuy: this.form.buyAmount,
+                        },
+                    },
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
-                    // isOffline: this.$store.getters.isOfflineMode,
                 };
             },
             isEstimationWaiting() {
@@ -183,21 +187,18 @@
 
                 this.isFormSending = true;
                 this.serverError = '';
-                Promise.all([
-                    replaceCoinSymbol({
-                        type: TX_TYPE.BUY,
-                        data: {
-                            coinToSell: this.form.coinFrom,
-                            coinToBuy: this.form.coinTo,
-                            valueToBuy: this.form.buyAmount,
-                        },
-                        gasCoin: this.fee.coinSymbol,
-                    }),
-                ])
-                    .then(([txParams]) => {
-                        //@TODO maxSellAmount
-                        return postTx(txParams, {privateKey: this.$store.getters.privateKey});
-                    })
+                const txParams = {
+                    type: TX_TYPE.BUY,
+                    data: {
+                        coinToSell: this.form.coinFrom,
+                        coinToBuy: this.form.coinTo,
+                        valueToBuy: this.form.buyAmount,
+                    },
+                    gasCoin: this.fee.coin,
+                };
+
+                //@TODO maxSellAmount
+                return postTx(txParams, {privateKey: this.$store.getters.privateKey})
                     .then((tx) => {
                         this.$emit('success-tx', tx);
                         this.isFormSending = false;
@@ -276,7 +277,7 @@
                 </div>
                 <div class="list-item__right u-text-right">
                     <div class="list-item__label list-item__label--strong">
-                        {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                        {{ fee.coin }} {{ fee.value | pretty }}
                         <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                     </div>
                 </div>

@@ -8,8 +8,9 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
-    import {postTx, replaceCoinSymbol} from '~/api/gate.js';
-    import FeeBus from '~/assets/fee';
+    import {isCoinId} from 'minter-js-sdk/src/utils.js';
+    import {postTx} from '~/api/gate.js';
+    import FeeBus from '~/assets/fee.js';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
     import getTitle from '~/assets/get-title';
@@ -138,7 +139,7 @@
                     return '0';
                 }
                 // fee not in selected coins
-                if (selectedCoin.coin.symbol !== this.fee.coinSymbol) {
+                if (!isSelectedCoinSameAsFeeCoin(selectedCoin.coin, this.fee?.coin)) {
                     return selectedCoin.amount;
                 }
                 // fee in selected coin, subtract fee
@@ -146,13 +147,35 @@
                 return amount > 0 ? amount : '0';
             },
             feeBusParams() {
+                //@TODO coin to spend as fallback gasCoin
                 return {
-                    txType: this.recipient.type === 'publicKey' ? TX_TYPE.DELEGATE : TX_TYPE.SEND,
-                    txFeeOptions: {payload: this.form.message},
-                    selectedCoin: this.form.coinSymbol,
-                    // selectedFeeCoin: this.form.feeCoinSymbol,
+                    txParams: this.txParams,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
-                    // isOffline: this.$store.getters.isOfflineMode,
+                };
+            },
+            txParams() {
+                let type;
+                let data;
+                if (this.recipient.type === 'publicKey') {
+                    type = TX_TYPE.DELEGATE;
+                    data = {
+                        coin: this.form.coinSymbol,
+                        stake: this.form.amount,
+                        publicKey: this.form.address,
+                    };
+                } else {
+                    type = TX_TYPE.SEND;
+                    data = {
+                        coin: this.form.coinSymbol,
+                        value: this.form.amount,
+                        to: this.form.address,
+                    };
+                }
+
+                return {
+                    type,
+                    data,
+                    payload: this.form.message,
                 };
             },
         },
@@ -343,30 +366,12 @@
                 this.isModalOpen = false;
                 this.serverError = '';
                 this.serverSuccess = '';
-                let txParams = {
-                    gasCoin: this.fee.coinSymbol,
-                    payload: this.form.message,
+                const txParams = {
+                    ...this.txParams,
+                    gasCoin: this.fee.coin,
                 };
-                if (this.recipient.type === 'publicKey') {
-                    txParams.type = TX_TYPE.DELEGATE;
-                    txParams.data = {
-                        coin: this.form.coinSymbol,
-                        stake: this.form.amount,
-                        publicKey: this.form.address,
-                    };
-                } else {
-                    txParams.type = TX_TYPE.SEND;
-                    txParams.data = {
-                        coin: this.form.coinSymbol,
-                        value: this.form.amount,
-                        to: this.form.address,
-                    };
-                }
 
-                replaceCoinSymbol(txParams)
-                    .then(() => {
-                        return postTx(txParams, {privateKey: this.$store.getters.privateKey});
-                    })
+                return postTx(txParams, {privateKey: this.$store.getters.privateKey})
                     .then((tx) => {
                         this.isFormSending = false;
                         this.isSuccessModalOpen = true;
@@ -409,6 +414,24 @@
             getExplorerTxUrl,
         },
     };
+
+    /**
+     *
+     * @param {Coin} selectedCoinItem
+     * @param {string|number} feeCoinIdOrSymbol
+     * @return {boolean}
+     */
+    function isSelectedCoinSameAsFeeCoin(selectedCoinItem, feeCoinIdOrSymbol) {
+        const isFeeId = isCoinId(feeCoinIdOrSymbol);
+        const isFeeSymbol = !isFeeId;
+        if (isFeeSymbol && selectedCoinItem.symbol === feeCoinIdOrSymbol) {
+            return true;
+        }
+        if (isFeeId && selectedCoinItem.id === feeCoinIdOrSymbol) {
+            return true;
+        }
+        return false;
+    }
 </script>
 
 <template>
@@ -466,7 +489,7 @@
                     </div>
                     <div class="list-item__right u-text-right">
                         <div class="list-item__label list-item__label--strong">
-                            {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                            {{ fee.coin }} {{ fee.value | pretty }}
                             <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                         </div>
                     </div>

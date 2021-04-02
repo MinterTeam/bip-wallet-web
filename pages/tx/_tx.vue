@@ -1,8 +1,8 @@
 <script>
     import autosize from 'v-autosize';
     import {decodeLink} from 'minter-js-sdk/src/link';
-    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
-    import {postTx, replaceCoinSymbolByPath} from '~/api/gate.js';
+    import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
+    import {postTx} from '~/api/gate.js';
     import FeeBus from '~/assets/fee.js';
     import {getErrorText} from "~/assets/server-error.js";
     import {pretty, prettyExact, getExplorerTxUrl, txTypeFilter} from '~/assets/utils.js';
@@ -248,27 +248,10 @@
                 return fields;
             },
             feeBusParams() {
-                const txType = this.tx.type;
-                const txData = this.tx.data;
-                let selectedCoin;
-                if (txType === TX_TYPE.SEND || txType === TX_TYPE.DECLARE_CANDIDACY || txType === TX_TYPE.DELEGATE) {
-                    selectedCoin = Number(txData.coin);
-                }
-                if (txType === TX_TYPE.BUY || txType === TX_TYPE.SELL || txType === TX_TYPE.SELL_ALL) {
-                    selectedCoin = Number(txData.coinToSell);
-                }
-
+                //@TODO coin to spend as fallback gasCoin
                 return {
-                    txType,
-                    txFeeOptions: {
-                        payload: this.tx.payload,
-                        multisendCount: txType === TX_TYPE.MULTISEND ? txData.list.length : undefined,
-                        coinSymbol: txType === TX_TYPE.CREATE_COIN ? txData.symbol : undefined,
-                    },
-                    selectedCoin,
-                    selectedFeeCoin: Number(this.tx.gasCoin),
+                    txParams: this.tx,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
-                    // isOffline: this.$store.getters.isOfflineMode,
                 };
             },
             isRedeemCheck() {
@@ -313,30 +296,20 @@
                 this.serverError = '';
                 this.serverSuccess = '';
 
-                Promise.all([
-                    replaceCoinSymbolByPath({gasCoin: this.fee.coinSymbol}, ['gasCoin']),
-                ])
-                    .then(([txParams]) => {
-                        postTx({
-                            ...this.tx,
-                            gasCoin: txParams.gasCoin,
-                            gasPrice: 1,
-                        }, {
-                            privateKey: this.$store.getters.privateKey,
-                            nonceRetryLimit: 1,
-                        }).then((tx) => {
-                            this.isFormSending = false;
-                            this.serverSuccess = tx.hash;
-                        }).catch((error) => {
-                            console.log(error);
-                            this.isFormSending = false;
-                            this.serverError = getErrorText(error);
-                        });
-                    })
-                    .catch((error) => {
-                        this.isFormSending = false;
-                        this.serverError = getErrorText(error);
-                    });
+                postTx({
+                    ...this.tx,
+                    gasPrice: 1,
+                }, {
+                    privateKey: this.$store.getters.privateKey,
+                    nonceRetryLimit: 1,
+                }).then((tx) => {
+                    this.isFormSending = false;
+                    this.serverSuccess = tx.hash;
+                }).catch((error) => {
+                    console.log(error);
+                    this.isFormSending = false;
+                    this.serverError = getErrorText(error);
+                });
             },
             getExplorerTxUrl,
         },
@@ -407,7 +380,7 @@
                     </div>
                     <div class="list-item__right u-text-right">
                         <div class="list-item__label list-item__label--strong">
-                            {{ fee.value | pretty }} {{ fee.coinSymbol }}
+                            {{ fee.value | pretty }} {{ fee.coin }}
                             <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ fee.baseCoinValue | pretty }} {{ $store.getters.COIN_NAME }})</span>
                         </div>
                     </div>

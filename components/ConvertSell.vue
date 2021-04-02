@@ -1,5 +1,4 @@
 <script>
-    import {mapState, mapGetters} from 'vuex';
     import axios from 'axios';
     import {IMaskDirective} from 'vue-imask';
     import {validationMixin} from 'vuelidate';
@@ -10,7 +9,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import decode from 'entity-decode';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
-    import {postTx, estimateCoinSell, replaceCoinSymbol} from '~/api/gate.js';
+    import {postTx, estimateCoinSell} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
@@ -120,13 +119,17 @@
                 return selectedCoin ? selectedCoin.amount : 0;
             },
             feeBusParams() {
+                //@TODO coin to spend as fallback gasCoin
                 return {
-                    txType: TX_TYPE.SELL,
-                    txFeeOptions: {payload: this.form.message},
-                    selectedCoin: this.form.coinFrom,
-                    // selectedFeeCoin: this.form.feeCoinSymbol,
+                    txParams: {
+                        type: TX_TYPE.SELL,
+                        data: {
+                            coinToSell: this.form.coinFrom,
+                            // coinToBuy: this.form.coinTo,
+                            // valueToSell: this.form.sellAmount,
+                        },
+                    },
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
-                    // isOffline: this.$store.getters.isOfflineMode,
                 };
             },
             isEstimationWaiting() {
@@ -203,24 +206,19 @@
                 this.isFormSending = true;
                 this.serverError = '';
                 Promise.all([
-                    replaceCoinSymbol({
-                        // type will be updated later, for now its needed for replacer to find appropriate coin fields
-                        type: TX_TYPE.SELL,
-                        data: {
-                            coinToSell: this.form.coinFrom,
-                            coinToBuy: this.form.coinTo,
-                            valueToSell: this.form.sellAmount,
-                        },
-                        gasCoin: this.fee.coinSymbol,
-                    }),
                     //@TODO minBuyAmount
                     //@TODO use sellAllTx if sellAmount == maxAmount ?
                     this.isUseMax ? this.getAbleUseSellAll() : Promise.resolve(false),
                 ])
-                    .then(([txParams, isSellAll]) => {
+                    .then(([isSellAll]) => {
                         return postTx({
-                            ...txParams,
                             type: isSellAll ? TX_TYPE.SELL_ALL : TX_TYPE.SELL,
+                            data: {
+                                coinToSell: this.form.coinFrom,
+                                coinToBuy: this.form.coinTo,
+                                valueToSell: this.form.sellAmount,
+                            },
+                            gasCoin: this.fee.coin,
                         }, {privateKey: this.$store.getters.privateKey});
                     })
                     .then((tx) => {
@@ -343,7 +341,7 @@
                 </div>
                 <div class="list-item__right u-text-right">
                     <div class="list-item__label list-item__label--strong">
-                        {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                        {{ fee.coin }} {{ fee.value | pretty }}
                         <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                     </div>
                 </div>

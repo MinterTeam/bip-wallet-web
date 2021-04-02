@@ -1,104 +1,90 @@
 import Vue from 'vue';
 import Big from 'big.js';
-import {getFeeValue} from 'minterjs-util/src/fee';
-import {COIN_NAME} from '~/assets/variables';
-import {estimateCoinBuy} from '~/api/gate';
-import {getCoinList} from '~/api/explorer.js';
+import {FeePrice} from 'minterjs-util/src/fee.js';
+import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
+import {BASE_COIN, CHAIN_ID} from '~/assets/variables.js';
+import {estimateTxCommission} from '~/api/gate.js';
+import {getErrorText} from '~/assets/server-error.js';
 
 
 /**
  * @typedef {Object} FeeData
+ * @property {Coin} priceCoin
  * @property {boolean} isBaseCoin
  * @property {boolean} isBaseCoinEnough
+ * @property {number|string} priceCoinValue
  * @property {number|string} baseCoinValue
  * @property {number|string} value
- * @property {string} coinSymbol
+ * @property {string|number} coin
+ * @property {string} error
+ * @property {boolean} isHighFee
+ * @property {boolean} isLoading
  */
 
 /**
  *
- * @param {string} txType
- * @param {{payload: string, coinSymbol: string, multisendCount: number}} [txFeeOptions]
- * @param {string|number} [selectedCoin]
- * @param {string|number} [selectedFeeCoin]
+ * @param {TxParams} txParams
  * @param {number} [baseCoinAmount]
  * @param {boolean} [isOffline]
  * @return {Vue}
  * @constructor
  */
 
-export default function FeeBus({txType, txFeeOptions, selectedCoin, selectedFeeCoin, baseCoinAmount = 0, isOffline}) {
+export default function FeeBus({txParams, baseCoinAmount = 0, isOffline}) {
     return new Vue({
         data: {
-            txType,
-            txFeeOptions,
-            selectedCoin,
-            selectedFeeCoin,
+            txParams,
             baseCoinAmount,
-            coinPriceList: {},
-            coinList: {},
+            priceCoinFeeValue: 0,
+            baseCoinFeeValue: 0,
+            feeValue: '',
+            feeError: '',
+            /** @type CommissionPriceData|null */
+            commissionPriceData: null,
+            isLoading: false,
             isOffline,
         },
         computed: {
-            baseCoinFeeValue() {
-                return getFeeValue(this.txType, this.txFeeOptions) || 0;
-            },
             isBaseCoinEnough() {
-                return this.baseCoinAmount >= this.baseCoinFeeValue;
+                return new Big(this.baseCoinAmount || 0).gte(this.baseCoinFeeValue);
             },
             isBaseCoinFee() {
-                // use selectedFeeCoin if it is defined
-                if (isCoinDefined(this.selectedFeeCoin)) {
-                    return isBaseCoin(this.selectedFeeCoin);
+                // use gasCoin if it is defined
+                if (isCoinDefined(this.txParams.gasCoin)) {
+                    return isBaseCoin(this.txParams.gasCoin);
                 }
-                // no coins selected: show base
-                if (!isCoinDefined(this.selectedCoin)) {
-                    return true;
-                }
-                // base coin is selected
-                if (isBaseCoin(this.selectedCoin)) {
-                    return true;
-                }
-                // base coin is enough to pay fee
-                return this.isBaseCoinEnough;
-            },
-            feeValue() {
-                if (this.isBaseCoinFee) {
-                    return this.baseCoinFeeValue;
-                } else {
-                    const coinEstimation = this.coinPriceList[this.feeCoin];
-                    if (coinEstimation) {
-                        return new Big(coinEstimation.coinAmount).div(coinEstimation.baseCoinAmount).times(this.baseCoinFeeValue).toFixed();
-                    } else {
-                        return '';
-                    }
-                }
+
+                // base coin by default
+                return true;
             },
             feeCoin() {
-                if (this.isBaseCoinFee) {
-                    return COIN_NAME;
+                if (isCoinDefined(this.txParams.gasCoin)) {
+                    return this.txParams.gasCoin;
                 }
-                if (isCoinDefined(this.selectedFeeCoin)) {
-                    return this.selectedFeeCoin;
-                }
-                return this.selectedCoin;
+                return BASE_COIN;
             },
-            feeCoinSymbol() {
-                if (isCoinId(this.feeCoin)) {
-                    return this.coinList[this.feeCoin];
-                } else {
-                    return this.feeCoin;
+            isHighFee() {
+                if (!this.commissionPriceData) {
+                    return false;
                 }
+                const feePrice = new FeePrice(this.commissionPriceData);
+
+                const sendFee = feePrice.getFeeValue(TX_TYPE.SEND);
+                return sendFee && this.priceCoinFeeValue / sendFee >= 10000;
             },
             fee() {
                 //@TODO always change, even if data stay the same
                 return {
+                    priceCoinValue: this.priceCoinFeeValue,
+                    priceCoin: this.commissionPriceData?.coin || {},
                     baseCoinValue: this.baseCoinFeeValue,
                     isBaseCoin: this.isBaseCoinFee,
                     isBaseCoinEnough: this.isBaseCoinEnough,
                     value: this.feeValue,
                     coin: this.feeCoin,
-                    coinSymbol: this.feeCoinSymbol,
+                    isHighFee: this.isHighFee,
+                    error: this.feeError,
+                    isLoading: this.isLoading,
                 };
             },
         },
@@ -125,22 +111,44 @@ export default function FeeBus({txType, txFeeOptions, selectedCoin, selectedFeeC
                 if (this.isOffline) {
                     return;
                 }
+
+                this.isLoading = true;
+                this.feeError = '';
+
+                this.priceCoinFeeValue = 0;
+                this.baseCoinFeeValue = 0;
+                this.feeValue = '';
+
                 // wait for computed to recalculate
                 this.$nextTick(() => {
-                    if (!this.isBaseCoinFee) {
-                        const feeCoin = this.feeCoin;
-                        getEstimation(feeCoin, this.baseCoinFeeValue)
-                            .then((result) => this.$set(this.coinPriceList, feeCoin, result));
-
-                        getCoinList()
-                            .then((coinList) => {
-                                let result = {};
-                                coinList.forEach((coinInfo) => {
-                                    result[coinInfo.id] = coinInfo.symbol;
-                                });
-                                this.coinList = Object.freeze(result);
-                            });
-                    }
+                    // save current gasCoin to check if it will be actual after resolution
+                    const gasCoin = this.feeCoin;
+                    estimateTxCommission({
+                        ...this.txParams,
+                        chainId: CHAIN_ID,
+                        gasCoin,
+                    })
+                        .then((feeData) => {
+                            if (gasCoin !== this.feeCoin) {
+                                return;
+                            }
+                            this.priceCoinFeeValue = feeData.priceCoinCommission;
+                            this.baseCoinFeeValue = feeData.baseCoinCommission;
+                            this.feeValue = feeData.commission;
+                            this.commissionPriceData = feeData.commissionPriceData;
+                            this.isLoading = false;
+                        })
+                        .catch((error) => {
+                            if (gasCoin !== this.feeCoin) {
+                                return;
+                            }
+                            this.feeError = getErrorText(error, '');
+                            if (this.feeError.toLowerCase() === 'not possible to exchange') {
+                                this.feeError = this.feeError + ' to pay fee';
+                            }
+                            this.feeError = 'Error: ' + this.feeError;
+                            this.isLoading = false;
+                        });
                 });
             },
         },
@@ -148,26 +156,6 @@ export default function FeeBus({txType, txFeeOptions, selectedCoin, selectedFeeC
 }
 
 
-/**
- *
- * @param coinIdOrSymbol
- * @param baseCoinAmount
- * @return {Promise<{coinAmount: string, baseCoinAmount: string}>}
- */
-function getEstimation(coinIdOrSymbol, baseCoinAmount) {
-    return estimateCoinBuy({
-        coinToSell: !isCoinId(coinIdOrSymbol) ? coinIdOrSymbol : undefined,
-        coinIdToSell: isCoinId(coinIdOrSymbol) ? coinIdOrSymbol : undefined,
-        valueToBuy: baseCoinAmount,
-        coinToBuy: COIN_NAME,
-    })
-        .then((result) => {
-            return {
-                coinAmount: result.will_pay,
-                baseCoinAmount,
-            };
-        });
-}
 
 /**
  * @param {string|number} coinIdOrSymbol
@@ -177,14 +165,10 @@ function isCoinDefined(coinIdOrSymbol) {
     return !!coinIdOrSymbol || coinIdOrSymbol === 0;
 }
 
-function isCoinId(coinIdOrSymbol) {
-    return typeof coinIdOrSymbol === 'number';
-}
-
 /**
  * @param {string|number} coinIdOrSymbol
  * @return {boolean}
  */
 function isBaseCoin(coinIdOrSymbol) {
-    return coinIdOrSymbol === COIN_NAME || coinIdOrSymbol === 0 || coinIdOrSymbol === '0';
+    return coinIdOrSymbol === BASE_COIN || coinIdOrSymbol === 0 || coinIdOrSymbol === '0';
 }
