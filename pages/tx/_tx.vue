@@ -248,10 +248,10 @@
                 return fields;
             },
             feeBusParams() {
-                //@TODO coin to spend as fallback gasCoin
                 return {
                     txParams: this.tx,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
+                    fallbackToCoinToSpend: true,
                 };
             },
             isRedeemCheck() {
@@ -376,7 +376,7 @@
                 </div>
                 <div class="list-item" v-else>
                     <div class="list-item__center">
-                        <span class="list-item__name u-text-nowrap">Transaction Fee</span>
+                        <span class="list-item__name u-text-nowrap">Transaction fee</span>
                     </div>
                     <div class="list-item__right u-text-right">
                         <div class="list-item__label list-item__label--strong">
@@ -435,7 +435,7 @@
                     <p>Transaction successfully sent!</p>
                 </div>
                 <div class="modal__footer">
-                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View Transaction</a>
+                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View transaction</a>
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/">Close</nuxt-link>
                 </div>
             </div>

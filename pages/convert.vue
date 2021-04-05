@@ -11,7 +11,7 @@
     import Modal from '~/components/Modal';
 
     export default {
-        PAGE_TITLE: 'Convert Coins',
+        PAGE_TITLE: 'Convert coins',
         components: {
             VOnsPage,
             VOnsTabbar,
@@ -93,7 +93,7 @@
                     <p>Coins successfully exchanged!</p>
                 </div>
                 <div class="modal__footer">
-                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(successHash)" target="_blank">View Transaction</a>
+                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(successHash)" target="_blank">View transaction</a>
                     <button class="bip-button bip-button--ghost-main" @click="isSuccessModalOpen = false">Close</button>
                 </div>
             </div>

@@ -147,10 +147,10 @@
                 return amount > 0 ? amount : '0';
             },
             feeBusParams() {
-                //@TODO coin to spend as fallback gasCoin
                 return {
                     txParams: this.txParams,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
+                    fallbackToCoinToSpend: true,
                 };
             },
             txParams() {
@@ -485,13 +485,16 @@
             <div class="list">
                 <a class="list-item">
                     <div class="list-item__center">
-                        <span class="list-item__name u-text-nowrap">Transaction Fee</span>
+                        <span class="list-item__name u-text-nowrap">Transaction fee</span>
                     </div>
-                    <div class="list-item__right u-text-right">
+                    <div class="list-item__right list-item__right--with-loader u-text-right" :class="{'is-loading': fee.isLoading}">
                         <div class="list-item__label list-item__label--strong">
                             {{ fee.coin }} {{ fee.value | pretty }}
                             <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                         </div>
+                        <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                            <circle class="loader__path" cx="25" cy="25" r="16"></circle>
+                        </svg>
                     </div>
                 </a>
             </div>
@@ -560,7 +563,7 @@
                     <p class="u-text-wrap"><strong>{{ lastRecipient.name }}</strong></p>
                 </div>
                 <div class="modal__footer">
-                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View Transaction</a>
+                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View transaction</a>
                     <button class="bip-button bip-button--ghost-main" @click="isSuccessModalOpen = false">Close</button>
                 </div>
             </div>
