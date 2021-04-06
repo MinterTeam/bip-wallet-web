@@ -16,10 +16,7 @@
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
-
-    const isValidAmount = withParams({type: 'validAmount'}, (value) => {
-        return parseFloat(value) >= 0;
-    });
+    import TxFormBlocksToUpdateStake from '~/components/TxFormBlocksToUpdateStake.vue';
 
     let recipientCheckData = null; // storage with latest recipient data to check
     let recipientCheckCancel;
@@ -31,10 +28,12 @@
     let feeBus;
 
     export default {
-        PAGE_TITLE: 'Send Coins',
+        TX_TYPE,
+        PAGE_TITLE: 'Send coins',
         components: {
             Layout,
             Modal,
+            TxFormBlocksToUpdateStake,
         },
         mixins: [validationMixin],
         directives: {
@@ -56,7 +55,7 @@
             const coinList = this.$store.state.balance;
             return {
                 isFormSending: false,
-                serverSuccess: '',
+                successTx: null,
                 serverError: '',
                 form: {
                     coinSymbol: coinList && coinList.length ? coinList[0].coin.symbol : '',
@@ -85,7 +84,7 @@
                 amountImaskOptions: {
                     mask: Number,
                     scale: 18, // digits after point, 0 for integers
-                    signed: false,  // disallow negative
+                    signed: true,  // disallow negative
                     thousandsSeparator: '',  // any single char
                     padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
                     normalizeZeros: false, // appends or removes zeros at ends
@@ -112,7 +111,6 @@
                     },
                     amount: {
                         required,
-                        validAmount: isValidAmount,
                         maxValue: maxValue(this.maxAmount || 0),
                     },
                     message: {
@@ -157,10 +155,11 @@
                 let type;
                 let data;
                 if (this.recipient.type === 'publicKey') {
-                    type = TX_TYPE.DELEGATE;
+                    const isUnbond = this.form.amount < 0;
+                    type = isUnbond ? TX_TYPE.UNBOND : TX_TYPE.DELEGATE;
                     data = {
                         coin: this.form.coinSymbol,
-                        stake: this.form.amount,
+                        stake: isUnbond ? new Big(this.form.amount).times(-1).toFixed() : this.form.amount,
                         publicKey: this.form.address,
                     };
                 } else {
@@ -365,7 +364,7 @@
                 this.isFormSending = true;
                 this.isModalOpen = false;
                 this.serverError = '';
-                this.serverSuccess = '';
+                this.successTx = null;
                 const txParams = {
                     ...this.txParams,
                     gasCoin: this.fee.coin,
@@ -375,7 +374,7 @@
                     .then((tx) => {
                         this.isFormSending = false;
                         this.isSuccessModalOpen = true;
-                        this.serverSuccess = tx.hash;
+                        this.successTx = tx;
                         this.clearForm();
                     })
                     .catch((error) => {
@@ -469,7 +468,6 @@
                     >
                     <button class="bip-field__button bip-link u-semantic-button" type="button" @click="useMax">Use max</button>
                     <span class="bip-field__error" v-if="$v.form.amount.$dirty && !$v.form.amount.required">Enter amount</span>
-                    <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.validAmount">Wrong amount</span>
                     <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.maxAmount">Not enough coins</span>
                 </label>
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.message.$error}">
@@ -501,7 +499,9 @@
 
             <div class="u-section u-container">
                 <button class="bip-button bip-button--main" :class="{'is-loading': isFormSending, 'is-disabled': $v.$invalid}">
-                    <span class="bip-button__content">Send</span>
+                    <span class="bip-button__content" v-if="txParams.type === $options.TX_TYPE.SEND">Send</span>
+                    <span class="bip-button__content" v-if="txParams.type === $options.TX_TYPE.DELEGATE">Delegate</span>
+                    <span class="bip-button__content" v-if="txParams.type === $options.TX_TYPE.UNBOND">Unbond</span>
                     <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                         <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                     </svg>
@@ -519,13 +519,19 @@
         <!-- confirm send modal -->
         <Modal :isOpen.sync="isModalOpen" :hideCloseButton="true">
             <div class="modal__panel">
-                <h3 class="modal__title u-h2">You're sending</h3>
+                <h3 class="modal__title u-h2">
+                    You're
+                    <template v-if="txParams.type === $options.TX_TYPE.SEND">sending</template>
+                    <template v-if="txParams.type === $options.TX_TYPE.DELEGATE">delegating</template>
+                    <template v-if="txParams.type === $options.TX_TYPE.UNBOND">unbonding</template>
+                </h3>
                 <div class="modal__content">
                     <p class="send__modal-value">
                         <span class="send__modal-amount">{{ form.amount | prettyExact }}</span>
                         {{ form.coinSymbol }}
                     </p>
-                    <p>to</p>
+                    <p v-if="txParams.type === $options.TX_TYPE.UNBOND">from</p>
+                    <p v-else>to</p>
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatar(recipient)" alt="" role="presentation">
                     </p>
@@ -556,14 +562,15 @@
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">Success</h3>
                 <div class="modal__content">
-                    <p>Coins are received by</p>
+                    <p>Transaction is received by</p>
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatar(lastRecipient)" alt="" role="presentation">
                     </p>
                     <p class="u-text-wrap"><strong>{{ lastRecipient.name }}</strong></p>
+                    <TxFormBlocksToUpdateStake :success-tx="successTx" v-if="lastRecipient.type === 'publicKey'"/>
                 </div>
                 <div class="modal__footer">
-                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View transaction</a>
+                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(successTx.hash)" target="_blank" v-if="successTx">View transaction</a>
                     <button class="bip-button bip-button--ghost-main" @click="isSuccessModalOpen = false">Close</button>
                 </div>
             </div>

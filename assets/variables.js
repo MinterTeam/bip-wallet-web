@@ -11,3 +11,5 @@ export const GATE_API_URL = process.env.APP_GATE_API_URL;
 export const BASE_COIN = NETWORK === MAINNET ? 'BIP' : 'MNT';
 export const COIN_NAME = BASE_COIN;
 export const CHAIN_ID = NETWORK === MAINNET ? 1 : 2;
+
+export const STAKE_RECALCULATE_BLOCK_COUNT = 720;
