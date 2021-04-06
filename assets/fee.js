@@ -99,9 +99,11 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
         methods: {
             getPrimaryCoinToCheck() {
                 if (isCoinDefined(this.txParams.gasCoin)) {
+                    console.log('primary', this.txParams.gasCoin);
                     return this.txParams.gasCoin;
                 }
 
+                console.log('primary', BASE_COIN);
                 return BASE_COIN;
             },
             // secondary it will try to check coinToSpend and use if primary coin is not enough to pay fee
@@ -109,12 +111,14 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                 // 1. only check if fallback flag activated
                 // 2. if gasCoin is defined - no need to check something else
                 if (!this.fallbackToCoinToSpend || isCoinDefined(this.txParams.gasCoin)) {
+                    console.log('secondary false', this.fallbackToCoinToSpend, isCoinDefined(this.txParams.gasCoin));
                     return '';
                 }
 
                 try {
                     const txParamsClone = {...this.txParams};
                     const {gasCoin} = decorateTxParams(txParamsClone, {setGasCoinAsCoinToSpend: true});
+                    console.log('secondary', {gasCoin});
                     if (typeof gasCoin !== 'undefined' && !isBaseCoin(gasCoin)) {
                         return gasCoin;
                     }

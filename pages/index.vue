@@ -192,7 +192,7 @@
                     </li>
                 </ul>
                 <div class="u-container u-section--small">
-                    <nuxt-link class="bip-button bip-button--ghost-main" to="/convert">Convert</nuxt-link>
+                    <nuxt-link class="bip-button bip-button--ghost-main" to="/swap">Swap</nuxt-link>
                 </div>
             </template>
         </div>

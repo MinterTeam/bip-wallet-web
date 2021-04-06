@@ -159,14 +159,18 @@
 }
 .convert__divider-icon  {vertical-align: top;}
 .convert__panel {
-    background: #F0F0F0; border-radius: 8px; padding: 16px 24px; text-align: center; position: relative;
+    background: #F0F0F0; border-radius: 8px; padding: 16px; text-align: center; position: relative;
     &.is-loading {
         & > .convert__panel-content {opacity: 0;}
 
     }
 }
-.convert__panel-content {text-transform: uppercase; font-size: 12px; font-weight: 500; transition: 0.2s;}
+.convert__panel-content {
+    text-transform: uppercase; font-size: 12px; font-weight: 500; transition: 0.2s;
+    &+& {margin-top: 16px;}
+}
 .convert__panel-amount {font-size: 22px;}
+.convert__panel-value {font-size: 18px;}
 .convert__panel-error {}
 .convert__panel-note {
     text-align: center;

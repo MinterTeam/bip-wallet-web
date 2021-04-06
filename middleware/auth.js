@@ -13,6 +13,7 @@ export default function({store, route, redirect, error}) {
         /^\/send(\/|$)/,
         /^\/receive(\/|$)/,
         /^\/settings(\/|$)/,
+        /^\/swap(\/|$)/,
         /^\/convert(\/|$)/,
     ].some((pathRegex) => {
         return pathRegex.test(route.path);

@@ -9,6 +9,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import decode from 'entity-decode';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
+    import {ESTIMATE_SWAP_TYPE} from 'minter-js-sdk/src/variables.js';
     import {postTx, estimateCoinSell} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
@@ -24,6 +25,7 @@
     let estimationCancel;
 
     export default {
+        ESTIMATE_SWAP_TYPE,
         components: {
             FieldCoinList,
         },
@@ -59,6 +61,8 @@
                 /** @type FeeData */
                 fee: {},
                 estimation: null,
+                estimationType: null,
+                estimationRoute: null,
                 estimationTimer: null,
                 estimationLoading: false,
                 estimationError: false,
@@ -111,6 +115,46 @@
             },
         },
         computed: {
+            isPool() {
+                return this.estimationType === ESTIMATE_SWAP_TYPE.POOL;
+            },
+            isSellAll() {
+                if (!this.isUseMax) {
+                    return false;
+                }
+                // selling base coin (no matter if it is not enough to pay fee)
+                if (this.form.coinFrom === this.$store.getters.COIN_NAME) {
+                    return true;
+                }
+                // selling custom coin
+                // base coin is not enough try use selected coin to pay fee
+                if (!this.fee.isBaseCoinEnough) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            txType() {
+                if (this.estimationType === ESTIMATE_SWAP_TYPE.POOL) {
+                    return this.isSellAll ? TX_TYPE.SELL_ALL_SWAP_POOL : TX_TYPE.SELL_SWAP_POOL;
+                }
+                return this.isSellAll ? TX_TYPE.SELL_ALL : TX_TYPE.SELL;
+            },
+            txData() {
+                return {
+                    ...(!this.isPool ? {
+                        coinToSell: this.form.coinFrom,
+                        coinToBuy: this.form.coinTo,
+                    } : {
+                        coins: this.estimationRoute
+                            ? this.estimationRoute.map((coin) => coin.id)
+                            : [this.form.coinFrom, this.form.coinTo],
+                    }),
+                    valueToSell: this.form.sellAmount,
+                    //@TODO
+                    // minimumValueToBuy: this.form.minimumValueToBuy,
+                };
+            },
             maxAmount() {
                 // fee not subtracted
                 const selectedCoin = this.$store.state.balance.find((coin) => {
@@ -121,11 +165,12 @@
             feeBusParams() {
                 return {
                     txParams: {
-                        type: TX_TYPE.SELL,
+                        // don't use `this.txType`, it may lead to infinite loop, assume sell and sell-all txs consume equal fees
+                        type: this.isPool ? TX_TYPE.SELL_SWAP_POOL : TX_TYPE.SELL,
                         data: {
-                            coinToSell: this.form.coinFrom,
-                            // coinToBuy: this.form.coinTo,
-                            // valueToSell: this.form.sellAmount,
+                            // pass only fields that affect fee
+                            coinToSell: this.txData.coinToSell,
+                            coins: this.txData.coins,
                         },
                     },
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
@@ -176,9 +221,13 @@
                     coinToSell: this.form.coinFrom,
                     valueToSell: this.form.sellAmount,
                     coinToBuy: this.form.coinTo,
+                    findRoute: true,
+                    gasCoin: this.fee.coin || 0,
                 }, { cancelToken: new axios.CancelToken((cancelFn) => estimationCancel = cancelFn) })
                     .then((result) => {
                         this.estimation = result.will_get;
+                        this.estimationType = result.swap_from;
+                        this.estimationRoute = result.route;
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
@@ -194,7 +243,7 @@
                 this.isUseMax = false;
             },
             submit() {
-                if (this.isFormSending) {
+                if (this.isFormSending || this.isEstimationWaiting || this.fee.isLoading) {
                     return;
                 }
 
@@ -205,22 +254,11 @@
 
                 this.isFormSending = true;
                 this.serverError = '';
-                Promise.all([
-                    //@TODO minBuyAmount
-                    //@TODO use sellAllTx if sellAmount == maxAmount ?
-                    this.isUseMax ? this.getAbleUseSellAll() : Promise.resolve(false),
-                ])
-                    .then(([isSellAll]) => {
-                        return postTx({
-                            type: isSellAll ? TX_TYPE.SELL_ALL : TX_TYPE.SELL,
-                            data: {
-                                coinToSell: this.form.coinFrom,
-                                coinToBuy: this.form.coinTo,
-                                valueToSell: this.form.sellAmount,
-                            },
-                            gasCoin: this.fee.coin,
-                        }, {privateKey: this.$store.getters.privateKey});
-                    })
+                postTx({
+                    type: this.txType,
+                    data: this.txData,
+                    gasCoin: this.fee.coin,
+                }, {privateKey: this.$store.getters.privateKey})
                     .then((tx) => {
                         this.$emit('success-tx', tx);
                         this.isFormSending = false;
@@ -234,6 +272,9 @@
             },
             // do we have enough coins to pay fee use sellAll tx
             getAbleUseSellAll() {
+                if (!this.isUseMax) {
+                    return Promise.resolve(false);
+                }
                 // selling base coin (no matter if it is not enough to pay fee)
                 if (this.form.coinFrom === this.$store.getters.COIN_NAME) {
                     return Promise.resolve(true);
@@ -325,6 +366,14 @@
                 <div class="convert__panel-content">
                     You will get approximately
                     <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinTo }}</p>
+                </div>
+                <div class="convert__panel-content">
+                    Swap from
+                    <p class="convert__panel-value">{{ estimationType === $options.ESTIMATE_SWAP_TYPE.POOL ? 'Pools' : 'Reserves' }}</p>
+                </div>
+                <div class="convert__panel-content" v-if="estimationRoute">
+                    Swap route
+                    <p class="convert__panel-value">{{ estimationRoute.map((coin) => coin.symbol).join(' > ') }}</p>
                 </div>
                 <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>

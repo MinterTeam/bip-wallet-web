@@ -8,6 +8,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import decode from 'entity-decode';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
+    import {ESTIMATE_SWAP_TYPE} from 'minter-js-sdk/src/variables.js';
     import {postTx, estimateCoinBuy} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
@@ -23,6 +24,7 @@
     let estimationCancel;
 
     export default {
+        ESTIMATE_SWAP_TYPE,
         components: {
             FieldCoinList,
         },
@@ -58,6 +60,8 @@
                 /** @type FeeData */
                 fee: {},
                 estimation: null,
+                estimationType: null,
+                estimationRoute: null,
                 estimationTimer: null,
                 estimationLoading: false,
                 estimationError: false,
@@ -103,14 +107,35 @@
             },
         },
         computed: {
+            txType() {
+                if (this.estimationType === ESTIMATE_SWAP_TYPE.POOL) {
+                    return TX_TYPE.BUY_SWAP_POOL;
+                }
+                return TX_TYPE.BUY;
+            },
+            txData() {
+                return {
+                    ...(this.txType === TX_TYPE.BUY ? {
+                        coinToSell: this.form.coinFrom,
+                        coinToBuy: this.form.coinTo,
+                    } : {
+                        coins: this.estimationRoute
+                            ? this.estimationRoute.map((coin) => coin.id)
+                            : [this.form.coinFrom, this.form.coinTo],
+                    }),
+                    valueToBuy: this.form.buyAmount,
+                    //@TODO
+                    // maximumValueToSell: this.form.maximumValueToSell,
+                };
+            },
             feeBusParams() {
                 return {
                     txParams: {
-                        type: TX_TYPE.BUY,
+                        type: this.txType,
                         data: {
-                            coinToSell: this.form.coinFrom,
-                            // coinToBuy: this.form.coinTo,
-                            // valueToBuy: this.form.buyAmount,
+                            // pass only fields that affect fee
+                            coinToSell: this.txData.coinToSell,
+                            coins: this.txData.coins,
                         },
                     },
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
@@ -159,9 +184,13 @@
                     coinToBuy: this.form.coinTo,
                     valueToBuy: this.form.buyAmount,
                     coinToSell: this.form.coinFrom,
+                    findRoute: true,
+                    gasCoin: this.fee.coin || 0,
                 }, { cancelToken: new axios.CancelToken((cancelFn) => estimationCancel = cancelFn) })
                     .then((result) => {
                         this.estimation = result.will_pay;
+                        this.estimationType = result.swap_from;
+                        this.estimationRoute = result.route;
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
@@ -176,7 +205,7 @@
             },
 
             submit() {
-                if (this.isFormSending) {
+                if (this.isFormSending || this.isEstimationWaiting || this.fee.isLoading) {
                     return;
                 }
 
@@ -188,12 +217,8 @@
                 this.isFormSending = true;
                 this.serverError = '';
                 const txParams = {
-                    type: TX_TYPE.BUY,
-                    data: {
-                        coinToSell: this.form.coinFrom,
-                        coinToBuy: this.form.coinTo,
-                        valueToBuy: this.form.buyAmount,
-                    },
+                    type: this.txType,
+                    data: this.txData,
                     gasCoin: this.fee.coin,
                 };
 
@@ -261,6 +286,14 @@
                 <div class="convert__panel-content">
                     You will pay approximately
                     <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinFrom }}</p>
+                </div>
+                <div class="convert__panel-content">
+                    Swap from
+                    <p class="convert__panel-value">{{ estimationType === $options.ESTIMATE_SWAP_TYPE.POOL ? 'Pools' : 'Reserves' }}</p>
+                </div>
+                <div class="convert__panel-content" v-if="estimationRoute">
+                    Swap route
+                    <p class="convert__panel-value">{{ estimationRoute.map((coin) => coin.symbol).join(' > ') }}</p>
                 </div>
                 <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>
