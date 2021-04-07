@@ -94,42 +94,84 @@
                 }
                 // SELL
                 if (isSell(tx)) {
+                    const coinToBuy = tx.type === TX_TYPE.BUY_SWAP_POOL ? data.coins[tx.data.coins.length - 1] : data.coinToBuy;
+                    const coinToSell = tx.type === TX_TYPE.BUY_SWAP_POOL ? data.coins[0] : data.coinToSell;
+
                     let sellAmount;
-                    if (tx.type === TX_TYPE.SELL) {
+                    if (tx.type === TX_TYPE.SELL || tx.type === TX_TYPE.SELL_SWAP_POOL) {
                         sellAmount = data.valueToSell;
-                    } else if (tx.type === TX_TYPE.SELL_ALL) {
-                        const coin = this.$store.state.balance.find((item) => item.coin.id === parseInt(data.coinToSell, 10));
+                    } else if (tx.type === TX_TYPE.SELL_ALL || tx.type === TX_TYPE.SELL_ALL_SWAP_POOL) {
+                        const coin = this.$store.state.balance.find((item) => item.coin.id === parseInt(coinToSell, 10));
                         sellAmount = coin?.amount || 0;
                     }
                     fields.push({
                         label: 'Sell coins',
-                        value: prettyExact(sellAmount) + ' ' + this.getCoinSymbol(data.coinToSell),
+                        value: prettyExact(sellAmount) + ' ' + this.getCoinSymbol(coinToSell),
                     });
                     fields.push({
                         label: 'Get coins',
-                        value: this.getCoinSymbol(data.coinToBuy),
+                        value: this.getCoinSymbol(coinToBuy),
                     });
                     fields.push({
                         label: 'Minimum amount to get',
-                        value: data.minimumValueToBuy + ' ' + this.getCoinSymbol(data.coinToBuy),
+                        value: data.minimumValueToBuy + ' ' + this.getCoinSymbol(coinToBuy),
                     });
                 }
                 // BUY
                 if (isBuy(tx)) {
+                    const coinToBuy = tx.type === TX_TYPE.BUY_SWAP_POOL ? data.coins[tx.data.coins.length - 1] : data.coinToBuy;
+                    const coinToSell = tx.type === TX_TYPE.BUY_SWAP_POOL ? data.coins[0] : data.coinToSell;
                     fields.push({
                         label: 'Buy coins',
-                        value: prettyExact(data.valueToBuy) + ' ' + this.getCoinSymbol(data.coinToBuy),
+                        value: prettyExact(data.valueToBuy) + ' ' + this.getCoinSymbol(coinToBuy),
                     });
                     fields.push({
                         label: 'Spend coins',
-                        value: this.getCoinSymbol(data.coinToSell),
+                        value: this.getCoinSymbol(coinToSell),
                     });
                     fields.push({
                         label: 'Maximum amount to spend',
-                        value: data.maximumValueToSell + ' ' + this.getCoinSymbol(data.coinToSell),
+                        value: data.maximumValueToSell + ' ' + this.getCoinSymbol(coinToSell),
                     });
                 }
-                // CREATE_COIN, RECREATE_COIN, EDIT_COIN_OWNER
+                // CREATE_POOL, ADD_LIQUIDITY, REMOVE_LIQUIDITY
+                if (isDefined(data.coin0)) {
+                    fields.push({
+                        label: 'First coin',
+                        value: prettyExact(data.volume0) + ' ' + this.getCoinSymbol(data.coin0),
+                    });
+                }
+                if (isDefined(data.coin1)) {
+                    fields.push({
+                        label: 'Second coin',
+                        value: isDefined(data.volume1) ? (prettyExact(data.volume1) + ' ') : '' + this.getCoinSymbol(data.coin1),
+                    });
+                }
+                if (isDefined(data.maximumVolume1)) {
+                    fields.push({
+                        label: 'Maximum' + ' ' + this.getCoinSymbol(data.coin1),
+                        value: prettyExact(data.maximumVolume1),
+                    });
+                }
+                if (isDefined(data.liquidity)) {
+                    fields.push({
+                        label: 'Liquidity',
+                        value: prettyExact(data.liquidity),
+                    });
+                }
+                if (isDefined(data.minimumVolume0)) {
+                    fields.push({
+                        label: 'Minimum' + ' ' + this.getCoinSymbol(data.coin0),
+                        value: prettyExact(data.minimumVolume0),
+                    });
+                }
+                if (isDefined(data.minimumVolume1)) {
+                    fields.push({
+                        label: 'Minimum' + ' ' + this.getCoinSymbol(data.coin1),
+                        value: prettyExact(data.minimumVolume1),
+                    });
+                }
+                // CREATE_COIN, RECREATE_COIN, CREATE_TOKEN, RECREATE_TOKEN, EDIT_TICKER_OWNER
                 if (data.name) {
                     fields.push({
                         label: 'Name',
@@ -160,10 +202,22 @@
                         value: data.constantReserveRatio + ' %',
                     });
                 }
-                if (data.maxSupply) {
+                if (isDefined(data.maxSupply)) {
                     fields.push({
                         label: 'Max supply',
                         value: prettyExact(data.maxSupply),
+                    });
+                }
+                if (isDefined(data.mintable)) {
+                    fields.push({
+                        label: 'Mintable',
+                        value: data.mintable ? 'Yes' : 'No',
+                    });
+                }
+                if (isDefined(data.burnable)) {
+                    fields.push({
+                        label: 'Burnable',
+                        value: data.burnable ? 'Yes' : 'No',
                     });
                 }
                 if (data.newOwner) {
@@ -173,11 +227,19 @@
                         type: 'textarea',
                     });
                 }
-                // DELEGATE, UNBOND, DECLARE_CANDIDACY, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE, SET_HALT_BLOCK
+                // DELEGATE, UNBOND, DECLARE_CANDIDACY, EDIT_CANDIDATE, EDIT_CANDIDATE_COMMISSION, EDIT_CANDIDATE_PUBLIC_KEY, SET_CANDIDATE_ONLINE, SET_CANDIDATE_OFFLINE, SET_HALT_BLOCK, VOTE_UPDATE, VOTE_COMMISSION
                 if (data.publicKey) {
                     fields.push({
                         label: 'Public key',
                         value: data.publicKey,
+                        type: 'textarea',
+                        rows: 2,
+                    });
+                }
+                if (data.newPublicKey) {
+                    fields.push({
+                        label: 'New public key',
+                        value: data.newPublicKey,
                         type: 'textarea',
                         rows: 2,
                     });
@@ -221,6 +283,13 @@
                         value: data.height,
                     });
                 }
+                if (data.version) {
+                    fields.push({
+                        label: 'Version',
+                        value: data.version,
+                    });
+                }
+                //@TODO vote commission
                 // REDEEM_CHECK
                 if (data.check) {
                     fields.push({
@@ -243,7 +312,6 @@
                     });
                 }
                 //@TODO CREATE_MULTISIG, EDIT_MULTISIG
-                //@TODO PRICE_VOTE
 
                 return fields;
             },
@@ -319,10 +387,10 @@
         return typeof value !== 'undefined';
     }
     function isSell(tx) {
-        return tx.type === TX_TYPE.SELL || tx.type === TX_TYPE.SELL_ALL;
+        return tx.type === TX_TYPE.SELL || tx.type === TX_TYPE.SELL_ALL || tx.type === TX_TYPE.SELL_SWAP_POOL || tx.type === TX_TYPE.SELL_ALL_SWAP_POOL;
     }
     function isBuy(tx) {
-        return tx.type === TX_TYPE.BUY;
+        return tx.type === TX_TYPE.BUY || tx.type === TX_TYPE.BUY_SWAP_POOL;
     }
     function isStake(tx) {
         return tx.type === TX_TYPE.UNBOND || tx.type === TX_TYPE.DELEGATE || tx.type === TX_TYPE.DECLARE_CANDIDACY;
