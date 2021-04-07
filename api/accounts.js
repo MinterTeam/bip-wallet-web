@@ -7,11 +7,7 @@ const minterOrg = new MinterOrg({
 
 const TOKEN_KEY = 'auth-token';
 const initialToken = typeof localStorage !== 'undefined' ? JSON.parse(localStorage.getItem(TOKEN_KEY)) : false;
-if (initialToken) {
-    setAuthToken(initialToken);
-} else {
-    resetAuthToken();
-}
+
 
 
 export default minterOrg;
@@ -27,8 +23,4 @@ export function setAuthToken(tokenData) {
 export function resetAuthToken() {
     minterOrg.resetAuthToken();
     localStorage.removeItem(TOKEN_KEY);
-}
-
-export function hasAuthToken() {
-    return minterOrg.hasAuthToken();
 }

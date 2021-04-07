@@ -8,7 +8,8 @@
     import withParams from 'vuelidate/lib/withParams';
     import decode from 'entity-decode';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
-    import {postTx, estimateCoinBuy, replaceCoinSymbol} from '~/api/gate.js';
+    import {ESTIMATE_SWAP_TYPE} from 'minter-js-sdk/src/variables.js';
+    import {postTx, estimateCoinBuy} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty} from '~/assets/utils';
@@ -23,6 +24,7 @@
     let estimationCancel;
 
     export default {
+        ESTIMATE_SWAP_TYPE,
         components: {
             FieldCoinList,
         },
@@ -58,6 +60,8 @@
                 /** @type FeeData */
                 fee: {},
                 estimation: null,
+                estimationType: null,
+                estimationRoute: null,
                 estimationTimer: null,
                 estimationLoading: false,
                 estimationError: false,
@@ -103,14 +107,39 @@
             },
         },
         computed: {
+            txType() {
+                if (this.estimationType === ESTIMATE_SWAP_TYPE.POOL) {
+                    return TX_TYPE.BUY_SWAP_POOL;
+                }
+                return TX_TYPE.BUY;
+            },
+            txData() {
+                return {
+                    ...(this.txType === TX_TYPE.BUY ? {
+                        coinToSell: this.form.coinFrom,
+                        coinToBuy: this.form.coinTo,
+                    } : {
+                        coins: this.estimationRoute
+                            ? this.estimationRoute.map((coin) => coin.id)
+                            : [this.form.coinFrom, this.form.coinTo],
+                    }),
+                    valueToBuy: this.form.buyAmount,
+                    //@TODO
+                    // maximumValueToSell: this.form.maximumValueToSell,
+                };
+            },
             feeBusParams() {
                 return {
-                    txType: TX_TYPE.BUY,
-                    txFeeOptions: {payload: this.form.message},
-                    selectedCoin: this.form.coinFrom,
-                    // selectedFeeCoin: this.form.feeCoinSymbol,
+                    txParams: {
+                        type: this.txType,
+                        data: {
+                            // pass only fields that affect fee
+                            coinToSell: this.txData.coinToSell,
+                            coins: this.txData.coins,
+                        },
+                    },
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
-                    // isOffline: this.$store.getters.isOfflineMode,
+                    fallbackToCoinToSpend: true,
                 };
             },
             isEstimationWaiting() {
@@ -155,9 +184,13 @@
                     coinToBuy: this.form.coinTo,
                     valueToBuy: this.form.buyAmount,
                     coinToSell: this.form.coinFrom,
+                    findRoute: true,
+                    gasCoin: this.fee.coin || 0,
                 }, { cancelToken: new axios.CancelToken((cancelFn) => estimationCancel = cancelFn) })
                     .then((result) => {
                         this.estimation = result.will_pay;
+                        this.estimationType = result.swap_from;
+                        this.estimationRoute = result.route;
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
@@ -172,7 +205,7 @@
             },
 
             submit() {
-                if (this.isFormSending) {
+                if (this.isFormSending || this.isEstimationWaiting || this.fee.isLoading) {
                     return;
                 }
 
@@ -183,22 +216,14 @@
 
                 this.isFormSending = true;
                 this.serverError = '';
-                Promise.all([
-                    replaceCoinSymbol({
-                        type: TX_TYPE.BUY,
-                        data: {
-                            coinToSell: this.form.coinFrom,
-                            coinToBuy: this.form.coinTo,
-                            valueToBuy: this.form.buyAmount,
-                        },
-                        gasCoin: this.fee.coinSymbol,
-                    }),
-                    this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED'),
-                ])
-                    .then(([txParams]) => {
-                        //@TODO maxSellAmount
-                        return postTx(txParams, {privateKey: this.$store.getters.privateKey});
-                    })
+                const txParams = {
+                    type: this.txType,
+                    data: this.txData,
+                    gasCoin: this.fee.coin,
+                };
+
+                //@TODO maxSellAmount
+                return postTx(txParams, {privateKey: this.$store.getters.privateKey})
                     .then((tx) => {
                         this.$emit('success-tx', tx);
                         this.isFormSending = false;
@@ -262,6 +287,14 @@
                     You will pay approximately
                     <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinFrom }}</p>
                 </div>
+                <div class="convert__panel-content">
+                    Swap from
+                    <p class="convert__panel-value">{{ estimationType === $options.ESTIMATE_SWAP_TYPE.POOL ? 'Pools' : 'Reserves' }}</p>
+                </div>
+                <div class="convert__panel-content" v-if="estimationRoute">
+                    Swap route
+                    <p class="convert__panel-value">{{ estimationRoute.map((coin) => coin.symbol).join(' > ') }}</p>
+                </div>
                 <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                 </svg>
@@ -273,13 +306,16 @@
         <div class="list">
             <a class="list-item">
                 <div class="list-item__center">
-                    <span class="list-item__name u-text-nowrap">Transaction Fee</span>
+                    <span class="list-item__name u-text-nowrap">Transaction fee</span>
                 </div>
-                <div class="list-item__right u-text-right">
+                <div class="list-item__right list-item__right--with-loader u-text-right" :class="{'is-loading': fee.isLoading}">
                     <div class="list-item__label list-item__label--strong">
-                        {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                        {{ fee.coin }} {{ fee.value | pretty }}
                         <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                     </div>
+                    <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                        <circle class="loader__path" cx="25" cy="25" r="16"></circle>
+                    </svg>
                 </div>
             </a>
         </div>

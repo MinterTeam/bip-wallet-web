@@ -3,8 +3,7 @@
     import withParams from 'vuelidate/lib/withParams';
     import {req} from 'vuelidate/lib/validators/common';
     import * as clipboard from 'clipbrd';
-    import {generateMnemonic} from 'minterjs-wallet';
-    import {addressFromMnemonic} from "minter-js-org";
+    import {generateMnemonic, walletFromMnemonic} from 'minterjs-wallet';
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Toast from '~/components/Toast';
@@ -61,7 +60,7 @@
                 }
                 // clear old format stored data
                 this.$store.commit('LOGOUT');
-                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic, true));
+                this.$store.commit('ADD_AUTH_ADVANCED', this.mnemonic);
                 // redirect
                 const authRedirectPath = this.$store.state.authRedirectPath || '/';
                 this.$store.commit('SET_AUTH_REDIRECT_PATH', '');

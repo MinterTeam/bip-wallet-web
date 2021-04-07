@@ -135,19 +135,19 @@
 
         <div class="balance balance--toggle u-container" role="button" @click="changeBalanceDisplayType">
             <template v-if="balanceDisplayType === $options.BALANCE_DISPLAY_BIP">
-                <div class="balance__caption">{{ $store.getters.COIN_NAME }} Balance</div>
+                <div class="balance__caption">{{ $store.getters.COIN_NAME }} balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
                 </div>
             </template>
             <template v-if="balanceDisplayType === $options.BALANCE_DISPLAY_TOTAL">
-                <div class="balance__caption">Total Balance</div>
+                <div class="balance__caption">Total balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">{{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }} {{ $store.getters.COIN_NAME }}</span>
                 </div>
             </template>
             <template v-if="balanceDisplayType === $options.BALANCE_DISPLAY_TOTAL_USD">
-                <div class="balance__caption">Total Balance</div>
+                <div class="balance__caption">Total balance</div>
                 <div class="balance__value">
                     <span class="balance__whole">${{ balanceParts.whole }}</span><span class="balance__decimal">{{ balanceParts.decimal }}</span>
                 </div>
@@ -192,7 +192,7 @@
                     </li>
                 </ul>
                 <div class="u-container u-section--small">
-                    <nuxt-link class="bip-button bip-button--ghost-main" to="/convert">Convert</nuxt-link>
+                    <nuxt-link class="bip-button bip-button--ghost-main" to="/swap">Swap</nuxt-link>
                 </div>
             </template>
         </div>

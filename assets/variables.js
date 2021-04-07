@@ -11,9 +11,8 @@ export const GATE_API_URL = process.env.APP_GATE_API_URL;
 export const BOT_WALLET_API_URL = process.env.APP_BOT_WALLET_API_URL;
 export const BOT_WALLET_ENCRYPTED = process.env.APP_BOT_WALLET_ENCRYPTED;
 export const BOT_WALLET_PASSWORD = process.env.APP_BOT_WALLET_PASSWORD;
-export const COIN_NAME = NETWORK === MAINNET ? 'BIP' : 'MNT';
+export const BASE_COIN = NETWORK === MAINNET ? 'BIP' : 'MNT';
+export const COIN_NAME = BASE_COIN;
 export const CHAIN_ID = NETWORK === MAINNET ? 1 : 2;
-export const USERNAME_MIN_LENGTH = 5;
-export const USERNAME_MAX_LENGTH = 16;
-export const PASSWORD_MIN_LENGTH = 6;
-export const PASSWORD_MAX_LENGTH = 100;
+
+export const STAKE_RECALCULATE_BLOCK_COUNT = 720;

@@ -13,6 +13,7 @@ export default function({store, route, redirect, error}) {
         /^\/send(\/|$)/,
         /^\/receive(\/|$)/,
         /^\/settings(\/|$)/,
+        /^\/swap(\/|$)/,
         /^\/convert(\/|$)/,
     ].some((pathRegex) => {
         return pathRegex.test(route.path);
@@ -35,7 +36,7 @@ export default function({store, route, redirect, error}) {
         return redirect('/');
     }
 
-    if (!store.getters.isUserWithProfile && urlRequiresUserWithProfile) {
+    if (/*!store.getters.isUserWithProfile && */urlRequiresUserWithProfile) {
         console.log('-- restricted: 404 settings not available');
         return error({status: 404, message: 'Page not found'});
     }

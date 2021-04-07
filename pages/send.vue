@@ -8,18 +8,15 @@
     import maxLength from 'vuelidate/lib/validators/maxLength';
     import withParams from 'vuelidate/lib/withParams';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
-    import {getAddressInfoByContact} from "~/api";
-    import {postTx, replaceCoinSymbol} from '~/api/gate.js';
-    import FeeBus from '~/assets/fee';
+    import {isCoinId} from 'minter-js-sdk/src/utils.js';
+    import {postTx} from '~/api/gate.js';
+    import FeeBus from '~/assets/fee.js';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
     import getTitle from '~/assets/get-title';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
-
-    const isValidAmount = withParams({type: 'validAmount'}, (value) => {
-        return parseFloat(value) >= 0;
-    });
+    import TxFormBlocksToUpdateStake from '~/components/TxFormBlocksToUpdateStake.vue';
 
     let recipientCheckData = null; // storage with latest recipient data to check
     let recipientCheckCancel;
@@ -31,10 +28,12 @@
     let feeBus;
 
     export default {
-        PAGE_TITLE: 'Send Coins',
+        TX_TYPE,
+        PAGE_TITLE: 'Send coins',
         components: {
             Layout,
             Modal,
+            TxFormBlocksToUpdateStake,
         },
         mixins: [validationMixin],
         directives: {
@@ -56,7 +55,7 @@
             const coinList = this.$store.state.balance;
             return {
                 isFormSending: false,
-                serverSuccess: '',
+                successTx: null,
                 serverError: '',
                 form: {
                     coinSymbol: coinList && coinList.length ? coinList[0].coin.symbol : '',
@@ -80,12 +79,12 @@
                     address: '',
                     type: '',
                 },
-                recipientCheckTimer: null,
-                recipientLoading: false, // latest recipient value sent to check and still loading
+                // recipientCheckTimer: null,
+                // recipientLoading: false, // latest recipient value sent to check and still loading
                 amountImaskOptions: {
                     mask: Number,
                     scale: 18, // digits after point, 0 for integers
-                    signed: false,  // disallow negative
+                    signed: true,  // disallow negative
                     thousandsSeparator: '',  // any single char
                     padFractionalZeros: false,  // if true, then pads zeros at end to the length of scale
                     normalizeZeros: false, // appends or removes zeros at ends
@@ -112,7 +111,6 @@
                     },
                     amount: {
                         required,
-                        validAmount: isValidAmount,
                         maxValue: maxValue(this.maxAmount || 0),
                     },
                     message: {
@@ -123,7 +121,8 @@
         },
         computed: {
             isRecipientCheckWait() {
-                return this.recipientLoading || this.recipientCheckTimer;
+                return false;
+                // return this.recipientLoading || this.recipientCheckTimer;
             },
             maxAmount() {
                 let selectedCoin;
@@ -138,21 +137,44 @@
                     return '0';
                 }
                 // fee not in selected coins
-                if (selectedCoin.coin.symbol !== this.fee.coinSymbol) {
+                if (!isSelectedCoinSameAsFeeCoin(selectedCoin.coin, this.fee?.coin)) {
                     return selectedCoin.amount;
                 }
                 // fee in selected coin, subtract fee
-                const amount = new Big(selectedCoin.amount).minus(this.fee.value).toFixed();
+                const amount = new Big(selectedCoin.amount || 0).minus(this.fee.value || 0).toFixed();
                 return amount > 0 ? amount : '0';
             },
             feeBusParams() {
                 return {
-                    txType: this.recipient.type === 'publicKey' ? TX_TYPE.DELEGATE : TX_TYPE.SEND,
-                    txFeeOptions: {payload: this.form.message},
-                    selectedCoin: this.form.coinSymbol,
-                    // selectedFeeCoin: this.form.feeCoinSymbol,
+                    txParams: this.txParams,
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
-                    // isOffline: this.$store.getters.isOfflineMode,
+                    fallbackToCoinToSpend: true,
+                };
+            },
+            txParams() {
+                let type;
+                let data;
+                if (this.recipient.type === 'publicKey') {
+                    const isUnbond = this.form.amount < 0;
+                    type = isUnbond ? TX_TYPE.UNBOND : TX_TYPE.DELEGATE;
+                    data = {
+                        coin: this.form.coinSymbol,
+                        stake: isUnbond ? new Big(this.form.amount).times(-1).toFixed() : this.form.amount,
+                        publicKey: this.form.address,
+                    };
+                } else {
+                    type = TX_TYPE.SEND;
+                    data = {
+                        coin: this.form.coinSymbol,
+                        value: this.form.amount,
+                        to: this.form.address,
+                    };
+                }
+
+                return {
+                    type,
+                    data,
+                    payload: this.form.message,
                 };
             },
         },
@@ -162,8 +184,8 @@
                 handler(newVal) {
                     this.form.address = '';
                     this.recipient.type = '';
-                    recipientCheckData = null;
-                    this.clearRecipientTimer();
+                    // recipientCheckData = null;
+                    // this.clearRecipientTimer();
                     if (!newVal) {
                         return;
                     }
@@ -238,6 +260,7 @@
         methods: {
             // force check after blur if needed
             recipientBlur() {
+                /*
                 if (
                     this.recipientCheckTimer // check was postponed
                     ||
@@ -246,11 +269,14 @@
                     this.clearRecipientTimer();
                     this.checkRecipient();
                 }
+                */
             },
+            /*
             clearRecipientTimer() {
                 clearTimeout(this.recipientCheckTimer);
                 this.recipientCheckTimer = null;
             },
+
             checkRecipient() {
                 // cancel previous request
                 this.clearRecipientTimer();
@@ -304,6 +330,7 @@
                         this.recipientLoading = false;
                     });
             },
+            */
             setAddressError(message, code) {
                 this.sve.address = {invalid: true, isActual: true, message, code};
             },
@@ -337,46 +364,21 @@
                 this.isFormSending = true;
                 this.isModalOpen = false;
                 this.serverError = '';
-                this.serverSuccess = '';
-                this.$store.dispatch('FETCH_ADDRESS_ENCRYPTED')
-                    .then(() => {
-                        let txParams = {
-                            gasCoin: this.fee.coinSymbol,
-                            payload: this.form.message,
-                        };
-                        if (this.recipient.type === 'publicKey') {
-                            txParams.type = TX_TYPE.DELEGATE;
-                            txParams.data = {
-                                coin: this.form.coinSymbol,
-                                stake: this.form.amount,
-                                publicKey: this.form.address,
-                            };
-                        } else {
-                            txParams.type = TX_TYPE.SEND;
-                            txParams.data = {
-                                coin: this.form.coinSymbol,
-                                value: this.form.amount,
-                                to: this.form.address,
-                            };
-                        }
+                this.successTx = null;
+                const txParams = {
+                    ...this.txParams,
+                    gasCoin: this.fee.coin,
+                };
 
-                        replaceCoinSymbol(txParams)
-                            .then(() => {
-                                return postTx(txParams, {privateKey: this.$store.getters.privateKey});
-                            })
-                            .then((tx) => {
-                                this.isFormSending = false;
-                                this.isSuccessModalOpen = true;
-                                this.serverSuccess = tx.hash;
-                                this.clearForm();
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                                this.isFormSending = false;
-                                this.serverError = getErrorText(error);
-                            });
+                return postTx(txParams, {privateKey: this.$store.getters.privateKey})
+                    .then((tx) => {
+                        this.isFormSending = false;
+                        this.isSuccessModalOpen = true;
+                        this.successTx = tx;
+                        this.clearForm();
                     })
                     .catch((error) => {
+                        console.log(error);
                         this.isFormSending = false;
                         this.serverError = getErrorText(error);
                     });
@@ -411,6 +413,24 @@
             getExplorerTxUrl,
         },
     };
+
+    /**
+     *
+     * @param {Coin} selectedCoinItem
+     * @param {string|number} feeCoinIdOrSymbol
+     * @return {boolean}
+     */
+    function isSelectedCoinSameAsFeeCoin(selectedCoinItem, feeCoinIdOrSymbol) {
+        const isFeeId = isCoinId(feeCoinIdOrSymbol);
+        const isFeeSymbol = !isFeeId;
+        if (isFeeSymbol && selectedCoinItem.symbol === feeCoinIdOrSymbol) {
+            return true;
+        }
+        if (isFeeId && selectedCoinItem.id === feeCoinIdOrSymbol) {
+            return true;
+        }
+        return false;
+    }
 </script>
 
 <template>
@@ -448,7 +468,6 @@
                     >
                     <button class="bip-field__button bip-link u-semantic-button" type="button" @click="useMax">Use max</button>
                     <span class="bip-field__error" v-if="$v.form.amount.$dirty && !$v.form.amount.required">Enter amount</span>
-                    <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.validAmount">Wrong amount</span>
                     <span class="bip-field__error" v-else-if="$v.form.amount.$dirty && !$v.form.amount.maxAmount">Not enough coins</span>
                 </label>
                 <label class="bip-field bip-field--row" :class="{'is-error': $v.form.message.$error}">
@@ -464,20 +483,25 @@
             <div class="list">
                 <a class="list-item">
                     <div class="list-item__center">
-                        <span class="list-item__name u-text-nowrap">Transaction Fee</span>
+                        <span class="list-item__name u-text-nowrap">Transaction fee</span>
                     </div>
-                    <div class="list-item__right u-text-right">
+                    <div class="list-item__right list-item__right--with-loader u-text-right" :class="{'is-loading': fee.isLoading}">
                         <div class="list-item__label list-item__label--strong">
-                            {{ fee.coinSymbol }} {{ fee.value | pretty }}
+                            {{ fee.coin }} {{ fee.value | pretty }}
                             <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                         </div>
+                        <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                            <circle class="loader__path" cx="25" cy="25" r="16"></circle>
+                        </svg>
                     </div>
                 </a>
             </div>
 
             <div class="u-section u-container">
                 <button class="bip-button bip-button--main" :class="{'is-loading': isFormSending, 'is-disabled': $v.$invalid}">
-                    <span class="bip-button__content">Send</span>
+                    <span class="bip-button__content" v-if="txParams.type === $options.TX_TYPE.SEND">Send</span>
+                    <span class="bip-button__content" v-if="txParams.type === $options.TX_TYPE.DELEGATE">Delegate</span>
+                    <span class="bip-button__content" v-if="txParams.type === $options.TX_TYPE.UNBOND">Unbond</span>
                     <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                         <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                     </svg>
@@ -495,13 +519,19 @@
         <!-- confirm send modal -->
         <Modal :isOpen.sync="isModalOpen" :hideCloseButton="true">
             <div class="modal__panel">
-                <h3 class="modal__title u-h2">You're sending</h3>
+                <h3 class="modal__title u-h2">
+                    You're
+                    <template v-if="txParams.type === $options.TX_TYPE.SEND">sending</template>
+                    <template v-if="txParams.type === $options.TX_TYPE.DELEGATE">delegating</template>
+                    <template v-if="txParams.type === $options.TX_TYPE.UNBOND">unbonding</template>
+                </h3>
                 <div class="modal__content">
                     <p class="send__modal-value">
                         <span class="send__modal-amount">{{ form.amount | prettyExact }}</span>
                         {{ form.coinSymbol }}
                     </p>
-                    <p>to</p>
+                    <p v-if="txParams.type === $options.TX_TYPE.UNBOND">from</p>
+                    <p v-else>to</p>
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatar(recipient)" alt="" role="presentation">
                     </p>
@@ -532,14 +562,15 @@
             <div class="modal__panel">
                 <h3 class="modal__title u-h2">Success</h3>
                 <div class="modal__content">
-                    <p>Coins are received by</p>
+                    <p>Transaction is received by</p>
                     <p>
                         <img class="send__modal-image avatar avatar--large" :src="getAvatar(lastRecipient)" alt="" role="presentation">
                     </p>
                     <p class="u-text-wrap"><strong>{{ lastRecipient.name }}</strong></p>
+                    <TxFormBlocksToUpdateStake :success-tx="successTx" v-if="lastRecipient.type === 'publicKey'"/>
                 </div>
                 <div class="modal__footer">
-                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(serverSuccess)" target="_blank">View Transaction</a>
+                    <a class="bip-button bip-button--ghost-main" :href="getExplorerTxUrl(successTx.hash)" target="_blank" v-if="successTx">View transaction</a>
                     <button class="bip-button bip-button--ghost-main" @click="isSuccessModalOpen = false">Close</button>
                 </div>
             </div>

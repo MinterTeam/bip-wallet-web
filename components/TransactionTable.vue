@@ -46,11 +46,7 @@
                 if (!address) {
                     return '';
                 }
-                if (this.$store.state.userList[address] && this.$store.state.userList[address].username) {
-                    return '@' + this.$store.state.userList[address].username;
-                } else {
-                    return shortHashFilter(address);
-                }
+                return shortHashFilter(address);
             },
             getAvatarUrl,
             getTxUrl(hash) {

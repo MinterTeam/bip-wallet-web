@@ -2,8 +2,7 @@
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
     import withParams from 'vuelidate/lib/withParams';
-    import {isValidMnemonic} from 'minterjs-wallet';
-    import {addressFromMnemonic} from "minter-js-org";
+    import {isValidMnemonic, walletFromMnemonic} from 'minterjs-wallet';
 
     const mnemonicValidator = withParams({type: 'mnemonic'}, isValidMnemonic);
 
@@ -35,7 +34,7 @@
                 }
                 // clear old format stored data
                 this.$store.commit('LOGOUT');
-                this.$store.commit('ADD_AUTH_ADVANCED', addressFromMnemonic(this.mnemonic, this.isAuthAddress));
+                this.$store.commit('ADD_AUTH_ADVANCED', this.mnemonic);
                 this.$emit('address-added');
             },
         },

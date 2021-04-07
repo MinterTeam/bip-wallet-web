@@ -115,7 +115,7 @@
                         :class="{'is-loading': isTxListLoading}"
                         @click="loadMore"
                 >
-                    <span class="bip-button__content">Load More</span>
+                    <span class="bip-button__content">Load more</span>
                     <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
                         <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                     </svg>

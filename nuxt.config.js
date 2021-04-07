@@ -102,7 +102,6 @@ module.exports = {
         middleware: [
             'auth',
             'history',
-            'profile',
             'balance',
         ],
     },
@@ -197,7 +196,6 @@ module.exports = {
             'minterjs-tx',
             'minterjs-wallet',
             'minter-js-sdk',
-            'minter-js-org',
         ],
     },
 };

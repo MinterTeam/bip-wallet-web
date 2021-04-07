@@ -58,6 +58,12 @@
 .list-item__left {padding-right: 10px;}
 .list-item__center {padding-right: @container-padding; flex-direction: column; align-items: stretch; /* IE11 need this instead of 'flex-start' */ justify-content: center; letter-spacing: 0.033em;}
 .list-item__right {padding-right: 0; flex-wrap: wrap; justify-content: flex-end;}
+.list-item__right--with-loader {
+    position: relative;
+    .list-item__label {transition: 0.1s;}
+    &.is-loading .list-item__label {opacity: 0.5;}
+    .loader {width: 32px; height: 32px;}
+}
 .list-item--chevron__right {padding-right: 12px;}
 .list-item--chevron::before {margin-top: 1px; width: 9px; height: 9px;}
 .list-item__label {font-size: 16px;}

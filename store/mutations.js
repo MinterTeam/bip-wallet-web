@@ -1,69 +1,21 @@
 import Vue from 'vue';
-import {setAuthToken, resetAuthToken} from "~/api/accounts";
 import {getTimeOffset} from '~/assets/time-offset.js';
 
 export default {
-    SET_AUTH_PROFILE: (state, {user, token, password}) => {
-        SET_PROFILE_USER(state, user);
-        state.auth.password = password;
-        setAuthToken(token);
-    },
-    ADD_AUTH_ADVANCED: (state, address) => {
-        state.auth.advanced = address;
+    ADD_AUTH_ADVANCED: (state, mnemonic) => {
+        state.auth = mnemonic;
     },
     DELETE_ADVANCED_ADDRESS: (state, addressHash) => {
-        state.auth.advanced = null;
+        state.auth = '';
     },
-    // SET_MAIN_ADVANCED_ADDRESS: (state, addressHash) => {
-    //     state.auth.advanced.some((address) => {
-    //         if (address.address === addressHash) {
-    //             address.isMain = true;
-    //             return true;
-    //         }
-    //     });
-    // },
     LOGOUT: (state) => {
-        state.user = {};
-        state.auth.password = null;
-        state.auth.advanced = null;
+        state.auth = '';
         // clear data
         state.balance = [];
-        state.profileAddressList = [];
         state.transactionListInfo = {
             data: [],
             meta: {},
         };
-        resetAuthToken();
-    },
-    SET_PROFILE_USER,
-    UPDATE_PROFILE_PASSWORD: (state, password) => {
-        state.auth.password = password;
-    },
-    CHECK_MAIN_ADDRESS,
-    SET_PROFILE_ADDRESS_LIST: (state, addressList) => {
-        CHECK_MAIN_ADDRESS(state, addressList);
-        // @TODO saves only first encrypted (not compatible with multiple addresses)
-        // save encrypted data
-        const addressWithEncrypted = state.profileAddressList.find((addressItem) => addressItem.encrypted);
-        if (addressWithEncrypted) {
-            addressList.some((addressItem) => {
-                if (addressItem.id === addressWithEncrypted.id) {
-                    addressItem.encrypted = addressWithEncrypted.encrypted;
-                    return true;
-                }
-            });
-        }
-        state.profileAddressList = addressList;
-    },
-    SET_PROFILE_ADDRESS_ENCRYPTED: (state, address) => {
-        state.profileAddressList.some((addressItem, index) => {
-            if (addressItem.id === address.id) {
-                // use Array instance methods to notify Vue reactivity system
-                state.profileAddressList.splice(index, 1, address);
-                return true;
-            }
-        });
-
     },
     SET_TRANSACTION_LIST: (state, txListInfo) => {
         state.transactionListInfo = txListInfo;
@@ -84,7 +36,6 @@ export default {
     SET_DELEGATION: (state, delegation) => {
         state.delegation = delegation;
     },
-    ADD_USER,
     SET_AUTH_REDIRECT_PATH: (state, authRedirectPath) => {
         state.authRedirectPath = authRedirectPath;
     },
@@ -95,29 +46,3 @@ export default {
         state.history.pop();
     },
 };
-
-function SET_PROFILE_USER(state, profile) {
-    state.user = profile;
-    if (profile.mainAddress && profile.mainAddress.address) {
-        ADD_USER(state, {address: profile.mainAddress.address, user: profile});
-    }
-}
-
-function CHECK_MAIN_ADDRESS(state, newProfileAddressList) {
-    let isProfileAddressMain = newProfileAddressList.some((address) => {
-        if (address.isMain) {
-            return true;
-        }
-    });
-    if (isProfileAddressMain && state.auth.advanced) {
-        state.auth.advanced.isMain = false;
-    }
-}
-
-/**
- * @param state
- * @param {UserInfo} userInfo
- */
-function ADD_USER(state, userInfo) {
-    Vue.set(state.userList, userInfo.address, userInfo.user);
-}
