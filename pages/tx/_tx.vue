@@ -366,7 +366,8 @@
 
                 postTx({
                     ...this.tx,
-                    gasPrice: 1,
+                    nonce: undefined,
+                    gasPrice: undefined,
                 }, {
                     privateKey: this.$store.getters.privateKey,
                     nonceRetryLimit: 1,
