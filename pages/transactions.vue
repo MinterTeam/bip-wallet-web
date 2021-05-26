@@ -29,6 +29,7 @@
                 isTxListLoading: true,
                 /** @type Array<Transaction>*/
                 txList: this.$store.state.transactionListInfo.data || [],
+                /** @type PaginationMeta | Object*/
                 pagination: this.$store.state.transactionListInfo.meta || {},
             };
         },
@@ -81,7 +82,7 @@
                     return;
                 }
                 this.isTxListLoading = true;
-                this.$store.dispatch('FETCH_TRANSACTION_LIST', this.pagination.current_page + 1)
+                this.$store.dispatch('FETCH_TRANSACTION_LIST', this.pagination.currentPage + 1)
                     .then((txListInfo) => {
                         txListInfo.data.forEach((tx) => {
                             const alreadyHasTx = this.txList.find((listItem) => listItem.txn === tx.txn);
@@ -110,7 +111,7 @@
                 <div class="list-title" :key="'title' + groupDate">{{ formatDate(groupDate) }}</div>
                 <TransactionTable :transaction-list="txGroup" :key="groupDate"/>
             </template>
-            <div class="u-container u-section--small" v-if="pagination.current_page < pagination.last_page">
+            <div class="u-container u-section--small" v-if="pagination.currentPage < pagination.lastPage">
                 <button class="bip-button bip-button--ghost-main" type="button"
                         :class="{'is-loading': isTxListLoading}"
                         @click="loadMore"

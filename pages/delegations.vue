@@ -7,7 +7,7 @@
 
     export default {
         ideFix: null,
-        PAGE_TITLE: 'Delegated Coins',
+        PAGE_TITLE: 'Delegated coins',
         components: {
             Layout,
             Toast,

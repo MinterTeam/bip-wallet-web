@@ -177,3 +177,24 @@
     .convert__panel + & {margin-top: 16px;}
 }
 
+.pools__filter-label {margin-right: 8px;}
+.pools__item-header {border-bottom: 1px solid @c-border; /*padding-top: 12px; padding-bottom: 12px;*/}
+.pools__item-body {padding-top: 16px; padding-bottom: 16px;}
+
+.pools__control-button {
+    width: 40px; height: 40px; padding: 0; font-size: 0; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    &+& {margin-left: 8px;}
+    &.is-disabled {
+        cursor: default; opacity: 0.4; box-shadow: none;
+    }
+}
+.pools__icon--minus {display: block; width: 14px; height: 2px; background: currentColor;}
+.pools__icon--plus {
+    display: block; width: 14px; height: 2px; background: currentColor; position: relative;
+    &::before {content: ''; display: block; width: 2px; height: 14px; position: absolute; left: 50%; top: 50%; margin-left: -1px; margin-top: -7px; background: currentColor;}
+}
+
+.pools__desc-list {display: flex; justify-content: space-between; align-items: baseline; margin: 0;}
+.pools__desc-term {}
+.pools__desc-detail {margin: 0;}
+

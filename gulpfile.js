@@ -12,6 +12,7 @@ const autoprefixer = require('autoprefixer');
 const cleanCss = require('gulp-clean-css');
 // css onsen
 const postcssImport = require('postcss-import');
+const postcssUrl = require('postcss-url');
 const cssnext = require('postcss-cssnext');
 // images
 const del = require('del');
@@ -74,6 +75,14 @@ gulp.task('onsen', function() {
         .pipe(plumber({errorHandler: onError}))
         .pipe(postcss([
             postcssImport(),
+            postcssUrl({
+                // rebase image paths from onsen pcss styles
+                url: function transformUrl(url, decl, from, dirname, to, options) {
+                    // set path based on 'static/css'
+                    // output will look like '../../node_modules/*FILE*'
+                    return url.relativePath.replace(/^(\.\.\/)+/, '../../');
+                },
+            }),
             cssnext({
                 features: {
                     autoprefixer: false,

@@ -6,7 +6,7 @@
     import Toast from '~/components/Toast';
 
     export default {
-        PAGE_TITLE: 'Receive Coins',
+        PAGE_TITLE: 'Receive coins',
         components: {
             QrcodeVue,
             Layout,

@@ -62,6 +62,17 @@ export function pretty(value) {
 }
 
 /**
+ * @param {string|number} value
+ * @return {string}
+ */
+export function prettyUsd(value) {
+    if (!value && value !== 0) {
+        return '';
+    }
+    return decode(prettyNum(value, {precision: 2, precisionSetting: PRECISION_SETTING.FIXED, thousandsSeparator: '&#x202F;'}));
+}
+
+/**
  * Ensure value to have from 2 to 8 decimal digits
  * @param {string|number} value
  * @return {string}
