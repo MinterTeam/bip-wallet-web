@@ -48,7 +48,7 @@
                         <nuxt-link class="menu__link" to="/receive">Receive</nuxt-link>
                     </li>
                     <li class="menu__item">
-                        <nuxt-link class="menu__link" to="/settings">Settings</nuxt-link>
+                        <nuxt-link class="menu__link" to="/pools">Pools</nuxt-link>
                     </li>
                 </menu>
             </div>

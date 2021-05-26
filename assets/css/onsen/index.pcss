@@ -38,10 +38,12 @@
 @import "../../../node_modules/onsenui/css-components-src/src/components/progress-circular.css";
 @import "../../../node_modules/onsenui/css-components-src/src/components/fab.css";
 @import "../../../node_modules/onsenui/css-components-src/src/components/modal.css";
-@import "../../../node_modules/onsenui/css-components-src/src/components/select.css";
-@import "../../../node_modules/onsenui/css-components-src/src/components/action-sheet.css";
-@import "../../../node_modules/onsenui/css-components-src/src/components/card.css";
 */
+@import "../../../node_modules/onsenui/css-components-src/src/components/select.css";
+/*
+@import "../../../node_modules/onsenui/css-components-src/src/components/action-sheet.css";
+*/
+@import "../../../node_modules/onsenui/css-components-src/src/components/card.css";
 @import "../../../node_modules/onsenui/css-components-src/src/components/toast.css";
 /*
 @import "../../../node_modules/onsenui/css-components-src/src/components/combination.css"; !* non BEM *!
@@ -77,6 +79,8 @@
 
     --switch-highlight-color: var(--c-violet);
 
+    --select-input-font-size: 16px;
+
 
     /* remove bottom border */
     --retina-toolbar-bottom-border: {}
@@ -103,3 +107,8 @@
 /* customize onsen components */
 .list-item {@apply(--retina-list-item-border-copy);}
 .list-item-content {@apply(--retina-list-item-border-copy);}
+
+.select-input {font-weight: 500;}
+
+.card {padding: 0; margin: 0;}
+.card + .card {margin-top: 16px;}

@@ -14,10 +14,32 @@ const explorer = instance;
 addToCamelInterceptor(explorer);
 addTimeInterceptor(explorer);
 
+
+
+/**
+ * @typedef {Object} Status
+ * @property {number} marketCap - in $
+ * @property {number} bipPriceUsd
+ * @property {number} bipPriceChange - in %
+ * @property {number} latestBlockHeight - block count
+ * @property {number} avgBlockTime - in seconds
+ * @property {number} totalTransactions - tx count
+ * @property {number} transactionsPerSecond - tps
+ */
+
+/**
+ * @return {Promise<Status>}
+ */
+export function getStatus() {
+    return instance.get('status')
+        .then((response) => response.data.data);
+}
+
+
 /**
  * @typedef {Object} TransactionListInfo
  * @property {Array<Transaction>} data
- * @property {Object} meta - pagination
+ * @property {PaginationMeta} meta
  */
 
 /**
@@ -191,6 +213,20 @@ export function getAddressStakeList(address) {
  */
 
 
+/**
+ * @param {Object} [params]
+ * @param {string|number} [params.coin]
+ * @param {number} [params.page]
+ * @param {number} [params.limit]
+ * @return {Promise<PoolListInfo>}
+ */
+export function getPoolList(params) {
+    return explorer.get('pools', {
+            params,
+        })
+        .then((response) => response.data);
+}
+
 
 // 10s cache
 const poolCache = new Cache({maxAge: 10 * 1000});
@@ -256,13 +292,13 @@ export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
 /**
  * @typedef {Object} PoolListInfo
  * @property {Array<Pool>} data
- * @property {Object} meta - pagination
+ * @property {PaginationMeta} meta
  */
 
 /**
  * @typedef {Object} ProviderPoolListInfo
  * @property {Array<PoolProvider>} data
- * @property {Object} meta - pagination
+ * @property {PaginationMeta} meta
  */
 
 /**
@@ -274,6 +310,7 @@ export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
  * @property {number|string} liquidity
  * @property {number|string} liquidityBip
  * @property {string} token
+ * @property {number|string} tradeVolumeBip30D
  */
 
 /**
@@ -380,7 +417,16 @@ export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
 /**
  * @typedef {Object} StakeListInfo
  * @property {Array<DelegationItem>} data
- * @property {Object} meta - pagination
+ * @property {PaginationMeta} meta
  * @property {Object} meta.additional
  * @property {number|string} meta.additional.totalDelegatedBipValue
+ */
+
+/**
+ * @typedef {Object} PaginationMeta
+ * @property {number} currentPage
+ * @property {number} lastPage
+ * @property {number} perPage
+ * @property {number} total
+ * @property {string} path
  */
