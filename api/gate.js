@@ -22,19 +22,23 @@ const minterApi = new MinterApi({
 
 export const postTx = PostTx(minterApi);
 
-const estimateCache = new Cache({maxAge: 30 * 1000});
+const estimateCache = new Cache({maxAge: 10 * 1000});
 const _estimateCoinSell = (params, axiosOptions) => params.sellAll
     ? EstimateCoinSellAll(minterApi)(params, {...axiosOptions, cache: estimateCache})
     : EstimateCoinSell(minterApi)(params, {...axiosOptions, cache: estimateCache});
 const _estimateCoinBuy = (params, axiosOptions) => EstimateCoinBuy(minterApi)(params, {...axiosOptions, cache: estimateCache});
 export function estimateCoinSell(params, axiosOptions) {
+    // 0, '0', false, undefined
+    if (!params.valueToSell || !Number(params.valueToSell)) {
+        return Promise.reject(new Error('Value to sell not specified'));
+    }
     if (params.findRoute && params.swapFrom !== ESTIMATE_SWAP_TYPE.BANCOR) {
         let estimateError;
         const estimatePromise = _estimateCoinSell(params, axiosOptions)
             .catch((error) => {
                 estimateError = error;
             });
-        const routePromise = getSwapRoute(params.coinToSell, params.coinToBuy, {sellAmount: params.valueToSell})
+        const routePromise = getSwapRoute(params.coinToSell, params.coinToBuy, {sellAmount: params.valueToSell}, axiosOptions)
             // ignore route errors
             .catch((error) => {
                 console.log(error);
@@ -83,13 +87,17 @@ export function estimateCoinSell(params, axiosOptions) {
     }
 }
 export function estimateCoinBuy(params, axiosOptions) {
+    // 0, '0', false, undefined
+    if (!params.valueToBuy || !Number(params.valueToBuy)) {
+        return Promise.reject(new Error('Value to buy not specified'));
+    }
     if (params.findRoute && params.swapFrom !== ESTIMATE_SWAP_TYPE.BANCOR) {
         let estimateError;
         const estimatePromise = _estimateCoinBuy(params, axiosOptions)
             .catch((error) => {
                 estimateError = error;
             });
-        const routePromise = getSwapRoute(params.coinToSell, params.coinToBuy, {buyAmount: params.valueToBuy})
+        const routePromise = getSwapRoute(params.coinToSell, params.coinToBuy, {buyAmount: params.valueToBuy}, axiosOptions)
             // ignore route errors
             .catch((error) => {
                 console.log(error);
@@ -120,7 +128,7 @@ export function estimateCoinBuy(params, axiosOptions) {
                                 ...estimateRouteData,
                                 route,
                             };
-                            const isEstimateRouteBetter = estimateData && estimateRouteData && new Big(estimateData.will_pay).lt(estimateRouteData.will_pay);
+                            const isEstimateRouteBetter = estimateData && estimateRouteData && new Big(estimateData.will_pay).gt(estimateRouteData.will_pay);
 
                             if (isRouteOnly || isEstimateRouteBetter) {
                                 return estimateRouteData;
