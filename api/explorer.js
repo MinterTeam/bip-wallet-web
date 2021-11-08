@@ -2,6 +2,7 @@ import axios from 'axios';
 import {cacheAdapterEnhancer, Cache} from 'axios-extensions';
 import stripZeros from 'pretty-num/src/strip-zeros.js';
 import {convertToPip} from 'minterjs-util';
+import coinBlockList from 'minter-coin-block-list';
 import {BASE_COIN, EXPLORER_API_URL} from "~/assets/variables";
 import addToCamelInterceptor from '~/assets/to-camel.js';
 import {addTimeInterceptor} from '~/assets/time-offset.js';
@@ -97,16 +98,18 @@ export function getCoinList() {
         // @TODO don't sort, coins should already be sorted by reserve
         .then((response) => {
             const coinList = response.data.data;
-            return coinList.sort((a, b) => {
-                if (a.symbol === BASE_COIN) {
-                    return -1;
-                } else if (b.symbol === BASE_COIN) {
-                    return 1;
-                } else {
-                    return 0;
-                    // return a.symbol.localeCompare(b.symbol);
-                }
-            });
+            return coinList
+                .filter((coin) => !coinBlockList.includes(coin.symbol))
+                .sort((a, b) => {
+                    if (a.symbol === BASE_COIN) {
+                        return -1;
+                    } else if (b.symbol === BASE_COIN) {
+                        return 1;
+                    } else {
+                        return 0;
+                        // return a.symbol.localeCompare(b.symbol);
+                    }
+                });
         });
 }
 
