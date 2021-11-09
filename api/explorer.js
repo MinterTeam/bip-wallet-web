@@ -7,6 +7,13 @@ import {BASE_COIN, EXPLORER_API_URL} from "~/assets/variables";
 import addToCamelInterceptor from '~/assets/to-camel.js';
 import {addTimeInterceptor} from '~/assets/time-offset.js';
 
+
+const coinBlockMap = Object.fromEntries(coinBlockList.map((symbol) => [symbol, true]));
+function isBlocked(symbol) {
+    return !!coinBlockMap[symbol.replace(/-\d+$/, '')];
+}
+
+
 const instance = axios.create({
     baseURL: EXPLORER_API_URL,
     adapter: cacheAdapterEnhancer(axios.defaults.adapter, { enabledByDefault: false}),
@@ -99,7 +106,7 @@ export function getCoinList() {
         .then((response) => {
             const coinList = response.data.data;
             return coinList
-                .filter((coin) => !coinBlockList.includes(coin.symbol))
+                .filter((coin) => !isBlocked(coin.symbol))
                 .sort((a, b) => {
                     if (a.symbol === BASE_COIN) {
                         return -1;
