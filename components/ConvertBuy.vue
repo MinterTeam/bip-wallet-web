@@ -85,7 +85,7 @@
                 },
                 maximumValueToSell: {
                     required: (value) => value > 0,
-                    minValue: (value) => value >= this.form.buyAmount,
+                    minValue: (value) => Number(value) >= Number(this.currentEstimation),
                 },
             };
         },
