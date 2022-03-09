@@ -3,8 +3,10 @@ import Big from 'big.js';
 import {FeePrice} from 'minterjs-util/src/fee.js';
 import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
 import decorateTxParams from 'minter-js-sdk/src/tx-decorator/index.js';
+import {isCoinId} from 'minter-js-sdk/src/utils.js';
 import {BASE_COIN, CHAIN_ID} from '~/assets/variables.js';
 import {estimateTxCommission} from '~/api/gate.js';
+import {getCoinList} from '~/api/explorer.js';
 import {getErrorText} from '~/assets/server-error.js';
 
 
@@ -17,6 +19,7 @@ import {getErrorText} from '~/assets/server-error.js';
  * @property {number|string} baseCoinValue
  * @property {number|string} value
  * @property {string|number} coin
+ * @property {string|number} coinSymbol
  * @property {string} error
  * @property {boolean} isHighFee
  * @property {boolean} isLoading
@@ -27,12 +30,11 @@ import {getErrorText} from '~/assets/server-error.js';
  * @param {TxParams} txParams
  * @param {number} [baseCoinAmount]
  * @param {boolean} [fallbackToCoinToSpend] - by default fallback to baseCoin, additionally it can try to fallback to coinToSpend, if baseCoin is not enough
- * @param {boolean} [isOffline]
  * @return {Vue}
  * @constructor
  */
 
-export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSpend, isOffline}) {
+export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSpend}) {
     return new Vue({
         data: {
             txParams,
@@ -44,10 +46,10 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
             feeCoin: BASE_COIN,
             feeValue: '',
             feeError: '',
+            coinList: {},
             /** @type CommissionPriceData|null */
             commissionPriceData: null,
             isLoading: false,
-            isOffline,
         },
         computed: {
             isBaseCoinFee() {
@@ -62,6 +64,13 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                 const sendFee = feePrice.getFeeValue(TX_TYPE.SEND);
                 return sendFee && this.priceCoinFeeValue / sendFee >= 10000;
             },
+            feeCoinSymbol() {
+                if (isCoinId(this.feeCoin)) {
+                    return this.coinList[this.feeCoin];
+                } else {
+                    return this.feeCoin;
+                }
+            },
             fee() {
                 //@TODO always change, even if data stay the same
                 return {
@@ -72,6 +81,7 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                     isBaseCoinEnough: this.isBaseCoinEnough,
                     value: this.feeValue,
                     coin: this.feeCoin,
+                    coinSymbol: this.feeCoinSymbol,
                     isHighFee: this.isHighFee,
                     error: this.feeError,
                     isLoading: this.isLoading,
@@ -95,6 +105,15 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                 });
                 this.fetchCoinData();
             });
+
+            getCoinList({skipMeta: true})
+                .then((coinList) => {
+                    let result = {};
+                    coinList.forEach((coinInfo) => {
+                        result[coinInfo.id] = coinInfo.symbol;
+                    });
+                    this.coinList = Object.freeze(result);
+                });
         },
         methods: {
             getPrimaryCoinToCheck() {
@@ -124,10 +143,6 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                 return '';
             },
             fetchCoinData() {
-                if (this.isOffline) {
-                    return;
-                }
-
                 // save current coins to check if it will be actual after resolution
                 const primaryCoinToCheck = this.getPrimaryCoinToCheck();
                 const secondaryCoinToCheck = this.getSecondaryCoinToCheck();
@@ -136,6 +151,7 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                     chainId: CHAIN_ID,
                     gasCoin: primaryCoinToCheck,
                 });
+                //@TODO secondary check may be redundant
                 const secondaryEstimate = secondaryCoinToCheck && secondaryCoinToCheck !== primaryCoinToCheck ? estimateTxCommission({
                     ...this.txParams,
                     chainId: CHAIN_ID,
@@ -161,7 +177,7 @@ export default function FeeBus({txParams, baseCoinAmount = 0, fallbackToCoinToSp
                         const feeData = primaryResult.value;
                         const secondaryFeeData = secondaryResult.value;
                         if (!feeData) {
-                            throw new Error(primaryResult.reason);
+                            return Promise.reject(primaryResult.reason);
                         }
 
                         this.priceCoinFeeValue = feeData.priceCoinCommission;

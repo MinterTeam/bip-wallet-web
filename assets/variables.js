@@ -16,3 +16,5 @@ export const COIN_NAME = BASE_COIN;
 export const CHAIN_ID = NETWORK === MAINNET ? 1 : 2;
 
 export const STAKE_RECALCULATE_BLOCK_COUNT = 720;
+/* 3 year mainnet, 1 hour testnet */
+export const LOCK_STAKE_PERIOD = NETWORK === MAINNET ? 18921600 : 2920 * 2;

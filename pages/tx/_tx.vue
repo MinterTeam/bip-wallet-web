@@ -449,7 +449,7 @@
                     </div>
                     <div class="list-item__right u-text-right">
                         <div class="list-item__label list-item__label--strong">
-                            {{ fee.value | pretty }} {{ fee.coin }}
+                            {{ fee.value | pretty }} {{ fee.coinSymbol }}
                             <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ fee.baseCoinValue | pretty }} {{ $store.getters.COIN_NAME }})</span>
                         </div>
                     </div>

@@ -2,9 +2,20 @@ import axios from 'axios';
 import {cacheAdapterEnhancer, Cache} from 'axios-extensions';
 import stripZeros from 'pretty-num/src/strip-zeros.js';
 import {convertToPip} from 'minterjs-util';
+import coinBlockList from 'minter-coin-block-list';
 import {BASE_COIN, EXPLORER_API_URL} from "~/assets/variables";
 import addToCamelInterceptor from '~/assets/to-camel.js';
 import {addTimeInterceptor} from '~/assets/time-offset.js';
+
+
+const coinBlockMap = Object.fromEntries(coinBlockList.map((symbol) => [symbol, true]));
+function isBlocked(symbol) {
+    // rely on api being already filtered
+    return false;
+    // eslint-disable-next-line no-unreachable
+    return !!coinBlockMap[symbol.replace(/-\d+$/, '')];
+}
+
 
 const instance = axios.create({
     baseURL: EXPLORER_API_URL,
@@ -97,16 +108,18 @@ export function getCoinList() {
         // @TODO don't sort, coins should already be sorted by reserve
         .then((response) => {
             const coinList = response.data.data;
-            return coinList.sort((a, b) => {
-                if (a.symbol === BASE_COIN) {
-                    return -1;
-                } else if (b.symbol === BASE_COIN) {
-                    return 1;
-                } else {
-                    return 0;
-                    // return a.symbol.localeCompare(b.symbol);
-                }
-            });
+            return coinList
+                .filter((coin) => !isBlocked(coin.symbol))
+                .sort((a, b) => {
+                    if (a.symbol === BASE_COIN) {
+                        return -1;
+                    } else if (b.symbol === BASE_COIN) {
+                        return 1;
+                    } else {
+                        return 0;
+                        // return a.symbol.localeCompare(b.symbol);
+                    }
+                });
         });
 }
 
@@ -238,9 +251,10 @@ export function getProviderPoolList(address, params) {
  * @param {Object} amountOptions
  * @param {number|string} [amountOptions.buyAmount]
  * @param {number|string} [amountOptions.sellAmount]
+ * @param {AxiosRequestConfig} [axiosOptions]
  * @return {Promise<{coins: Array<Coin>, amountIn: number|string, amountOut:number|string}>}
  */
-export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
+export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}, axiosOptions) {
     const amount = convertToPip(buyAmount || sellAmount);
     let type;
     if (sellAmount) {
@@ -249,7 +263,7 @@ export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
     if (buyAmount) {
         type = 'output';
     }
-    return explorer.get(`pools/coins/${coin0}/${coin1}/route?type=${type}&amount=${amount}`)
+    return explorer.get(`pools/coins/${coin0}/${coin1}/route?type=${type}&amount=${amount}`, axiosOptions)
         .then((response) => response.data);
 }
 

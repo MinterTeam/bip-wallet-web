@@ -13,7 +13,7 @@
     import {postTx, estimateCoinSell} from '~/api/gate.js';
     import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
-    import {pretty} from '~/assets/utils';
+    import {pretty, decreasePrecisionSignificant} from '~/assets/utils.js';
     import FieldCoinList from '~/components/FieldCoinList';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
@@ -86,6 +86,10 @@
                         maxValue: maxValue(this.maxAmount || 0),
                     },
                 },
+                minimumValueToBuy: {
+                    required: (value) => value > 0,
+                    maxValue: (value) => Number(value) <= Number(this.currentEstimation),
+                },
             };
         },
         watch: {
@@ -97,7 +101,7 @@
             // every valid form change will lead to estimationTimer set up
             form: {
                 handler() {
-                    if (this.$v.$invalid) {
+                    if (this.$v.form.$invalid) {
                         return;
                     }
                     clearTimeout(this.estimationTimer);
@@ -151,8 +155,7 @@
                             : [this.form.coinFrom, this.form.coinTo],
                     }),
                     valueToSell: this.form.sellAmount,
-                    //@TODO
-                    // minimumValueToBuy: this.form.minimumValueToBuy,
+                    minimumValueToBuy: this.minimumValueToBuy,
                 };
             },
             maxAmount() {
@@ -161,6 +164,11 @@
                     return coin.coin.symbol === this.form.coinFrom;
                 });
                 return selectedCoin ? selectedCoin.amount : 0;
+            },
+            minimumValueToBuy() {
+                let slippage = 1 - 5 / 100; // 5%
+                slippage = Math.max(slippage, 0);
+                return decreasePrecisionSignificant(this.currentEstimation * slippage);
             },
             feeBusParams() {
                 return {
@@ -176,6 +184,13 @@
                     baseCoinAmount: this.$store.getters.baseCoin && this.$store.getters.baseCoin.amount,
                     fallbackToCoinToSpend: true,
                 };
+            },
+            currentEstimation() {
+                if (this.$v.form.$invalid || !this.estimation || this.isEstimationWaiting || this.estimationError) {
+                    return 0;
+                }
+
+                return this.estimation;
             },
             isEstimationWaiting() {
                 return this.estimationTimer || this.estimationLoading;
@@ -362,7 +377,7 @@
         </div>
 
         <div class="u-section--bottom u-container">
-            <div class="convert__panel" :class="{'is-loading': isEstimationWaiting}" v-if="!$v.$invalid && !isEstimationErrorVisible">
+            <div class="convert__panel" :class="{'is-loading': isEstimationWaiting}" v-if="!$v.form.$invalid && !isEstimationErrorVisible">
                 <div class="convert__panel-content">
                     You will get approximately
                     <p class="convert__panel-amount">{{ $options.filters.pretty(estimation || 0) }} {{ form.coinTo }}</p>
@@ -379,7 +394,9 @@
                     <circle class="loader__path" cx="25" cy="25" r="16"></circle>
                 </svg>
             </div>
-            <div class="convert__panel" v-if="!$v.$invalid && isEstimationErrorVisible">{{ estimationError }}</div>
+            <div class="convert__panel u-text-error" v-if="!$v.form.$invalid && isEstimationErrorVisible">{{ estimationError }}</div>
+            <div class="convert__panel u-text-error" v-else-if="$v.minimumValueToBuy.$dirty && !$v.minimumValueToBuy.required">Can't calculate swap limits</div>
+            <div class="convert__panel u-text-error" v-else-if="$v.minimumValueToBuy.$dirty && !$v.minimumValueToBuy.minValue">Invalid swap limit</div>
             <p class="convert__panel-note">The final amount depends on&nbsp;the&nbsp;exchange rate at&nbsp;the&nbsp;moment of&nbsp;transaction.</p>
         </div>
 
@@ -390,7 +407,7 @@
                 </div>
                 <div class="list-item__right list-item__right--with-loader u-text-right" :class="{'is-loading': fee.isLoading}">
                     <div class="list-item__label list-item__label--strong">
-                        {{ fee.coin }} {{ fee.value | pretty }}
+                        {{ fee.value | pretty }} {{ fee.coinSymbol }}
                         <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                     </div>
                     <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">

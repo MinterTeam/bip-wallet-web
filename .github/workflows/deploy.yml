@@ -4,10 +4,10 @@ on:
   push:
     branches: [ mainnet, testnet, taconet ]
 env:
-  INGRESS_DOMAIN_mainnet: "wallet.bip.to"
+  INGRESS_DOMAIN_master: "wallet.bip.to"
   INGRESS_DOMAIN_testnet: "wallet.testnet.bip.to"
   INGRESS_DOMAIN_taconet: "wallet.taconet.bip.to"
-  KUBE_NAMESPACE_mainnet: "mainnet"
+  KUBE_NAMESPACE_master: "mainnet"
   KUBE_NAMESPACE_testnet: "testnet"
   KUBE_NAMESPACE_taconet: "taconet"
 jobs:
