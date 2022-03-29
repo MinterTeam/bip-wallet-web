@@ -2,12 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [ master, testnet ]
+    branches: [ master, testnet, toronet ]
 env:
   INGRESS_DOMAIN_master: "wallet.bip.to"
   INGRESS_DOMAIN_testnet: "wallet.testnet.bip.to"
+  INGRESS_DOMAIN_toronet: "wallet.toronet.bip.to"
   KUBE_NAMESPACE_master: "mainnet"
   KUBE_NAMESPACE_testnet: "testnet"
+  KUBE_NAMESPACE_toronet: "toronet"
 jobs:
   ci:
     name: build
