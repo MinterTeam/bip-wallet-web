@@ -407,7 +407,7 @@
                 </div>
                 <div class="list-item__right list-item__right--with-loader u-text-right" :class="{'is-loading': fee.isLoading}">
                     <div class="list-item__label list-item__label--strong">
-                        {{ fee.coin }} {{ fee.value | pretty }}
+                        {{ fee.value | pretty }} {{ fee.coinSymbol }}
                         <span class="u-display-ib" v-if="!fee.isBaseCoin">({{ $store.getters.COIN_NAME }} {{ fee.baseCoinValue | pretty }})</span>
                     </div>
                     <svg class="loader loader--button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
