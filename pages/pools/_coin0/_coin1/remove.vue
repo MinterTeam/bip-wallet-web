@@ -7,13 +7,11 @@ import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
 import {getPool, getPoolProvider, getStatus} from "~/api/explorer.js";
 import {getExplorerTxUrl, pretty, prettyExact} from "~/assets/utils.js";
 import getTitle from '~/assets/get-title.js';
-import FeeBus from '~/assets/fee.js';
 import {getErrorText} from '~/assets/server-error.js';
+import useFee from '~/composables/use-fee.js';
 import Layout from '~/components/LayoutDefault.vue';
 import Modal from '~/components/Modal.vue';
 import {postTx} from '~/api/gate.js';
-
-let feeBus;
 
 export default {
     PAGE_TITLE: 'Add liquidity',
@@ -81,6 +79,14 @@ export default {
             ],
         };
     },
+    setup() {
+        const {fee, feeProps} = useFee();
+
+        return {
+            fee,
+            feeProps,
+        };
+    },
     data() {
         return {
             /** @type Pool */
@@ -92,8 +98,6 @@ export default {
             form: {
                 liquidity: '',
             },
-            /** @type FeeData */
-            fee: {},
             isUseMax: false,
             isConfirmModalOpen: false,
             isSuccessModalOpen: false,
@@ -165,13 +169,14 @@ export default {
     watch: {
         feeBusParams: {
             handler(newVal) {
-                if (feeBus && typeof feeBus.$emit === 'function') {
-                    feeBus.$emit('update-params', newVal);
-                }
+                Object.assign(this.feeProps, newVal);
             },
             deep: true,
+            immediate: true,
         },
     },
+    // @TODO check useMax
+    /*
     created() {
         feeBus = new FeeBus(this.feeBusParams);
         this.fee = feeBus.fee;
@@ -183,6 +188,7 @@ export default {
             }
         });
     },
+    */
     methods: {
         pretty,
         prettyExact,
