@@ -54,7 +54,7 @@
                 return EXPLORER_HOST + '/transactions/' + hash;
             },
             isTxType(tx, txType) {
-                return this.isTxType(tx, txType);
+                return tx.type === Number(txType);
             },
             isSend(tx) {
                 return this.isTxType(tx, TX_TYPE.SEND);
