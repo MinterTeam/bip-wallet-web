@@ -11,18 +11,14 @@
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
     import {ESTIMATE_SWAP_TYPE} from 'minter-js-sdk/src/variables.js';
     import {postTx, estimateCoinSell} from '~/api/gate.js';
-    import FeeBus from '~/assets/fee';
     import {getErrorText} from "~/assets/server-error";
     import {pretty, decreasePrecisionSignificant} from '~/assets/utils.js';
+    import useFee from '~/composables/use-fee.js';
     import FieldCoinList from '~/components/FieldCoinList';
 
     const isValidAmount = withParams({type: 'validAmount'}, (value) => {
         return parseFloat(value) >= 0;
     });
-
-    let feeBus;
-
-    let estimationCancel;
 
     export default {
         ESTIMATE_SWAP_TYPE,
@@ -36,7 +32,14 @@
         filters: {
             pretty,
         },
+        setup() {
+            const {fee, feeProps} = useFee();
 
+            return {
+                fee,
+                feeProps,
+            };
+        },
         data() {
             const coinList = this.$store.state.balance;
             return {
@@ -58,8 +61,6 @@
                     mapToRadix: [','],  // symbols to process as radix
                 },
                 // amountMasked: '',
-                /** @type FeeData */
-                fee: {},
                 estimation: null,
                 estimationType: null,
                 estimationRoute: null,
@@ -111,11 +112,10 @@
             },
             feeBusParams: {
                 handler(newVal) {
-                    if (feeBus && typeof feeBus.$emit === 'function') {
-                        feeBus.$emit('update-params', newVal);
-                    }
+                    Object.assign(this.feeProps, newVal);
                 },
                 deep: true,
+                immediate: true,
             },
         },
         computed: {
@@ -199,13 +199,6 @@
                 return this.estimationError && !this.isEstimationWaiting;
             },
         },
-        created() {
-            feeBus = new FeeBus(this.feeBusParams);
-            this.fee = feeBus.fee;
-            feeBus.$on('update-fee', (newVal) => {
-                this.fee = newVal;
-            });
-        },
         methods: {
             // force estimation after blur if needed
             inputBlur() {
@@ -220,11 +213,6 @@
                 this.estimationTimer = null;
             },
             getEstimation() {
-                //@TODO cancel
-                if (this.estimationLoading && typeof estimationCancel === 'function') {
-                    // cancel previous request
-                    estimationCancel();
-                }
                 this.estimationTimer = null;
                 if (this.form.coinFrom && this.form.coinFrom === this.form.coinTo) {
                     this.estimationError = decode('Estimation error: you have to select different&nbsp;coins');
@@ -238,7 +226,7 @@
                     coinToBuy: this.form.coinTo,
                     findRoute: true,
                     gasCoin: this.fee.coin || 0,
-                }, { cancelToken: new axios.CancelToken((cancelFn) => estimationCancel = cancelFn) })
+                }, { idPreventConcurrency: 'convertSell' })
                     .then((result) => {
                         this.estimation = result.will_get;
                         this.estimationType = result.swap_from;
@@ -246,6 +234,9 @@
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
+                        if (error.isCanceled) {
+                            return;
+                        }
                         console.log(error);
                         this.estimationLoading = false;
                         this.estimationError = getErrorText(error, 'Estimation error: ');
