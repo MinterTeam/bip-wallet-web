@@ -3,14 +3,12 @@
     import {decodeLink} from 'minter-js-sdk/src/link';
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
     import {postTx} from '~/api/gate.js';
-    import FeeBus from '~/assets/fee.js';
     import {getErrorText} from "~/assets/server-error.js";
     import {pretty, prettyExact, getExplorerTxUrl, txTypeFilter} from '~/assets/utils.js';
     import getTitle from '~/assets/get-title.js';
+    import useFee from '~/composables/use-fee.js';
     import Layout from '~/components/LayoutDefault.vue';
     import Modal from '~/components/Modal.vue';
-
-    let feeBus;
 
     export default {
         PAGE_TITLE: 'Confirm Transaction',
@@ -56,6 +54,14 @@
                 ],
             };
         },
+        setup() {
+            const {fee, feeProps} = useFee();
+
+            return {
+                fee,
+                feeProps,
+            };
+        },
         data() {
             return {
                 isFormSending: false,
@@ -67,8 +73,6 @@
                     address: '',
                     type: '',
                 },
-                /** @type FeeData */
-                fee: {},
                 isModalOpen: false,
                 coinList: {},
             };
@@ -329,19 +333,11 @@
         watch: {
             feeBusParams: {
                 handler(newVal) {
-                    if (feeBus && typeof feeBus.$emit === 'function') {
-                        feeBus.$emit('update-params', newVal);
-                    }
+                    Object.assign(this.feeProps, newVal);
                 },
                 deep: true,
+                immediate: true,
             },
-        },
-        created() {
-            feeBus = new FeeBus(this.feeBusParams);
-            this.fee = feeBus.fee;
-            feeBus.$on('update-fee', (newVal) => {
-                this.fee = newVal;
-            });
         },
         methods: {
             getCoinSymbol(coinId) {

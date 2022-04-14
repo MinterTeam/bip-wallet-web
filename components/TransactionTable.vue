@@ -1,7 +1,7 @@
 <script>
     import Big from 'big.js';
-    import {TX_TYPE} from 'minterjs-tx/src/tx-types';
-    import {EXPLORER_HOST} from "~/assets/variables";
+    import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
+    import {EXPLORER_HOST, LOCK_STAKE_PERIOD} from "~/assets/variables.js";
     import {getAvatarUrl, getTimeStamp, pretty, txTypeFilter, shortHashFilter, fromBase64} from "~/assets/utils";
 
     export default {
@@ -24,6 +24,7 @@
             };
         },
         methods: {
+            pretty,
             fromBase64,
             txClick(hash) {
                 if (this.activeTx !== hash) {
@@ -52,38 +53,50 @@
             getTxUrl(hash) {
                 return EXPLORER_HOST + '/transactions/' + hash;
             },
+            isTxType(tx, txType) {
+                return tx.type === Number(txType);
+            },
             isSend(tx) {
-                return tx.type === Number(TX_TYPE.SEND);
+                return this.isTxType(tx, TX_TYPE.SEND);
             },
             isCreateCoin(tx) {
-                return tx.type === Number(TX_TYPE.CREATE_COIN);
+                return this.isTxType(tx, TX_TYPE.CREATE_COIN);
             },
             isSell(tx) {
-                return tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL);
+                return this.isTxType(tx, TX_TYPE.SELL) || this.isTxType(tx, TX_TYPE.SELL_ALL);
+            },
+            isSellPool(tx) {
+                return this.isTxType(tx, TX_TYPE.SELL_SWAP_POOL) || this.isTxType(tx, TX_TYPE.SELL_ALL_SWAP_POOL);
             },
             isBuy(tx) {
-                return tx.type === Number(TX_TYPE.BUY);
+                return this.isTxType(tx, TX_TYPE.BUY);
+            },
+            isBuyPool(tx) {
+                return this.isTxType(tx, TX_TYPE.BUY_SWAP_POOL);
             },
             isExchange(tx) {
                 return this.isSell(tx) || this.isBuy(tx);
+            },
+            isAddOrder(tx) {
+                return this.isTxType(tx, TX_TYPE.ADD_LIMIT_ORDER);
             },
             isMining(tx) {
                 return this.isValidate(tx) || this.isDelegate(tx) || this.isUnbond(tx);
             },
             isUnbond(tx) {
-                return tx.type === Number(TX_TYPE.UNBOND);
+                return this.isTxType(tx, TX_TYPE.UNBOND);
             },
             isDelegate(tx) {
-                return tx.type === Number(TX_TYPE.DELEGATE);
+                return this.isTxType(tx, TX_TYPE.DELEGATE);
             },
             isRedeem(tx) {
-                return tx.type === Number(TX_TYPE.REDEEM_CHECK);
+                return this.isTxType(tx, TX_TYPE.REDEEM_CHECK);
             },
             isValidate(tx) {
-                return tx.type === Number(TX_TYPE.DECLARE_CANDIDACY) || tx.type === Number(TX_TYPE.EDIT_CANDIDATE) || tx.type === Number(TX_TYPE.SET_CANDIDATE_OFF) || tx.type === Number(TX_TYPE.SET_CANDIDATE_ON);
+                return this.isTxType(tx, TX_TYPE.DECLARE_CANDIDACY) || this.isTxType(tx, TX_TYPE.EDIT_CANDIDATE) || this.isTxType(tx, TX_TYPE.SET_CANDIDATE_OFF) || this.isTxType(tx, TX_TYPE.SET_CANDIDATE_ON);
             },
             isMultisend(tx) {
-                return tx.type === Number(TX_TYPE.MULTISEND);
+                return this.isTxType(tx, TX_TYPE.MULTISEND);
             },
             isIncomeSend(tx) {
                 return this.$store.getters.address === tx.data.to;
@@ -153,20 +166,32 @@
                 }
             },
             getConvertCoinSymbol(tx) {
-                if (tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL)) {
+                if (this.isSell(tx)) {
                     return tx.data.coinToSell.symbol;
                 }
-                if (tx.type === Number(TX_TYPE.BUY)) {
+                if (this.isBuy(tx)) {
                     return tx.data.coinToBuy.symbol;
+                }
+                if (this.isSellPool(tx)) {
+                    return tx.data.coins[0].symbol;
+                }
+                if (this.isBuyPool(tx)) {
+                    return tx.data.coins[tx.data.coins.length - 1].symbol;
                 }
             },
             getConvertValue(tx) {
-                if (tx.type === Number(TX_TYPE.SELL) || tx.type === Number(TX_TYPE.SELL_ALL)) {
+                if (this.isSell(tx) || this.isSellPool(tx)) {
                     return tx.data.valueToSell;
                 }
-                if (tx.type === Number(TX_TYPE.BUY)) {
+                if (this.isBuy(tx) || this.isBuyPool(tx)) {
                     return tx.data.valueToBuy;
                 }
+            },
+            getDueBlockHeight(tx) {
+                if (this.isTxType(tx, TX_TYPE.LOCK_STAKE)) {
+                    return tx.height + LOCK_STAKE_PERIOD;
+                }
+                return tx?.data?.dueBlock || tx?.check?.dueBlock;
             },
         },
     };
@@ -251,21 +276,61 @@
                     <!-- type SELL -->
                     <div class="u-cell" v-if="isSell(tx)">
                         <div class="tx-info__name">Sell coins</div>
-                        <div class="tx-info__value">{{ tx.data.valueToSell | pretty }} {{ tx.data.coinToSell.symbol }}</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToSell) }} {{ tx.data.coinToSell.symbol }}</div>
                     </div>
                     <div class="u-cell" v-if="isSell(tx)">
                         <div class="tx-info__name">Get coins</div>
-                        <div class="tx-info__value">{{ tx.data.valueToBuy | pretty  }} {{ tx.data.coinToBuy.symbol }}</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToBuy) }} {{ tx.data.coinToBuy.symbol }}</div>
+                    </div>
+                    <!-- SELL_POOL -->
+                    <div class="u-cell" v-if="isSellPool(tx)">
+                        <div class="tx-info__name">Sell coins</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToSell) }} {{ tx.data.coins[0].symbol }}</div>
+                    </div>
+                    <div class="u-cell" v-if="isSellPool(tx)">
+                        <div class="tx-info__name">Get coins</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToBuy) }} {{ tx.data.coins[tx.data.coins.length - 1].symbol }}</div>
                     </div>
 
                     <!-- type BUY -->
                     <div class="u-cell" v-if="isBuy(tx)">
                         <div class="tx-info__name">Buy coins</div>
-                        <div class="tx-info__value">{{ tx.data.valueToBuy | pretty }} {{ tx.data.coinToBuy.symbol }}</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToBuy) }} {{ tx.data.coinToBuy.symbol }}</div>
                     </div>
                     <div class="u-cell" v-if="isBuy(tx)">
                         <div class="tx-info__name">Spend coins</div>
-                        <div class="tx-info__value">{{ tx.data.valueToSell | pretty }} {{ tx.data.coinToSell.symbol }}</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToSell) }} {{ tx.data.coinToSell.symbol }}</div>
+                    </div>
+                    <!-- BUY_POOL -->
+                    <div class="u-cell" v-if="isBuyPool(tx)">
+                        <div class="tx-info__name">Buy coins</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToBuy) }} {{ tx.data.coins[tx.data.coins.length - 1].symbol }}</div>
+                    </div>
+                    <div class="u-cell" v-if="isBuyPool(tx)">
+                        <div class="tx-info__name">Spend coins</div>
+                        <div class="tx-info__value">{{ pretty(tx.data.valueToSell) }} {{ tx.data.coins[0].symbol }}</div>
+                    </div>
+
+                    <!-- ADD_LIMIT_ORDER -->
+                    <div class="u-cell" v-if="isAddOrder(tx)">
+                        <div class="tx-info__name">Want to sell</div>
+                        <div class="tx-info__value">
+                            {{ tx.data.coinToSell.symbol }} {{ pretty(tx.data.valueToSell) }}
+                        </div>
+                    </div>
+                    <div class="u-cell" v-if="isAddOrder(tx)">
+                        <div class="tx-info__name">Want to buy</div>
+                        <div class="tx-info__value">
+                            {{ tx.data.coinToBuy.symbol }} {{ pretty(tx.data.valueToBuy) }}
+                        </div>
+                    </div>
+
+                    <!-- ADD_LIMIT_ORDER, REMOVE_LIMIT_ORDER -->
+                    <div class="u-cell" v-if="tx.data.id || tx.data.orderId">
+                        <div class="tx-info__name">Order ID</div>
+                        <div class="tx-info__value">
+                            {{ tx.data.id || tx.data.orderId }}
+                        </div>
                     </div>
 
                     <!-- type CREATE_COIN -->
@@ -325,9 +390,9 @@
                         <div class="tx-info__name">Check Nonce</div>
                         <div class="tx-info__value">{{ fromBase64(tx.data.check.nonce) }}</div>
                     </div>
-                    <div class="u-cell" v-if="tx.data.check && tx.data.check.dueBlock">
-                        <div class="tx-info__name">Due Block</div>
-                        <div class="tx-info__value">{{ tx.data.check.dueBlock }}</div>
+                    <div class="u-cell" v-if="getDueBlockHeight(tx)">
+                        <div class="tx-info__name">Due block</div>
+                        <div class="tx-info__value">{{ getDueBlockHeight(tx) }}</div>
                     </div>
 
                     <!-- type MULTISIG -->

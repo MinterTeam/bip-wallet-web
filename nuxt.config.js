@@ -110,6 +110,7 @@ module.exports = {
         //'@nuxtjs/pwa'
     ],
     plugins: [
+        { src: '~/plugins/composition-api.js'},
         { src: '~/plugins/custom-event-polyfill.js', ssr: false },
         { src: '~/plugins/persistedState.js', ssr: false },
         { src: '~/plugins/vue-onsen.js', ssr: false },
