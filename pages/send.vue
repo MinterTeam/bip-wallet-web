@@ -10,10 +10,10 @@
     import {TX_TYPE} from 'minterjs-util/src/tx-types.js';
     import {isCoinId} from 'minter-js-sdk/src/utils.js';
     import {postTx} from '~/api/gate.js';
-    import FeeBus from '~/assets/fee.js';
     import {getServerValidator, fillServerErrors, getErrorText, getErrorCode} from "~/assets/server-error";
     import {getAvatarUrl, pretty, prettyExact, getExplorerTxUrl} from '~/assets/utils';
     import getTitle from '~/assets/get-title';
+    import useFee from '~/composables/use-fee.js';
     import Layout from '~/components/LayoutDefault';
     import Modal from '~/components/Modal';
     import TxFormBlocksToUpdateStake from '~/components/TxFormBlocksToUpdateStake.vue';
@@ -24,8 +24,6 @@
         username: {},
         email: {},
     };
-
-    let feeBus;
 
     export default {
         TX_TYPE,
@@ -49,6 +47,14 @@
                 meta: [
                     { hid: 'og-title', name: 'og:title', content: getTitle(this.$options.PAGE_TITLE) },
                 ],
+            };
+        },
+        setup() {
+            const {fee, feeProps} = useFee();
+
+            return {
+                fee,
+                feeProps,
             };
         },
         data() {
@@ -92,8 +98,6 @@
                     mapToRadix: [','],  // symbols to process as radix
                 },
                 // amountMasked: '',
-                /** @type FeeData */
-                fee: {},
                 isUseMax: false,
                 isModalOpen: false,
                 isSuccessModalOpen: false,
@@ -239,13 +243,14 @@
             },
             feeBusParams: {
                 handler(newVal) {
-                    if (feeBus && typeof feeBus.$emit === 'function') {
-                        feeBus.$emit('update-params', newVal);
-                    }
+                    Object.assign(this.feeProps, newVal);
                 },
                 deep: true,
+                immediate: true,
             },
         },
+        // @TODO check useMax
+        /*
         created() {
             feeBus = new FeeBus(this.feeBusParams);
             this.fee = feeBus.fee;
@@ -257,6 +262,7 @@
                 }
             });
         },
+        */
         methods: {
             // force check after blur if needed
             recipientBlur() {
