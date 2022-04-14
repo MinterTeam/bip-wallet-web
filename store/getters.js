@@ -7,32 +7,17 @@ export default {
      * Checks if user is authorized
      * @return {boolean}
      */
-    isAuthorized(state, getters) {
-        return getters.isUserAdvanced;
-    },
-    /**
-     * Checks if user is authorized by private key
-     * @return {boolean}
-     */
-    isUserAdvanced(state) {
+    isAuthorized(state) {
         return state.auth && isValidMnemonic(state.auth);
     },
-    /**
-     * Checks if user is authorized by server
-     * @return {boolean}
-     */
-    isUserWithProfile(state) {
-        return false;
-        // return !!state.auth.password;
-    },
     wallet(state, getters) {
-        if (getters.isUserAdvanced) {
+        if (getters.isAuthorized) {
             return walletFromMnemonic(state.auth);
         }
         return null;
     },
     address(state, getters) {
-        if (getters.isUserAdvanced) {
+        if (getters.wallet) {
             return getters.wallet.getAddressString();
         } else {
             return '';
@@ -42,7 +27,7 @@ export default {
     //     return getExplorerAddressUrl(getters.address);
     // },
     mnemonic(state, getters) {
-        return getters.isUserAdvanced ? state.auth : '';
+        return getters.isAuthorized ? state.auth : '';
     },
     privateKey(state, getters) {
         return getters.wallet ? getters.wallet.getPrivateKeyString() : '';

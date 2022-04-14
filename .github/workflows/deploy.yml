@@ -2,12 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [ mainnet, testnet ]
+    branches: [ master, testnet, toronet ]
 env:
-  INGRESS_DOMAIN_mainnet: "wallet.bip.to"
+  INGRESS_DOMAIN_master: "wallet.bip.to"
   INGRESS_DOMAIN_testnet: "wallet.testnet.bip.to"
-  KUBE_NAMESPACE_mainnet: "mainnet"
+  INGRESS_DOMAIN_toronet: "wallet.toronet.bip.to"
+  KUBE_NAMESPACE_master: "mainnet"
   KUBE_NAMESPACE_testnet: "testnet"
+  KUBE_NAMESPACE_toronet: "toronet"
 jobs:
   ci:
     name: build
@@ -51,12 +53,12 @@ jobs:
           clusterName: k8s-prod-do
 
       - name: Install helm
-        run: wget https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz &> /dev/null && tar xvzf helm-v3.3.4-linux-amd64.tar.gz && chmod 777 linux-amd64/helm && ./linux-amd64/helm ls -n ${{ env.KUBE_NAMESPACE }}-reserved
+        run: wget https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz &> /dev/null && tar xvzf helm-v3.3.4-linux-amd64.tar.gz && chmod 777 linux-amd64/helm && ./linux-amd64/helm ls -n ${{ env.KUBE_NAMESPACE }}
 
       - name: Deploy to DO
         env:
           TAG_NAME: ${{ github.sha }}
-        run: ./linux-amd64/helm upgrade -n ${{ env.KUBE_NAMESPACE }}-reserved -i $PROJECT_NAME chart/ --atomic --timeout 100s --set image.tag=$TAG_NAME --set ingress.domain=$INGRESS_DOMAIN --set ingress.tlsname=$INGRESS_DOMAIN
+        run: ./linux-amd64/helm upgrade -n ${{ env.KUBE_NAMESPACE }} -i $PROJECT_NAME chart/ --atomic --timeout 100s --set image.tag=$TAG_NAME --set ingress.domain=$INGRESS_DOMAIN --set ingress.tlsname=$INGRESS_DOMAIN
 
       - name: deploy to production cluster
         uses: wahyd4/kubectl-helm-action@v0.1.2

@@ -2,13 +2,59 @@ import axios from 'axios';
 import {cacheAdapterEnhancer, Cache} from 'axios-extensions';
 import stripZeros from 'pretty-num/src/strip-zeros.js';
 import {convertToPip} from 'minterjs-util';
+import coinBlockList from 'minter-coin-block-list';
 import {BASE_COIN, EXPLORER_API_URL} from "~/assets/variables";
-import addToCamelInterceptor from '~/assets/to-camel.js';
-import {addTimeInterceptor} from '~/assets/time-offset.js';
+import addToCamelInterceptor from '~/assets/axios-to-camel.js';
+import {addTimeInterceptor} from '~/assets/axios-time-offset.js';
+import preventConcurrencyAdapter from '~/assets/axios-prevent-concurrency.js';
+import debounceAdapter from '~/assets/axios-debounce.js';
+
+
+const coinBlockMap = Object.fromEntries(coinBlockList.map((symbol) => [symbol, true]));
+function isBlocked(symbol) {
+    // rely on api being already filtered
+    return false;
+    // eslint-disable-next-line no-unreachable
+    return !!coinBlockMap[symbol.replace(/-\d+$/, '')];
+}
+
+function save404Adapter(adapter) {
+    return async function(config) {
+        try {
+            return await adapter(config);
+        } catch (error) {
+            if (error.response?.status === 404) {
+                return {savedError: error};
+            }
+
+            throw error;
+        }
+    };
+}
+
+function restoreErrorAdapter(adapter) {
+    return async function(config) {
+        const result = await adapter(config);
+        if (result.savedError) {
+            throw result.savedError;
+        }
+        return result;
+    };
+}
+
+const adapter = (($ = axios.defaults.adapter) => {
+    $ = save404Adapter($);
+    $ = cacheAdapterEnhancer($, { enabledByDefault: false});
+    $ = restoreErrorAdapter($);
+    // $ = debounceAdapter($, {time: 700, leading: false});
+    $ = preventConcurrencyAdapter($);
+    return $;
+})();
+
 
 const instance = axios.create({
     baseURL: EXPLORER_API_URL,
-    adapter: cacheAdapterEnhancer(axios.defaults.adapter, { enabledByDefault: false}),
+    adapter,
 });
 const explorer = instance;
 addToCamelInterceptor(explorer);
@@ -119,16 +165,18 @@ export function getCoinList() {
         // @TODO don't sort, coins should already be sorted by reserve
         .then((response) => {
             const coinList = response.data.data;
-            return coinList.sort((a, b) => {
-                if (a.symbol === BASE_COIN) {
-                    return -1;
-                } else if (b.symbol === BASE_COIN) {
-                    return 1;
-                } else {
-                    return 0;
-                    // return a.symbol.localeCompare(b.symbol);
-                }
-            });
+            return coinList
+                .filter((coin) => !isBlocked(coin.symbol))
+                .sort((a, b) => {
+                    if (a.symbol === BASE_COIN) {
+                        return -1;
+                    } else if (b.symbol === BASE_COIN) {
+                        return 1;
+                    } else {
+                        return 0;
+                        // return a.symbol.localeCompare(b.symbol);
+                    }
+                });
         });
 }
 
@@ -274,9 +322,11 @@ export function getProviderPoolList(address, params) {
  * @param {Object} amountOptions
  * @param {number|string} [amountOptions.buyAmount]
  * @param {number|string} [amountOptions.sellAmount]
+ * @param {AxiosRequestConfig} [axiosOptions]
  * @return {Promise<{coins: Array<Coin>, amountIn: number|string, amountOut:number|string}>}
+ * @return {Promise<{coins: Array<Coin>, amountIn: number|string, amountOut:number|string, swapType:ESTIMATE_SWAP_TYPE}>}
  */
-export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
+export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}, axiosOptions) {
     const amount = convertToPip(buyAmount || sellAmount);
     let type;
     if (sellAmount) {
@@ -285,7 +335,29 @@ export function getSwapRoute(coin0, coin1, {buyAmount, sellAmount}) {
     if (buyAmount) {
         type = 'output';
     }
-    return explorer.get(`pools/coins/${coin0}/${coin1}/route?type=${type}&amount=${amount}`)
+    return explorer.get(`pools/coins/${coin0}/${coin1}/route?type=${type}&amount=${amount}`, axiosOptions)
+        .then((response) => response.data);
+}
+
+/**
+ * @param {string} coin0
+ * @param {string} coin1
+ * @param {Object} amountOptions
+ * @param {number|string} [amountOptions.buyAmount]
+ * @param {number|string} [amountOptions.sellAmount]
+ * @param {AxiosRequestConfig} [axiosOptions]
+ * @return {Promise<{coins: Array<Coin>, amountIn: number|string, amountOut:number|string, swapType:ESTIMATE_SWAP_TYPE}>}
+ */
+export function getSwapEstimate(coin0, coin1, {buyAmount, sellAmount}, axiosOptions) {
+    const amount = convertToPip(buyAmount || sellAmount);
+    let type;
+    if (sellAmount) {
+        type = 'input';
+    }
+    if (buyAmount) {
+        type = 'output';
+    }
+    return explorer.get(`pools/coins/${coin0}/${coin1}/estimate?type=${type}&amount=${amount}`, axiosOptions)
         .then((response) => response.data);
 }
 
