@@ -1,5 +1,4 @@
 <script>
-    import axios from 'axios';
     import {IMaskDirective} from 'vue-imask';
     import {validationMixin} from 'vuelidate';
     import required from 'vuelidate/lib/validators/required';
@@ -19,8 +18,6 @@
         return parseFloat(value) >= 0;
     });
 
-
-    let estimationCancel;
 
     export default {
         ESTIMATE_SWAP_TYPE,
@@ -176,9 +173,6 @@
                 }
             },
             getEstimation() {
-                if (this.estimationLoading && typeof estimationCancel === 'function') {
-                    estimationCancel('Cancel previous request');
-                }
                 this.estimationTimer = null;
                 if (this.form.coinFrom && this.form.coinFrom === this.form.coinTo) {
                     this.estimationError = decode('Estimation error: you have to select different&nbsp;coins');
@@ -192,7 +186,7 @@
                     coinToSell: this.form.coinFrom,
                     findRoute: true,
                     gasCoin: this.fee.coin || 0,
-                }, { cancelToken: new axios.CancelToken((cancelFn) => estimationCancel = cancelFn) })
+                }, { idPreventConcurrency: 'convertBuy' })
                     .then((result) => {
                         this.estimation = result.will_pay;
                         this.estimationType = result.swap_from;
@@ -200,6 +194,9 @@
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
+                        if (error.isCanceled) {
+                            return;
+                        }
                         console.log(error);
                         this.estimationLoading = false;
                         this.estimationError = getErrorText(error, 'Estimation error: ');

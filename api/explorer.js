@@ -6,6 +6,8 @@ import coinBlockList from 'minter-coin-block-list';
 import {BASE_COIN, EXPLORER_API_URL} from "~/assets/variables";
 import addToCamelInterceptor from '~/assets/axios-to-camel.js';
 import {addTimeInterceptor} from '~/assets/axios-time-offset.js';
+import preventConcurrencyAdapter from '~/assets/axios-prevent-concurrency.js';
+import debounceAdapter from '~/assets/axios-debounce.js';
 
 
 const coinBlockMap = Object.fromEntries(coinBlockList.map((symbol) => [symbol, true]));
@@ -16,10 +18,43 @@ function isBlocked(symbol) {
     return !!coinBlockMap[symbol.replace(/-\d+$/, '')];
 }
 
+function save404Adapter(adapter) {
+    return async function(config) {
+        try {
+            return await adapter(config);
+        } catch (error) {
+            if (error.response?.status === 404) {
+                return {savedError: error};
+            }
+
+            throw error;
+        }
+    };
+}
+
+function restoreErrorAdapter(adapter) {
+    return async function(config) {
+        const result = await adapter(config);
+        if (result.savedError) {
+            throw result.savedError;
+        }
+        return result;
+    };
+}
+
+const adapter = (($ = axios.defaults.adapter) => {
+    $ = save404Adapter($);
+    $ = cacheAdapterEnhancer($, { enabledByDefault: false});
+    $ = restoreErrorAdapter($);
+    // $ = debounceAdapter($, {time: 700, leading: false});
+    $ = preventConcurrencyAdapter($);
+    return $;
+})();
+
 
 const instance = axios.create({
     baseURL: EXPLORER_API_URL,
-    adapter: cacheAdapterEnhancer(axios.defaults.adapter, { enabledByDefault: false}),
+    adapter,
 });
 const explorer = instance;
 addToCamelInterceptor(explorer);

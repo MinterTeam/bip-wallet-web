@@ -20,8 +20,6 @@
         return parseFloat(value) >= 0;
     });
 
-    let estimationCancel;
-
     export default {
         ESTIMATE_SWAP_TYPE,
         components: {
@@ -215,11 +213,6 @@
                 this.estimationTimer = null;
             },
             getEstimation() {
-                //@TODO cancel
-                if (this.estimationLoading && typeof estimationCancel === 'function') {
-                    // cancel previous request
-                    estimationCancel();
-                }
                 this.estimationTimer = null;
                 if (this.form.coinFrom && this.form.coinFrom === this.form.coinTo) {
                     this.estimationError = decode('Estimation error: you have to select different&nbsp;coins');
@@ -233,7 +226,7 @@
                     coinToBuy: this.form.coinTo,
                     findRoute: true,
                     gasCoin: this.fee.coin || 0,
-                }, { cancelToken: new axios.CancelToken((cancelFn) => estimationCancel = cancelFn) })
+                }, { idPreventConcurrency: 'convertSell' })
                     .then((result) => {
                         this.estimation = result.will_get;
                         this.estimationType = result.swap_from;
@@ -241,6 +234,9 @@
                         this.estimationLoading = false;
                     })
                     .catch((error) => {
+                        if (error.isCanceled) {
+                            return;
+                        }
                         console.log(error);
                         this.estimationLoading = false;
                         this.estimationError = getErrorText(error, 'Estimation error: ');
