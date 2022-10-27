@@ -153,7 +153,7 @@ export function prepareBalance(balanceList) {
 }
 
 // 1 min cache
-const coinsCache = new Cache({maxAge: 1 * 60 * 1000});
+const coinsCache = new Cache({ttl: 1 * 60 * 1000, max: 100});
 /**
  * @return {Promise<Array<CoinItem>>}
  */
@@ -277,7 +277,7 @@ export function getPoolList(params) {
 
 
 // 10s cache
-const poolCache = new Cache({maxAge: 10 * 1000});
+const poolCache = new Cache({ttl: 10 * 1000, max: 100});
 
 /**
  * @param {string|number} coin0
