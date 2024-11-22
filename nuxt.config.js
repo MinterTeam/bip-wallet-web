@@ -76,9 +76,11 @@ module.exports = {
             { charset: 'utf-8' },
             { name: 'viewport', content: 'width=device-width, initial-scale=1' },
             // unsafe-eval polluted by 'setimmediate' package
-            { 'http-equiv': 'Content-Security-Policy', content: `
+            {
+                'http-equiv': 'Content-Security-Policy',
+                content: `
                     default-src 'self' ${connectCSP};
-                    script-src 'self' ${scriptCSP} 'unsafe-eval';
+                    script-src 'self' ${scriptCSP} 'unsafe-eval' https://telegram.org;
                     style-src 'self' 'unsafe-inline';
                     img-src 'self' ${imageCSP} *.minter.network data:;
                     font-src 'self' data:;
