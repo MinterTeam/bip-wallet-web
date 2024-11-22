@@ -37,7 +37,7 @@
                 </div>
 -->
                 <div class="u-cell">
-                    <a href="https://help.minter.network" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
+                    <a href="https://t.me/MinterHelp" class="bip-button bip-button--ghost-white" target="_blank">Help</a>
                 </div>
             </div>
         </div>

@@ -167,14 +167,6 @@
         </nuxt-link>
 
         <div class="u-section">
-            <template v-if="txList && txList.length">
-                <div class="list-title list-title--bold">Latest Transactions</div>
-                <TransactionTable :transaction-list="txList"/>
-                <div class="u-container u-section--small">
-                    <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
-                </div>
-            </template>
-
             <template v-if="balance && balance.length">
                 <div class="list-title list-title--bold">My coins</div>
                 <ul class="list">
@@ -193,6 +185,14 @@
                 </ul>
                 <div class="u-container u-section--small">
                     <nuxt-link class="bip-button bip-button--ghost-main" to="/swap">Swap</nuxt-link>
+                </div>
+            </template>
+
+            <template v-if="txList && txList.length">
+                <div class="list-title list-title--bold">Latest Transactions</div>
+                <TransactionTable :transaction-list="txList"/>
+                <div class="u-container u-section--small">
+                    <nuxt-link class="bip-button bip-button--ghost-main" to="/transactions">All Transactions</nuxt-link>
                 </div>
             </template>
         </div>

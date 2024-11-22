@@ -97,6 +97,24 @@ module.exports = {
             { rel: 'icon', href: '/favicon.png' },
             { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         ],
+        script: [
+            { src: 'https://telegram.org/js/telegram-web-app.js', async: true, defer: true },
+            {
+              innerHTML: `
+                document.addEventListener('DOMContentLoaded', async () => {
+                  if (window.Telegram && window.Telegram.WebApp) {
+                    const webApp = window.Telegram.WebApp;
+                    await webApp.ready();
+                    webApp.setHeaderColor('#502ec2');
+                  }
+                });
+              `,
+              type: 'text/javascript'
+            }
+          ],
+          __dangerouslyDisableSanitizersByTagID: {
+            'custom-script': ['innerHTML']
+          }
     },
     css: [
         './static/css/style.min.css',
